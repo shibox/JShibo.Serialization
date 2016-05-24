@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization.BenchM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization.UnitTest", "JShibo.Serialization.UnitTest\JShibo.Serialization.UnitTest.csproj", "{476C9A6B-594B-4876-91F2-47E1FCADFEB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization.InternalTest", "JShibo.Serialization.InternalTest\JShibo.Serialization.InternalTest.csproj", "{827A6A4E-E732-46A3-9BD6-46C57FA6F670}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{476C9A6B-594B-4876-91F2-47E1FCADFEB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{476C9A6B-594B-4876-91F2-47E1FCADFEB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{476C9A6B-594B-4876-91F2-47E1FCADFEB3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{827A6A4E-E732-46A3-9BD6-46C57FA6F670}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{827A6A4E-E732-46A3-9BD6-46C57FA6F670}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{827A6A4E-E732-46A3-9BD6-46C57FA6F670}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{827A6A4E-E732-46A3-9BD6-46C57FA6F670}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
