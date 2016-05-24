@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JShibo.Serialization.BenchMark</RootNamespace>
     <AssemblyName>JShibo.Serialization.BenchMark</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SccProjectName>SAK</SccProjectName>
@@ -49,6 +49,10 @@
     </Reference>
     <Reference Include="fastjson">
       <HintPath>..\packages\fastJSON.2.1.1.0\lib\net40\fastjson.dll</HintPath>
+    </Reference>
+    <Reference Include="JShibo, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\JShibo.dll</HintPath>
     </Reference>
     <Reference Include="MsgPack">
       <HintPath>..\packages\MsgPack.Cli.0.4.4\lib\net40-client\MsgPack.dll</HintPath>
@@ -90,24 +94,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entitiy\ElasticResult.cs" />
-    <Compile Include="IntTopQueue.cs" />
     <Compile Include="Case\CsvCases.cs" />
     <Compile Include="Case\JsonCases.cs" />
     <Compile Include="Case\SocCases.cs" />
     <Compile Include="Entitiy\AllTestClass.cs" />
     <Compile Include="Entitiy\AutoConfig.cs" />
-    <Compile Include="Entitiy\AutohomeContent.cs" />
     <Compile Include="Entitiy\ClubJsonCase.cs" />
-    <Compile Include="RazorTest\BrandBox.cs" />
-    <Compile Include="RazorTest\SelectCarItem.cs" />
-    <Compile Include="RazorTest\TemplateTest.cs" />
     <Compile Include="Tester\BaseTester.cs" />
     <Compile Include="Tester\CsvTester.cs" />
-    <Compile Include="Tester\Heapsort.cs" />
-    <Compile Include="Tester\HWebServer.cs" />
-    <Compile Include="Tester\NestTester.cs" />
-    <Compile Include="Tester\RazorTester.cs" />
-    <Compile Include="Tester\RestRerviceTester.cs" />
     <Compile Include="Tester\SocTester.cs" />
     <Compile Include="Entitiy\ClassForPerformanceTest.cs" />
     <Compile Include="Entitiy\JsonResult.cs" />
@@ -117,10 +111,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBaseConfig.cs" />
     <Compile Include="Tester\TesterUitls.cs" />
-    <Compile Include="Tester\TopQueueTester.cs" />
-    <Compile Include="Tester\TransposeTester.cs" />
     <Compile Include="Tester\TypeTester.cs" />
-    <Compile Include="Tester\WebServerTester.cs" />
     <Compile Include="TestResult.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="Typer\TypeCreater.cs" />
@@ -132,17 +123,10 @@
       <Project>{0dd1d65b-716b-4504-9c46-9c91f9e2695a}</Project>
       <Name>JShibo.Serialization</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\..\project\sou\DataAnalyse\Master\JShibo\JShibo.csproj">
-      <Project>{07975326-3d01-4839-8093-aca728190900}</Project>
-      <Name>JShibo</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="RazorTest\BrandBox.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

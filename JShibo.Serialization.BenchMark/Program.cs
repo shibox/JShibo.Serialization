@@ -33,7 +33,7 @@ namespace JShibo.Serialization.BenchMark
         static bool toString = true;
         static bool isInfo = false;
         static bool isConsole = false;
-        static string conn = "Data Source = sou-autohome-search-log-db-w; Initial Catalog = Northwind; User Id = autoWriter; Password =autohomeWriter;";
+        static string conn = null;
         //static Northwind northwind = new Northwind(conn);
         static SerializerSettings sets = new SerializerSettings();
 
@@ -49,7 +49,7 @@ namespace JShibo.Serialization.BenchMark
             //WebServerTester.Run();
             //RestRerviceTester.Run();
             //CsvTester.Test(null);
-            TransposeTester.Test(null);
+            //TransposeTester.Test(null);
             //TypeTester.Run();
 
             //RazorTester.Run();
@@ -181,7 +181,7 @@ namespace JShibo.Serialization.BenchMark
             //JsonTester.Test(Get(File.ReadAllText("json_format.txt")));
 
             //DataTable table = new DataTable();
-            //SqlConnection conn = new SqlConnection("Data Source = autohome-search-data-w; Initial Catalog = AutoSpider; User Id = autoWriter; Password = autohomeWriter;");
+            //SqlConnection conn = null;
             //conn.Open();
             //SqlCommand cmd = new SqlCommand("select top 10 [id],[url],[referrer], body from [Autohome_ContentDb0]", conn);
             ////SqlCommand cmd = new SqlCommand("select top 10 [id],[url],[referrer], body from [Autohome_ContentDb0]", conn);

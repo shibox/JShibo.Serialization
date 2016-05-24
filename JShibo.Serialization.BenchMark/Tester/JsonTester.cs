@@ -13,9 +13,9 @@ using JShibo.Serialization;
 using JShibo.Serialization.Json;
 using JShibo.Serialization.BenchMark;
 using JShibo.Serialization.Common;
-using JShibo.Json.ClassGenerator;
+//using JShibo.Json.ClassGenerator;
 using JShibo.Serialization.BenchMark.Entitiy;
-using JShibo.Net;
+//using JShibo.Net;
 using JShibo.Serialization.BenchMark.Tester;
 using System.Runtime.CompilerServices;
 using System.Collections;
@@ -264,16 +264,16 @@ namespace JShibo.Serialization.BenchMark
 
         public static TestResult TestFrom(string file)
         {
-            if (file.StartsWith("http://"))
-                return Test(NetUtils.GetString(file));
-            else
+            //if (file.StartsWith("http://"))
+            //    return Test(NetUtils.GetString(file));
+            //else
                 return Test(File.ReadAllText(file));
         }
 
         public static TestResult Test(string json)
         {
             TestResult result = new TestResult();
-            result.Code = JsonClassGenerator.GenerateString(json, CodeLanguage.CSharp);
+            //result.Code = JsonClassGenerator.GenerateString(json, CodeLanguage.CSharp);
             Stopwatch w = Stopwatch.StartNew();
             Type type = TestUtils.Compile(result.Code, json, ref result);
             w.Stop();

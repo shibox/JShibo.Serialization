@@ -430,7 +430,7 @@ namespace JShibo.Serialization.BenchMark
         public static void TestCase12()
         {
             TestBaseConfig.Seed = 1;
-            IList<string> a = DatabaseUtils.SelectColumn<string>("select querystring from CA_DailyClickLog_20140127", "Data Source = jshibo; Initial Catalog = DataAuto; User Id = JShiboWriter; Password = 931226@secret;");
+            IList<string> a = null;
             byte[] bytes = ShiboSerializer.BinarySerialize(a);
             bytes = ShiboCompression.Compress(bytes);
             ShiboDecompress de = new ShiboDecompress();
