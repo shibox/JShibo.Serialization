@@ -1,0 +1,59 @@
+﻿
+@if (@Model != null && @Model.IsBrand && @Model.CarList.Count() > 0)
+{int i=1;
+string brandStr = "http://car.autohome.com.cn/price/brand-" + Model.BrandId + ".html";
+    <dl class="list-dl">
+                <dt><a target="_blank" href="@brandStr" data="oneid:1,twoid:29,threeid:54"><em>@Model.BrandName</em>【热门车】</a></dt>
+                <dd>
+                    <div class="brand-rec-box">
+                          @foreach (JShibo.Serialization.BenchMark.RazorTest.SelectCarItem ml in @Model.CarList)
+                          {
+                              if (i == 1)
+                              {@MvcHtmlString.Create("<ul>");
+                              }
+                              
+                              <li>
+                              @*<em  @{if(i > 0 && i < 4){@MvcHtmlString.Create("class=hot");}}>@i</em>*@
+                                <p>@ml.Serieslevel</p>
+                                @{
+                                     string seriesStr = "http://www.autohome.com.cn/{0}/"; 
+                                     
+                                     seriesStr = string.Format(seriesStr, ml.Seriesid);
+                                     
+                                <p><a href="@seriesStr" class="name" target="_blank" data="oneid:1,twoid:29,threeid:52">@ml.Seriesname</a></p>
+                                 string price = "暂无报价";
+                                   Decimal minprice = 0;
+                                   Decimal maxprice = 0;
+                                   Decimal minpriceml = ml.Seriesminprice;
+                                   Decimal maxpriceml = ml.Seriesmaxprice;
+                                   if (minpriceml > 0 || maxpriceml > 0)
+                                   {
+                                       minprice = minpriceml / 10000;
+                                       maxprice = maxpriceml / 10000;
+                                       if (minprice == maxprice)
+                                       {
+                                           price = minprice.ToString("#.00") + "万";
+                                       }
+                                       else
+                                       {
+                                           price = minprice.ToString("#.00") + "-" + maxprice.ToString("#.00") + "万";
+                                       }
+                                   }
+                                   if (price == "暂无报价")
+                                   {
+                            <div class="gray">指导价：@price</div>
+                                   }else{<p>指导价：<a href="@seriesStr" class="price" target="_blank" data="oneid:1,twoid:29,threeid:53">@price</a></p>}
+                          }
+                                
+                            </li> 
+                              if (Model.CarList.Count == i)
+                              { @MvcHtmlString.Create("</ul>"); }else if ((i%3==0)&&Model.CarList.Count !=i-1) {"</ul><ul>"; }
+                              i++;
+                          }
+                        @if (@Model.CarList.Count == 12)
+                        {
+                        <div class="more"><a href="@brandStr" target="_blank" data="oneid:1,twoid:29,threeid:55">查看更多&gt;&gt;</a></div>}
+     </div>
+                </dd>
+            </dl>
+}
