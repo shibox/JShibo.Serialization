@@ -13,7 +13,6 @@ using JShibo.Serialization;
 using JShibo.Serialization.Json;
 using JShibo.Serialization.BenchMark;
 using JShibo.Serialization.Common;
-//using JShibo.Json.ClassGenerator;
 using JShibo.Serialization.BenchMark.Entitiy;
 //using JShibo.Net;
 using JShibo.Serialization.BenchMark.Tester;
