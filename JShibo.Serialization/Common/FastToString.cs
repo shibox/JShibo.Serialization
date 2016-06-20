@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 //using System.Linq;
 using System.Text;
@@ -23,7 +24,7 @@ namespace JShibo.Serialization.Common
     {
         #region 常量
 
-        const string Int32Min = "-2147483648";
+        const string Int32Min = "2147483648";
         const string Int64Min = "-9223372036854775808";
 
         static readonly TwoDigits[] DigitPairs;
@@ -4637,11 +4638,14 @@ namespace JShibo.Serialization.Common
             }
         }
 
-
-
-
-
-        internal unsafe static char* ToString(char* buffer, ref int pos, int value)
+        /// <summary>
+        /// 正负数处理逻辑、整体块复制还可以优化
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="pos"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public unsafe static char* ToString(char* buffer, ref int pos, int value)
         {
             bool isMinus = false;
             if (value < 0)
@@ -4714,28 +4718,182 @@ namespace JShibo.Serialization.Common
             return buffer;
         }
 
+        public unsafe static char* ToString1(char* buffer, ref int pos, int value)
+        {
+            if (value < 0)
+            {
+                *buffer++ = '-';
+                //if (value > -10)
+                //{
+                //    *buffer++ = (char)(-value + 48);
+                //    pos += 2;
+                //    return buffer;
+                //}
+                //else if (value > -100)
+                //{
+                //    *buffer++ = (char)((-value / 10) + 48);
+                //    *buffer++ = (char)((-value % 10) + 48);
+                //    pos += 3;
+                //    return buffer;
+                //}
+                if (value == int.MinValue)
+                {
+                    fixed (char* smem = Int32Min)
+                    {
+                        *((uint*)buffer) = *((uint*)smem);
+                        *((uint*)(buffer + 2)) = *((uint*)(smem + 2));
+                        *((uint*)(buffer + 4)) = *((uint*)(smem + 4));
+                        *((uint*)(buffer + 6)) = *((uint*)(smem + 6));
+                        *((uint*)(buffer + 8)) = *((uint*)(smem + 8));
+                        pos += 11;
+                        return buffer;
+                    }
+                }
+                value = -value;
+                pos++;
+            }
+            else if (value < 10)
+            {
+                *buffer++ = (char)(value + 48);
+                pos += 1;
+                return buffer;
+            }
+            else if (value < 100)
+            {
+                *buffer++ = (char)((value / 10) + 48);
+                *buffer++ = (char)((value % 10) + 48);
+                pos += 2;
+                return buffer;
+            }
+
+            int size = 0;
+            buffer += 9;
+            do
+            {
+                int ix = value % 10;
+                value /= 10;
+                *buffer-- = (char)('0' + ix);
+                size++;
+            } while (value != 0);
+            pos += size;
+            if (size == 10)
+                return buffer;
+            int skip = 9 - size;
+            buffer -= skip;
+            for (int i = 0; i < size; i++)
+                *buffer++ = *(buffer + skip);
+
+            //int skip = 10 - size;
+            //buffer -= skip - 1;
+            //for (int i = 0; i < size; i++)
+            //{
+            //    *buffer = *(buffer + skip);
+            //    buffer++;
+            //}
+
+            return buffer;
+        }
+
         internal unsafe static char* ToString(char* buffer, ref int pos, long value)
         {
             return buffer;
         }
 
-        internal unsafe static char* ToString(char* buffer, ref int pos, uint value)
+        public unsafe static char* ToString(char* buffer, ref int pos, uint value)
         {
+            //buffer
+
             int size = 0;
-            char* d = buffer + 11;
+            buffer += 11;
             do
             {
-                var ix = value % 10;
+                uint ix = value % 10;
                 value /= 10;
-                *d-- = (char)('0' + ix);
+                *buffer-- = (char)('0' + ix);
                 size++;
             } while (value != 0);
             int skip = 11 - size;
-            d -= skip;
+            buffer -= skip;
             for (int i = 0; i < size; i++)
-                *d++ = *(d + skip);
+                *buffer++ = *(buffer + skip);
             pos += size;
-            return d;
+            return buffer;
+
+            //int size = 0;
+            //char* d = buffer + 11;
+            //do
+            //{
+            //    var ix = value % 10;
+            //    value /= 10;
+            //    *d-- = (char)('0' + ix);
+            //    size++;
+            //} while (value != 0);
+            //int skip = 11 - size;
+            //d -= skip;
+            //for (int i = 0; i < size; i++)
+            //    *d++ = *(d + skip);
+            //pos += size;
+            //return d;
+        }
+
+        
+        public unsafe static char* ToString2(char* buffer, ref int pos, uint value)
+        {
+            if (value < 10)
+            {
+                *buffer++ = (char)(value + 48);
+                pos += 1;
+                return buffer;
+            }
+            else if (value < 100)
+            {
+                *buffer++ = (char)(((int)value / 10) + 48);
+                *buffer++ = (char)(((int)value % 10) + 48);
+                pos += 2;
+                return buffer;
+            }
+            //else if (value == uint.MaxValue)
+            //{
+            //    pos += 10;
+            //    return buffer;
+            //}
+
+            if (value <= int.MaxValue)
+                return ToString1(buffer, ref pos, (int)value);
+
+            int v = (int)(value / 10);
+            buffer += 9;
+            *buffer-- = (char)('0' + (value % 10));
+            do
+            {
+                int ix = v % 10;
+                v /= 10;
+                *buffer = (char)('0' + ix);
+                buffer--;
+            } while (v != 0);
+            pos += 10;
+            return buffer;
+        }
+
+        internal unsafe static char* ToString3(char* buffer, ref int pos, int value)
+        {
+            int size = 0;
+            buffer += 9;
+            do
+            {
+                int ix = value % 10;
+                value /= 10;
+                *buffer-- = (char)('0' + ix);
+                size++;
+            } while (value != 0);
+            pos += size;
+            if (size == 10)
+                return buffer;
+            int skip = 9 - size;
+            buffer -= skip;
+            for (int i = 0; i < size; i++)
+                *buffer++ = *(buffer + skip);
+            return buffer;
         }
 
         internal unsafe static char* ToString(char* buffer, ref int pos, ulong value)

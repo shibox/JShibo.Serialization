@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JShibo.Serialization</RootNamespace>
     <AssemblyName>JShibo.Serialization</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,10 +50,10 @@
     <Compile Include="Attribute.cs" />
     <Compile Include="BytesBufferManager.cs" />
     <Compile Include="CharsBufferManager.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="Common\ConstsEmpty.cs" />
     <Compile Include="Common\Encodings.cs" />
     <Compile Include="Common\ExceptionConsts.cs" />
+    <Compile Include="Common\Fast.cs" />
     <Compile Include="Common\FastToString.cs" />
     <Compile Include="Common\FastToValue.cs" />
     <Compile Include="Common\FastWriteName.cs" />

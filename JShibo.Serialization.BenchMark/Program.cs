@@ -51,7 +51,7 @@ namespace JShibo.Serialization.BenchMark
             //CsvTester.Test(null);
             //TransposeTester.Test(null);
             //TypeTester.Run();
-
+            FastToStringTests.Run();
             //RazorTester.Run();
             //object o = NestTester.Search2("bmw");
             //Console.WriteLine(JsonConvert.SerializeObject(o, Formatting.Indented));
