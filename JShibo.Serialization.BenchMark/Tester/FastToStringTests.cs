@@ -14,7 +14,7 @@ namespace JShibo.Serialization.BenchMark.Tester
         {
             char[] buffer = new char[1024];
             int pos = 0;
-            int v = 52;
+            int v = 5;
             string s = v.ToString();
             fixed(char* pd = &buffer[0])
             {
@@ -22,8 +22,14 @@ namespace JShibo.Serialization.BenchMark.Tester
                 for (int i = 0; i < 100000000; i++)
                 {
                     pos = 0;
-                    FastToString.ToString1(pd, ref pos, v);
+                    //FastToString.ToString1(pd, ref pos, v);
                     //s = v.ToString();
+                    //int size = (v < 0) ? FastToString.StringSize(-v) + 1 : FastToString.StringSize(v);
+                    //FastToString.getChars(v, size, buffer);
+                    //pos = 10;// FastToString.StringSize(v);
+                    //pos = FastToString.getChars(v, pd);
+                    //FastToString.getChars(v, pos - 1, pd);
+                    //pos = FastToString.ToStringFast(pd, pos, v);
                 }
                 w.Stop();
                 if (new string(pd, 0, pos) != s)
@@ -45,8 +51,9 @@ namespace JShibo.Serialization.BenchMark.Tester
                 for (int i = 0; i < 100000000; i++)
                 {
                     pos = 0;
-                    FastToString.ToString2(pd, ref pos, v);
+                    //FastToString.ToString2(pd, ref pos, v);
                     //s = v.ToString();
+                    pos = FastToString.ToStringFast(pd, pos, v);
                 }
                 w.Stop();
                 if (new string(pd, 0, pos) != s)
