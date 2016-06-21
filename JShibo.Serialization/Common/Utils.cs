@@ -1252,6 +1252,12 @@ namespace JShibo.Serialization.Common
 
         #region 字符串字节转换
 
+        /// <summary>
+        /// 需要修改成整体为单元拷贝，目前没完全实现
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="pos"></param>
+        /// <param name="value"></param>
         internal unsafe static void StringAsAscii(byte[] buffer, int pos, string value)
         {
             fixed (byte* pd = &buffer[pos])
