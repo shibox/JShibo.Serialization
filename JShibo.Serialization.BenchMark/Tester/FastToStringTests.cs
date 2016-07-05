@@ -42,8 +42,9 @@ namespace JShibo.Serialization.BenchMark.Tester
         {
             char[] buffer = new char[1024];
             int pos = 0;
-            //uint v = uint.MaxValue - int.MaxValue - 1;
-            byte v = 125;
+            long sum = 0;
+            uint v = uint.MaxValue - int.MaxValue;
+            //byte v = 125;
             string s = v.ToString();
             fixed (char* pd = &buffer[0])
             {
@@ -55,11 +56,12 @@ namespace JShibo.Serialization.BenchMark.Tester
                     //s = v.ToString();
                     //pos = FastToString.ToStringFast(pd, pos, v);
                     pos = FastToString.ToString(pd, v);
+                    //sum += (int)(v / 10);
                 }
                 w.Stop();
                 if (new string(pd, 0, pos) != s)
                     Console.WriteLine("error");
-                Console.WriteLine(w.ElapsedMilliseconds + " " + buffer);
+                Console.WriteLine(w.ElapsedMilliseconds + " " + buffer + "  " + sum);
             }
         }
 

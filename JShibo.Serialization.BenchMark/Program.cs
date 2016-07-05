@@ -48,10 +48,10 @@ namespace JShibo.Serialization.BenchMark
             //SocTester.Run();
             //WebServerTester.Run();
             //RestRerviceTester.Run();
-            //CsvTester.Test(null);
+            CsvTester.Test(null);
             //TransposeTester.Test(null);
             //TypeTester.Run();
-            FastToStringTests.Run();
+            //FastToStringTests.Run();
             //RazorTester.Run();
             //object o = NestTester.Search2("bmw");
             //Console.WriteLine(JsonConvert.SerializeObject(o, Formatting.Indented));

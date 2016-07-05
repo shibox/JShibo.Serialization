@@ -973,6 +973,8 @@ namespace JShibo.Serialization
             DynamicMethod dynamicGet = new DynamicMethod("Serialization_" + type.Name, typeof(void), new Type[] { typeof(T), typeof(object) }, typeof(object), true);
             ILGenerator mthdIL = dynamicGet.GetILGenerator();
 
+            WriteFixPointer<T>(mthdIL);
+
             if (IsBaseType(type) == true)
             {
                 SerializeBaseType<T>(type, mthdIL);
@@ -1954,6 +1956,17 @@ namespace JShibo.Serialization
                 isExplicit = true;
             }
             return isExplicit;
+        }
+
+        private void WriteFixPointer<T>(ILGenerator mthdIL)
+        {
+            //该写的值会被写入，但状态不会被记录(最终版)
+            MethodInfo brWrite = typeof(T).GetMethod("FixPointer", flag, null, new Type[0], null);
+            if (brWrite != null)
+            {
+                mthdIL.Emit(OpCodes.Ldarg_0);
+                mthdIL.EmitCall(OpCodes.Call, brWrite, null);
+            }
         }
 
         private void WriteUnFlag<T>(ILGenerator mthdIL)

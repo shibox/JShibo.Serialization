@@ -35,6 +35,10 @@ namespace JShibo.Serialization
 
         #region 方法
 
+        private unsafe void FixPointer()
+        {
+        }
+
         private int ReadSize()
         {
             return rd.Next(0,100);

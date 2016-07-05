@@ -30,6 +30,7 @@ namespace JShibo.Serialization.Soc
 
         internal Serialize<ObjectBuffer>[] sers;
         internal byte[] _buffer = null;
+        unsafe internal byte* bp = null;
 
         #endregion
 
@@ -80,6 +81,19 @@ namespace JShibo.Serialization.Soc
             types = info.Types;
             typeCounts = info.TypeCounts;
             isHaveObjectType = info.IsHaveObjectType;
+        }
+
+        private unsafe void FixPointer()
+        {
+            fixed(byte* pd=&_buffer[position])
+            {
+                bp = pd;
+            }
+        }
+
+        public unsafe void Reset()
+        {
+            position = 0;
         }
 
         private void Resize(int size)
@@ -1110,9 +1124,13 @@ namespace JShibo.Serialization.Soc
 
         unsafe public void Write(int value)
         {
-            fixed (byte* pd = &_buffer[position])
-                *((int*)pd) = *((int*)&value);
+            //fixed (byte* pd = &_buffer[position])
+            //    *((int*)pd) = *((int*)&value);
+            //position += 4;
+
+            *((int*)bp) = *((int*)&value);
             position += 4;
+            bp += 4;
         }
 
         public void Write(bool value)

@@ -89,7 +89,11 @@ namespace JShibo.Serialization
         /// <summary>
         /// 不检查特殊字符
         /// </summary>
-        DisableCheckSpecialChar
+        DisableCheckSpecialChar,
+        /// <summary>
+        /// 忽略不支持的数据类型
+        /// </summary>
+        IgnoreNonSupportType
     }
 
     //private SerializerFeature(){

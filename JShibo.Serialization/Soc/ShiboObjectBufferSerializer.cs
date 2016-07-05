@@ -327,7 +327,7 @@ namespace JShibo.Serialization.Soc
         internal static object Deserialize(ObjectUbuffer stream, ObjectBufferContext info)
         {
             //跳过和识别第一个字节
-            stream.position++;
+            //stream.position++;
             stream.desers = info.Deserializers;
             stream.types = info.Types;
             stream.typeCounts = info.TypeCounts;

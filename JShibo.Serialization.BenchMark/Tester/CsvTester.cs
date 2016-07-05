@@ -12,11 +12,12 @@ namespace JShibo.Serialization.BenchMark.Tester
     {
         public static TestResult Test(object graph)
         {
-            RunIntObjSeries();
+            //RunIntObjSeries();
+            RunCsvArrayTest();
             return null;
         }
 
-        public static void RunSimpleTest()
+        public static void RunCsvArrayTest()
         {
             //ShiboSerializer.Serialize(os, graph, sets);
 
@@ -32,11 +33,37 @@ namespace JShibo.Serialization.BenchMark.Tester
             //v.Add(new Int32Class());
             //v.Add(new Int32Class());
 
-            Int32Class[] v = new Int32Class[2];
-            v[0] = new Int32Class();
-            v[1] = new Int32Class();
+            int n = 100;
+            Int32Class[] v = new Int32Class[n];
+            for (int i = 0; i < n; i++)
+                v[i] = ShiboSerializer.Initialize<Int32Class>();
+            
 
             //Int32Class v = Int32Class.Init();
+            string csv = ShiboSerializer.ToCsv(v);
+
+            //CsvHelper.CsvWriter c = new CsvHelper.CsvWriter();
+
+
+            Console.WriteLine(csv);
+        }
+
+        public static void RunCsvListTest()
+        {
+            //ShiboSerializer.Serialize(os, graph, sets);
+
+            //List<int> v = new List<int>();
+            //v.Add(123);
+            //v.Add(456);
+
+            //IList<bool> v = new List<bool>();
+            //v.Add(true);
+            //v.Add(false);
+
+            int n = 100;
+            IList<Int32Class> v = new List<Int32Class>(n);
+            for (int i = 0; i < n; i++)
+                v.Add(ShiboSerializer.Initialize<Int32Class>());
             string csv = ShiboSerializer.ToCsv(v);
 
             //CsvHelper.CsvWriter c = new CsvHelper.CsvWriter();

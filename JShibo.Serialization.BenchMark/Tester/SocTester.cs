@@ -470,6 +470,29 @@ namespace JShibo.Serialization.BenchMark
             //Console.WriteLine(JsonConvert.SerializeObject(b.Count));
         }
 
+        public static void TestCase14()
+        {
+            TestBaseConfig.Seed = 1;
+            Int32Class a = ShiboSerializer.Initialize<Int32Class>(53456158);
+            byte[] bytes = ShiboSerializer.BinarySerialize(a);
+            Int32Class b = ShiboSerializer.BinaryDeserialize<Int32Class>(bytes);
+            //Console.WriteLine(ShiboComparer.Compare<List<string>>(a, b));
+            Console.WriteLine(JsonConvert.SerializeObject(a) == JsonConvert.SerializeObject(b));
+
+            ObjectBuffer bf = new ObjectBuffer(50);
+            Stopwatch w = Stopwatch.StartNew();
+            for (int i = 0; i < 1000000; i++)
+            {
+                //bytes = ShiboSerializer.BinarySerialize(a);
+                //b = ShiboSerializer.BinaryDeserialize<List<string>>(bytes);
+                bf.Reset();
+                ShiboSerializer.BinarySerialize(bf, a);
+            }
+            w.Stop();
+            Console.WriteLine(w.ElapsedMilliseconds);
+            //Console.WriteLine(JsonConvert.SerializeObject(b.Count));
+        }
+
         public static void A()
         {
             ObjectBufferContext context = SocSerializer.Create<ClubJsonCase>();
@@ -478,7 +501,7 @@ namespace JShibo.Serialization.BenchMark
 
         public static void Run()
         {
-            TestCase1();
+            //TestCase1();
             //TestCase2();
             //TestCase3();
             //TestCase4();
@@ -491,6 +514,7 @@ namespace JShibo.Serialization.BenchMark
             //TestCase11();
             //TestCase12();
             //TestCase13();
+            TestCase14();
         }
 
 

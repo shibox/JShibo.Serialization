@@ -30,7 +30,7 @@ namespace JShibo.Serialization.Csv
         internal Type[] types;
         internal Serialize<CsvString>[] sers;
         internal int[] typeCounts;
-        internal int[] nameCounts;
+        //internal int[] nameCounts;
 
         internal string[] names = new string[0];
         internal char[] _buffer = null;
@@ -46,6 +46,8 @@ namespace JShibo.Serialization.Csv
         /// </summary>
         internal char Quote = '"';
         internal SerializerSettings sets = SerializerSettings.Default;
+
+        unsafe internal char* bp = null;
 
         #endregion
 
@@ -131,6 +133,14 @@ namespace JShibo.Serialization.Csv
 
         #region 方法
 
+        private unsafe void FixPointer()
+        {
+            fixed (char* pd = &_buffer[position])
+            {
+                bp = pd;
+            }
+        }
+
         internal void Resize(int size)
         {
             if (_buffer.Length < position + size)
@@ -150,26 +160,26 @@ namespace JShibo.Serialization.Csv
             }
         }
 
-        internal virtual unsafe void ResizeAndWriteName()
-        {
-            if (names.Length > 0)
-            {
-                string name = names[current];
-                fixed (char* psrc = name, pdst = &_buffer[position])
-                {
-                    char* tsrc = psrc, tdst = pdst;
-                    *tdst++ = Quote;
-                    //FastWriteName.Write(name, _buffer, ref position);
-                    //FastWriteName.Write(name, _buffer, position);
-                    Utils.wstrcpy(tdst, tsrc, name.Length);
-                    tdst += name.Length;
-                    *tdst++ = Quote;
-                    *tdst++ = ':';
-                    position += name.Length + 3;
-                }
-                current++;
-            }
-        }
+        //internal virtual unsafe void ResizeAndWriteName()
+        //{
+        //    if (names.Length > 0)
+        //    {
+        //        string name = names[current];
+        //        fixed (char* psrc = name, pdst = &_buffer[position])
+        //        {
+        //            char* tsrc = psrc, tdst = pdst;
+        //            *tdst++ = Quote;
+        //            //FastWriteName.Write(name, _buffer, ref position);
+        //            //FastWriteName.Write(name, _buffer, position);
+        //            Utils.wstrcpy(tdst, tsrc, name.Length);
+        //            tdst += name.Length;
+        //            *tdst++ = Quote;
+        //            *tdst++ = ':';
+        //            position += name.Length + 3;
+        //        }
+        //        current++;
+        //    }
+        //}
 
         internal virtual unsafe void ResizeAndWriteName(int size)
         {
@@ -233,15 +243,6 @@ namespace JShibo.Serialization.Csv
             }
         }
 
-        internal void WriteZeroArray()
-        {
-            ResizeAndWriteName(SizeConsts.ZERO_ARRAY_SIZE);
-            _buffer[position] = '[';
-            _buffer[position + 1] = ']';
-            _buffer[position + 2] = Separator;
-            position += 3;
-        }
-
         internal void WriteNullWithoutName()
         {
             Resize(5);
@@ -251,91 +252,6 @@ namespace JShibo.Serialization.Csv
             _buffer[position + 3] = 'l';
             _buffer[position + 4] = Separator;
             position += 5;
-        }
-
-        internal void WriteZeroArrayWithoutName()
-        {
-            _buffer[position] = '[';
-            _buffer[position + 1] = ']';
-            _buffer[position + 2] = Separator;
-            position += 3;
-        }
-
-        internal void WriteZeroObject()
-        {
-            ResizeAndWriteName(10);
-            _buffer[position] = '{';
-            _buffer[position + 1] = '}';
-            _buffer[position + 2] = Separator;
-            position += 3;
-        }
-
-        internal void WriteZeroObjectWithoutName()
-        {
-            Resize(10);
-            _buffer[position] = '{';
-            _buffer[position + 1] = '}';
-            _buffer[position + 2] = Separator;
-            position += 3;
-        }
-
-        internal void WriteZeroString()
-        {
-            ResizeAndWriteName(10);
-            _buffer[position] = Quote;
-            _buffer[position + 1] = Quote;
-            _buffer[position + 2] = Separator;
-            position += 3;
-        }
-
-        internal void WriteZeroStringWithoutName()
-        {
-            //ResizeAndWriteName(10);
-            _buffer[position] = Quote;
-            _buffer[position + 1] = Quote;
-            _buffer[position + 2] = Separator;
-            position += 3;
-        }
-
-        internal void WriteTab()
-        {
-            _buffer[position] = '\r';
-            _buffer[position + 1] = '\n';
-            _buffer[position + 2] = ' ';
-            _buffer[position + 3] = ' ';
-            position += 4;
-        }
-
-        internal void CutTail()
-        {
-            position--;
-        }
-
-        internal void WriteStartArray()
-        {
-            _buffer[position] = '[';
-            position++;
-        }
-
-        internal void WriteStartObject()
-        {
-            _buffer[position] = '{';
-            position++;
-        }
-
-        internal void WriteEndArray()
-        {
-            //直接覆盖掉最后一个“,”
-            _buffer[position - 1] = ']';
-            _buffer[position] = Separator;
-            position++;
-        }
-
-        internal void WriteEndObject()
-        {
-            _buffer[position - 1] = '}';
-            _buffer[position] = Separator;
-            position++;
         }
 
         private unsafe char* InternalWrite(char* buffer, string value)
@@ -448,10 +364,16 @@ namespace JShibo.Serialization.Csv
 
         #endregion
 
-        #region base type
+        #region Write BaseType
 
         internal void Write(object value)
         {
+            //暂时对object这种类型全部只写入符号
+            this._buffer[position] = Separator;
+            position++;
+            return;
+
+            #region old
             if (value != null)
             {
                 Type type = value.GetType();
@@ -555,6 +477,8 @@ namespace JShibo.Serialization.Csv
             }
             else
                 WriteNull();
+            #endregion
+
         }
 
         internal void Write(byte value)
@@ -587,16 +511,6 @@ namespace JShibo.Serialization.Csv
 
         internal void Write(int value)
         {
-            //if (sets.NumericCheck == NumericCheckType.Middle)
-            //    position += FastToString.ToString(_buffer, position, value);
-            //else if (sets.NumericCheck == NumericCheckType.Max)
-            //    position += FastToString.ToStringMax(_buffer, position, value);
-            //else
-            //    position += FastToString.ToStringMin(_buffer, position, value);
-
-            //this._buffer[position] = Separator;
-            //position++;
-
             position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
@@ -654,7 +568,9 @@ namespace JShibo.Serialization.Csv
             else if (value.Length == 0)
             {
                 Resize(10);
-                WriteZeroStringWithoutName();
+                _buffer[position] = Quote;
+                _buffer[position + 1] = Separator;
+                position += 2;
             }
             else
             {
@@ -762,443 +678,34 @@ namespace JShibo.Serialization.Csv
 
         #endregion
 
-        #region Write BaseType
+        #region Write Array
 
-        //internal void Write(bool value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_BOOLEAN_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(char value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_CHAR_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(byte value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_BYTE_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(sbyte value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_SBYTE_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(short value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_SHORT_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(ushort value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_USHORT_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(int value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_INT_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(uint value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_UINT_MAX_LENGTH);
-        //    position += FastToString.ToString(_buffer, position, value);
-        //    this._buffer[position] = Separator;
-        //    position++;
-        //}
-
-        //internal void Write(long value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_LONG_MAX_LENGTH);
-
-        //    //if (sets.NumericCheck == NumericCheckType.Middle)
-        //    //    position += FastToString.ToString(_buffer, position, value);
-        //    //else if (sets.NumericCheck == NumericCheckType.Max)
-        //    //    position += FastToString.ToStringMax(_buffer, position, value);
-        //    //else
-        //    //    position += FastToString.ToStringMin(_buffer, position, value);
-
-        //    position += FastToString.ToString(_buffer, position, value);
-        //    this._buffer[position] = Separator;
-        //    position++;
-        //}
-
-        //internal void Write(ulong value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_ULONG_MAX_LENGTH);
-
-        //    //if (sets.NumericCheck == NumericCheckType.Middle)
-        //    //    position += FastToString.ToString(_buffer, position, value);
-        //    //else if (sets.NumericCheck == NumericCheckType.Max)
-        //    //    position += FastToString.ToStringMax(_buffer, position, value);
-        //    //else
-        //    //    position += FastToString.ToStringMin(_buffer, position, value);
-
-        //    position += FastToString.ToString(_buffer, position, value);
-        //    this._buffer[position] = Separator;
-        //    position++;
-        //}
-
-        //internal void Write(float value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_FLOAT_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(double value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_DOUBLE_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(decimal value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.VALUETYPE_LEN + SizeConsts.VALUETYPE_DECIMAL_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(string value)
-        //{
-        //    if (value == null)
-        //        WriteNull();
-        //    else if (value.Length == 0)
-        //        WriteZeroString();
-        //    else
-        //    {
-        //        ResizeAndWriteName((value.Length * 2) + SizeConsts.CLASSTYPE_LEN);
-        //        WriteString(value);
-        //    }
-        //}
-
-        //internal void Write(DateTime value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.CLASSTYPE_LEN + SizeConsts.VALUETYPE_DATETIME_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(TimeSpan value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.CLASSTYPE_LEN + SizeConsts.VALUETYPE_TIMESPAN_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(DateTimeOffset value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.CLASSTYPE_LEN + SizeConsts.VALUETYPE_DATETIMEOFFSET_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(Guid value)
-        //{
-        //    ResizeAndWriteName(SizeConsts.CLASSTYPE_LEN + SizeConsts.VALUETYPE_GUID_MAX_LENGTH);
-        //    InternalWrite(value);
-        //}
-
-        //internal void Write(Uri value)
-        //{
-        //    if (value == null)
-        //        WriteNull();
-        //    else
-        //    {
-        //        ResizeAndWriteName(SizeConsts.CLASSTYPE_LEN + value.AbsoluteUri.Length);
-        //        InternalWrite(value);
-        //    }
-        //}
-
-        //internal void Write(DBNull value)
-        //{
-        //    WriteNull();
-        //}
-
-        //internal void Write(DataTable value)
-        //{
-        //    if (value == null)
-        //        WriteNull();
-        //    else if (value.Rows.Count == 0)
-        //        WriteZeroObject();
-        //    else
-        //    {
-        //        TypeCode[] codes = new TypeCode[value.Columns.Count];
-        //        string[] colNames = new string[value.Columns.Count];
-        //        for (int i = 0; i < codes.Length; i++)
-        //        {
-        //            if (value.Columns[i].DataType == typeof(Boolean))
-        //                codes[i] = TypeCode.Boolean;
-        //            else if (value.Columns[i].DataType == typeof(Char))
-        //                codes[i] = TypeCode.Char;
-        //            else if (value.Columns[i].DataType == typeof(SByte))
-        //                codes[i] = TypeCode.SByte;
-        //            else if (value.Columns[i].DataType == typeof(Byte))
-        //                codes[i] = TypeCode.Byte;
-        //            else if (value.Columns[i].DataType == typeof(Int16))
-        //                codes[i] = TypeCode.Int16;
-        //            else if (value.Columns[i].DataType == typeof(UInt16))
-        //                codes[i] = TypeCode.UInt16;
-        //            else if (value.Columns[i].DataType == typeof(Int32))
-        //                codes[i] = TypeCode.Int32;
-        //            else if (value.Columns[i].DataType == typeof(UInt32))
-        //                codes[i] = TypeCode.UInt32;
-        //            else if (value.Columns[i].DataType == typeof(Int64))
-        //                codes[i] = TypeCode.Int64;
-        //            else if (value.Columns[i].DataType == typeof(UInt64))
-        //                codes[i] = TypeCode.UInt64;
-        //            else if (value.Columns[i].DataType == typeof(Single))
-        //                codes[i] = TypeCode.Single;
-        //            else if (value.Columns[i].DataType == typeof(Double))
-        //                codes[i] = TypeCode.Double;
-        //            else if (value.Columns[i].DataType == typeof(Decimal))
-        //                codes[i] = TypeCode.Decimal;
-        //            else if (value.Columns[i].DataType == typeof(DateTime))
-        //                codes[i] = TypeCode.DateTime;
-        //            else if (value.Columns[i].DataType == typeof(String))
-        //                codes[i] = TypeCode.String;
-        //            else
-        //                codes[i] = TypeCode.String;
-        //            colNames[i] = value.Columns[i].ColumnName;
-        //        }
-
-        //        WriteStartArray();
-        //        for (int j = 0; j < value.Rows.Count; j++)
-        //        {
-        //            WriteStartObject();
-        //            object[] objs = value.Rows[j].ItemArray;
-        //            for (int i = 0; i < codes.Length; i++)
-        //            {
-        //                ResizeAndWriteName(colNames[i]);
-        //                switch (codes[i])
-        //                {
-        //                    case TypeCode.Boolean:
-        //                        Write((Boolean)objs[i]);
-        //                        break;
-        //                    case TypeCode.Char:
-        //                        Write((Char)objs[i]);
-        //                        break;
-        //                    case TypeCode.SByte:
-        //                        Write((SByte)objs[i]);
-        //                        break;
-        //                    case TypeCode.Byte:
-        //                        Write((Byte)objs[i]);
-        //                        break;
-        //                    case TypeCode.Int16:
-        //                        Write((Int16)objs[i]);
-        //                        break;
-        //                    case TypeCode.UInt16:
-        //                        Write((UInt16)objs[i]);
-        //                        break;
-        //                    case TypeCode.Int32:
-        //                        Write((Int32)objs[i]);
-        //                        break;
-        //                    case TypeCode.UInt32:
-        //                        Write((UInt32)objs[i]);
-        //                        break;
-        //                    case TypeCode.Int64:
-        //                        Write((Int64)objs[i]);
-        //                        break;
-        //                    case TypeCode.UInt64:
-        //                        Write((UInt64)objs[i]);
-        //                        break;
-        //                    case TypeCode.Single:
-        //                        Write((Single)objs[i]);
-        //                        break;
-        //                    case TypeCode.Double:
-        //                        Write((Double)objs[i]);
-        //                        break;
-        //                    case TypeCode.Decimal:
-        //                        Write((Decimal)objs[i]);
-        //                        break;
-        //                    case TypeCode.DateTime:
-        //                        Write((DateTime)objs[i]);
-        //                        break;
-        //                    case TypeCode.String:
-        //                        Write((String)objs[i]);
-        //                        break;
-        //                    default:
-        //                        Write(objs[i].ToString());
-        //                        break;
-        //                }
-
-
-        //                //switch (codes[i])
-        //                //{
-        //                //    case TypeCode.Boolean:
-        //                //        Write((Boolean)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.Char:
-        //                //        Write((Char)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.SByte:
-        //                //        Write((SByte)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.Byte:
-        //                //        Write((Byte)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.Int16:
-        //                //        Write((Int16)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.UInt16:
-        //                //        Write((UInt16)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.Int32:
-        //                //        Write((Int32)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.UInt32:
-        //                //        Write((UInt32)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.Int64:
-        //                //        Write((Int64)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.UInt64:
-        //                //        Write((UInt64)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.Single:
-        //                //        Write((Single)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.Double:
-        //                //        Write((Double)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.Decimal:
-        //                //        Write((Decimal)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.DateTime:
-        //                //        Write((DateTime)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    case TypeCode.String:
-        //                //        Write((String)value.Rows[j].ItemArray[i]);
-        //                //        break;
-        //                //    default:
-        //                //        Write(value.Rows[j].ItemArray[i].ToString());
-        //                //        break;
-        //                //}
-
-        //                //switch (codes[i])
-        //                //{
-        //                //    case TypeCode.Boolean:
-        //                //        Write((Boolean)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.Char:
-        //                //        Write((Char)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.SByte:
-        //                //        Write((SByte)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.Byte:
-        //                //        Write((Byte)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.Int16:
-        //                //        Write((Int16)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.UInt16:
-        //                //        Write((UInt16)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.Int32:
-        //                //        Write((Int32)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.UInt32:
-        //                //        Write((UInt32)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.Int64:
-        //                //        Write((Int64)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.UInt64:
-        //                //        Write((UInt64)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.Single:
-        //                //        Write((Single)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.Double:
-        //                //        Write((Double)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.Decimal:
-        //                //        Write((Decimal)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.DateTime:
-        //                //        Write((DateTime)value.Rows[j][i]);
-        //                //        break;
-        //                //    case TypeCode.String:
-        //                //        Write((String)value.Rows[j][i]);
-        //                //        break;
-        //                //    default:
-        //                //        Write(value.Rows[j][i].ToString());
-        //                //        break;
-        //                //}
-        //            }
-        //            WriteEndObject();
-        //        }
-        //        //position--;
-        //        WriteEndArray();
-
-
-        //    }
-        //}
-
-        //internal void Write(DataSet value)
-        //{
-        //    if (value == null)
-        //        WriteNull();
-        //    else if (value.Tables.Count == 0)
-        //        WriteZeroObject();
-        //    else
-        //    {
-        //        foreach (DataTable table in value.Tables)
-        //        {
-        //            WriteStartObject();
-        //            Write(value);
-        //            WriteEndObject();
-        //        }
-        //    }
-        //}
+        internal unsafe void Write(int[] value)
+        {
+            fixed (char* pd = &_buffer[position])
+            {
+                char* p = pd;
+                for (int i = 0; i < value.Length-1; i++)
+                {
+                    p = FastToString.ToString(p, ref position, value[i]);
+                    *p++ = ',';
+                    position++;
+                }
+                p = FastToString.ToString(p, ref position, value[value.Length - 1]);
+                *p++ = ']';
+                *p = ',';
+                position += 2;
+            }
+        }
 
         #endregion
 
         #region Write Other
 
-        //internal void Write(object value)
-        //{
-        //    //if (value == null)
-        //    //{
-        //    //    WriteNull();
-        //    //    //跳过中间的对象
-        //    //    current += nameCounts[currSer];
-        //    //    currSer += typeCounts[currSer] + 1;
-        //    //}
-        //    //else
-        //    //{
-        //    //    ResizeAndWriteName(10);
-
-        //    //    //if (curDepth >= maxDepth)
-        //    //    //    throw new Exception(string.Format(ExceptionConsts.MaxDepth, curDepth));
-        //    //    curDepth++;
-        //    //    ShiboCsvStringSerializer.Serialize(this, value, sers[currSer++]);
-        //    //    _buffer[position] = Separator;
-        //    //    position++;
-        //    //}
-        //}
-
         internal void WriteObject(object value)
         {
-            if (value == null)
-            {
-                WriteNull();
-                //跳过中间的对象
-                current += nameCounts[currSer];
-                currSer += typeCounts[currSer] + 1;
-            }
-            else
-            {
-                ResizeAndWriteName(10);
-
-                //if (curDepth >= maxDepth)
-                //    throw new Exception(string.Format(ExceptionConsts.MaxDepth, curDepth));
-                curDepth++;
-                //ShiboCsvStringSerializer.LoopSerialize(this, value);
-            }
+            this._buffer[position] = Separator;
+            position++;
         }
 
         #endregion
@@ -1480,494 +987,5 @@ namespace JShibo.Serialization.Csv
 
         #endregion
 
-        #region 接口
-
-        //void Write(bool value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(byte value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(sbyte value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(short value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ushort value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(int value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(uint value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(long value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ulong value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(float value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(double value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(decimal value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(char value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(string value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(DateTime value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(DateTimeOffset value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(TimeSpan value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(Guid value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(Uri value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
-
-
-        //void Write(ArraySegment<bool> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<byte> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<sbyte> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<short> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<ushort> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<int> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<uint> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<long> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<ulong> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<float> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<double> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<decimal> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<char> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
-
-        //void Write(ArraySegment<DateTime> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<DateTimeOffset> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<TimeSpan> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<Guid> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ArraySegment<Uri> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
-
-
-        //void Write(bool[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(byte[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(sbyte[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(short[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ushort[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(int[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(uint[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(long[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(ulong[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(float[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(double[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(decimal[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(char[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(string[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(DateTime[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(DateTimeOffset[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(TimeSpan[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(Guid[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(Uri[] value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
-
-
-
-        //void Write(IList<bool> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<byte> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<sbyte> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<short> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<ushort> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<int> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<uint> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<long> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<ulong> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<float> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<double> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<decimal> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<char> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<string> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<DateTime> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<DateTimeOffset> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<TimeSpan> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<Guid> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IList<Uri> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-
-
-
-
-        //void Write(IEnumerable<bool> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<byte> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<sbyte> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<short> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<ushort> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<int> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<uint> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<long> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<ulong> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<float> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<double> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<decimal> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<char> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<string> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<DateTime> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<DateTimeOffset> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<TimeSpan> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<Guid> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //void Write(IEnumerable<Uri> value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        #endregion
     }
 }

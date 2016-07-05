@@ -413,7 +413,7 @@ namespace JShibo.Serialization.Common
                 *(buffer + 1) = (char)((value % 10) + 48);
                 return 2;
             }
-            else if(value < 1000)
+            else if (value < 1000)
             {
                 *buffer = (char)((value / 100) + 48);
                 *(buffer + 1) = (char)(((value % 100) / 10) + 48);
@@ -422,6 +422,7 @@ namespace JShibo.Serialization.Common
             }
             if (value <= int.MaxValue)
                 return WriteCharsUInt((int)value, buffer);
+
             int v = (int)(value / 10);
             buffer += 9;
             *buffer-- = (char)('0' + (value % 10));
@@ -429,8 +430,7 @@ namespace JShibo.Serialization.Common
             {
                 int ix = v % 10;
                 v /= 10;
-                *buffer = (char)('0' + ix);
-                buffer--;
+                *buffer-- = (char)('0' + ix);
             } while (v != 0);
             return 10;
         }

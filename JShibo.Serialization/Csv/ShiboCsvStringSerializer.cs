@@ -338,37 +338,61 @@ namespace JShibo.Serialization.Csv
 
             if (graph.GetType().IsArray)
             {
-                
-            }
-
-            Type[] gtypes = graph.GetType().GenericTypeArguments;
-            if (gtypes.Length == 1)
-            {
-                Type type = gtypes[0];
-                CsvStringContext info = GetLastContext(type);
+                Array ar = (Array)graph;
+                if (ar.Length == 0)
+                    return null;
+                bool isFirst = true;
+                CsvStringContext info = null;
                 CsvString stream = null;
-                IList list = graph as IList;
-                if (list != null)
+                foreach (object item in ar)
                 {
-                    int size = info.MinSize * list.Count + info.GetHeaderSize();
-                    char[] buffer = CharsBufferManager.GetBuffer(size);
-                    stream = new CsvString(buffer);
-                    stream.WriteHeader(info.Names);
-                    for (int i = 0; i < list.Count; i++)
+                    if (isFirst)
                     {
-                        info.Serializer(stream, list[i]);
-                        stream.WriteNewLine();
+                        info = GetLastContext(item.GetType());
+                        int size = info.MinSize * ar.Length + info.GetHeaderSize();
+                        char[] buffer = CharsBufferManager.GetBuffer(size);
+                        stream = new CsvString(buffer);
+                        stream.WriteHeader(info.Names);
+                        isFirst = false;
                     }
-                    CharsBufferManager.SetBuffer(stream.GetBuffer());
+                    info.Serializer(stream, item);
+                    stream.WriteNewLine();
                 }
+                CharsBufferManager.SetBuffer(stream.GetBuffer());
                 return stream.ToString();
             }
-            //IEnumerable enumerable =  graph as IEnumerable;
-            //foreach (object item in enumerable)
-            //{
-            //    //stream.Write(item);
-            //    //Serialize(stream, graph, info);
-            //}
+            else
+            {
+                Type[] gtypes = graph.GetType().GenericTypeArguments;
+                if (gtypes.Length == 1)
+                {
+                    Type type = gtypes[0];
+                    CsvStringContext info = GetLastContext(type);
+                    CsvString stream = null;
+                    IList list = graph as IList;
+                    if (list != null)
+                    {
+                        int size = info.MinSize * list.Count + info.GetHeaderSize();
+                        char[] buffer = CharsBufferManager.GetBuffer(size);
+                        stream = new CsvString(buffer);
+                        stream.WriteHeader(info.Names);
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            info.Serializer(stream, list[i]);
+                            stream.WriteNewLine();
+                        }
+                        CharsBufferManager.SetBuffer(stream.GetBuffer());
+                    }
+                    return stream.ToString();
+                }
+                //IEnumerable enumerable =  graph as IEnumerable;
+                //foreach (object item in enumerable)
+                //{
+                //    //stream.Write(item);
+                //    //Serialize(stream, graph, info);
+                //}
+            }
+
             return null;
         }
 
