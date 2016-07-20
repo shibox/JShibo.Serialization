@@ -69,6 +69,7 @@
     <Compile Include="Csv\CsvConfiguration.cs" />
     <Compile Include="Csv\CsvConfigurationException.cs" />
     <Compile Include="Csv\CsvILBuilder.cs" />
+    <Compile Include="Csv\CsvParser - 复制.cs" />
     <Compile Include="Csv\CsvParser.cs" />
     <Compile Include="Csv\CsvSerializer.cs" />
     <Compile Include="Csv\CsvString.cs" />
