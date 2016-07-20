@@ -1,8 +1,10 @@
 ﻿using JShibo.Serialization.BenchMark.Entitiy;
+using JShibo.Serialization.Csv;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -13,7 +15,8 @@ namespace JShibo.Serialization.BenchMark.Tester
         public static TestResult Test(object graph)
         {
             //RunIntObjSeries();
-            RunCsvArrayTest();
+            //RunCsvArrayTest();
+            RunReadCsv();
             return null;
         }
 
@@ -97,6 +100,27 @@ namespace JShibo.Serialization.BenchMark.Tester
 
             w.Stop();
             Console.WriteLine(w.ElapsedMilliseconds + " " + s.Length);
+            Console.ReadLine();
+        }
+
+        public static void RunReadCsv()
+        {
+            List<string[]> list = new List<string[]>();
+
+            Console.WriteLine("Raw fields by index:");
+            FileStream fs = new FileStream("o_a01_dealers_a.csv", FileMode.Open);
+            //FileStream fs = new FileStream("log.txt", FileMode.Open);
+            string[] record = null;
+            using (var reader = new CsvParser(new StreamReader(fs)))
+            {
+                while ((record = reader.Read())!= null)
+                {
+                    list.Add(record);
+                }
+            }
+
+
+            Console.WriteLine(list.Count);
             Console.ReadLine();
         }
 

@@ -66,12 +66,16 @@
     <Compile Include="Context.cs" />
     <Compile Include="CsvSerializer.cs" />
     <Compile Include="Csv\CsvBinary.cs" />
+    <Compile Include="Csv\CsvConfiguration.cs" />
+    <Compile Include="Csv\CsvConfigurationException.cs" />
     <Compile Include="Csv\CsvILBuilder.cs" />
+    <Compile Include="Csv\CsvParser.cs" />
     <Compile Include="Csv\CsvSerializer.cs" />
     <Compile Include="Csv\CsvString.cs" />
     <Compile Include="Csv\CsvStringSize.cs" />
     <Compile Include="Csv\CsvStringVar.cs" />
     <Compile Include="Csv\CsvUstring.cs" />
+    <Compile Include="Csv\ICsvParser.cs" />
     <Compile Include="Csv\ShiboCsvStringSerializer.cs" />
     <Compile Include="FastRandom.cs" />
     <Compile Include="IBase.cs" />
