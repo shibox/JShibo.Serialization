@@ -1,45 +1,35 @@
-﻿using JShibo.Serialization.Common;
-using JShibo.Serialization.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace JShibo.Serialization.Transpose
 {
-    public class PivotEncode
+    public class PivotEncodeObjects
     {
         #region 字段
 
         internal SerializerSettings sets = SerializerSettings.Default;
         internal ColumnWriter[] writers = null;
+        public object[] objs;
         internal int idx = 0;
 
         #endregion
-        
+
         #region 构造函数
 
-        public PivotEncode(Type type,int count)
-        {
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            writers = new ColumnWriter[properties.Length];
-            for (int i = 0; i < properties.Length; i++)
-                writers[i] = new ColumnWriter(properties[i].PropertyType,properties[i].Name, count);
-
-            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
-            writers = new ColumnWriter[fields.Length];
-            for (int i = 0; i < fields.Length; i++)
-                writers[i] = new ColumnWriter(fields[i].FieldType, fields[i].Name, count);
-        }
-
-        public PivotEncode(Type[] type, int count)
+        public PivotEncodeObjects(Type[] type, int count)
         {
             writers = new ColumnWriter[type.Length];
             for (int i = 0; i < type.Length; i++)
                 writers[i] = new ColumnWriter(type[i], type[i].Name, count);
+        }
+
+        public PivotEncodeObjects()
+        {
+            
         }
 
         #endregion
@@ -48,7 +38,7 @@ namespace JShibo.Serialization.Transpose
 
         internal void SetInfo(ConvertContext info)
         {
-            
+
         }
 
         #endregion
@@ -64,123 +54,105 @@ namespace JShibo.Serialization.Transpose
 
         #region Write BaseType
 
-        internal void Write(byte value)
+        public void ReadInt32()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((int)objs[idx]);
             idx++;
         }
 
-        internal void Write(sbyte value)
+        public void ReadUInt32()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((int)objs[idx]);
             idx++;
         }
 
-        internal void Write(short value)
+        public void ReadUInt64()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((ulong)objs[idx]);
             idx++;
         }
 
-        internal void Write(ushort value)
+        public void ReadInt64()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((long)objs[idx]);
             idx++;
         }
 
-        internal void Write(int value)
+        public void ReadChar()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((char)objs[idx]);
             idx++;
         }
 
-        internal void Write(uint value)
+        public void ReadUInt16()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((ushort)objs[idx]);
             idx++;
         }
 
-        internal void Write(long value)
+        public void ReadInt16()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((short)objs[idx]);
             idx++;
         }
 
-        internal void Write(ulong value)
+        public void ReadString()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((string)objs[idx]);
             idx++;
         }
 
-        internal void Write(float value)
+        public void ReadBoolean()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((bool)objs[idx]);
             idx++;
         }
 
-        internal void Write(double value)
+        public void ReadByte()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((byte)objs[idx]);
             idx++;
         }
 
-        internal void Write(decimal value)
+        public void ReadSByte()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((sbyte)objs[idx]);
             idx++;
         }
 
-        internal void Write(string value)
+        public void ReadDecimal()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((decimal)objs[idx]);
             idx++;
         }
 
-        internal void Write(bool value)
+        public void ReadSingle()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((float)objs[idx]);
             idx++;
         }
 
-        internal void Write(char value)
+        public void ReadDouble()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((double)objs[idx]);
             idx++;
         }
 
-        internal unsafe void Write(DateTime value)
+        public void ReadDateTime()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((DateTime)objs[idx]);
             idx++;
         }
 
-        internal unsafe void Write(DateTimeOffset value)
+        public void ReadDateTimeOffset()
         {
-            writers[idx].Write(value);
+            writers[idx].Write((DateTimeOffset)objs[idx]);
             idx++;
         }
 
-        internal unsafe void Write(TimeSpan value)
+        public void ReadTimeSpan()
         {
-            writers[idx].Write(value);
-            idx++;
-        }
-
-        internal unsafe void Write(Guid value)
-        {
-            writers[idx].Write(value);
-            idx++;
-        }
-
-        internal unsafe void Write(Uri value)
-        {
-            writers[idx].Write(value);
-            idx++;
-        }
-
-        internal void Write(object value)
-        {
-            writers[idx].Write(value);
+            writers[idx].Write((TimeSpan)objs[idx]);
             idx++;
         }
 
@@ -277,22 +249,8 @@ namespace JShibo.Serialization.Transpose
             //}
         }
 
-        //public char[] GetBuffer()
-        //{
-        //    return _buffer;
-        //}
-
-        //public char[] ToArray()
-        //{
-        //    char[] temp = new char[position];
-        //    Buffer.BlockCopy(_buffer, 0, temp, 0, position << 1);
-        //    return temp;
-        //}
+        
 
         #endregion
-
-        
-
-        
     }
 }

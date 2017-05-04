@@ -1260,6 +1260,34 @@ namespace JShibo.Serialization
 
         }
 
+        internal virtual SerializeWrite<T> GenerateSerializationWriteType<T>(Type[] types)
+        {
+            DynamicMethod dynamicGet = new DynamicMethod("SerializationWrite", typeof(void), new Type[] { typeof(T) }, typeof(object), true);
+            ILGenerator mthdIL = dynamicGet.GetILGenerator();
+
+            //LocalBuilder tpmEvent = mthdIL.DeclareLocal(type);
+            mthdIL.Emit(OpCodes.Nop);
+            //mthdIL.Emit(OpCodes.Ldarg_1);//PU
+            //mthdIL.Emit(OpCodes.Castclass, type);//PU
+            //mthdIL.Emit(OpCodes.Stloc, tpmEvent);//PP
+
+            mthdIL.Emit(OpCodes.Stloc_S,typeof(T));//PU
+            //mthdIL.Emit(OpCodes.Ldloc_S, typeof(T));//PU
+            for (int i = 0; i < types.Length; i++)
+            {
+                Type t = types[i];
+                MethodInfo brRead = typeof(T).GetMethod(CreateReaderMethod(t), flag, null, new Type[] { }, null);
+
+                //mthdIL.Emit(OpCodes.Ldloc, tpmRetEvent);//load new obj on ES
+                //mthdIL.Emit(OpCodes.Ldarg_0);//PU binary reader ,load BR on ES
+                mthdIL.Emit(OpCodes.Ldloc_S, typeof(T));//PU
+                mthdIL.EmitCall(OpCodes.Callvirt, brRead, null);//PU
+                mthdIL.Emit(OpCodes.Nop);
+            }
+            mthdIL.Emit(OpCodes.Ret);
+            return (SerializeWrite<T>)dynamicGet.CreateDelegate(typeof(SerializeWrite<T>));
+        }
+
         #endregion
 
         #region 序列化 
@@ -1430,6 +1458,56 @@ namespace JShibo.Serialization
             mthdIL.Emit(OpCodes.Ret);
         }
 
+        internal virtual void SerializeObjects<T>(Type type, ILGenerator mthdIL, LocalBuilder tpmEvent)
+        {
+            bool isize = typeof(T).GetInterface("ISize") == typeof(ISize) ? true : false;
+            //字段
+            foreach (FieldInfo info in type.GetFields())
+            {
+                if (Utils.IsIgnoreAttribute(info))
+                    continue;
+
+                Type ctype = info.FieldType;
+                if (isize && IsBaseType(ctype) == true)
+                    continue;
+                MethodInfo brWrite = CreateWriterMethod<T>(ctype);
+                if (brWrite == null)
+                    brWrite = CreateWriteSizeMethod<T>(ctype);
+                mthdIL.Emit(OpCodes.Ldarg_0);//PU binary writer
+                mthdIL.Emit(OpCodes.Ldloc, tpmEvent);//PU binary writer
+                mthdIL.Emit(OpCodes.Ldfld, info);
+                mthdIL.EmitCall(OpCodes.Callvirt, brWrite, null);//PU
+                mthdIL.Emit(OpCodes.Nop);
+            }
+
+
+            //ILGenerator deserializeIL = null;
+            //foreach (FieldInfo fi in type.GetFields())
+            //{
+            //    if (fi.FieldType == typeof(string[]))
+            //        continue;
+            //    if (Utils.IsIgnoreAttribute(fi.GetCustomAttributes(true)))
+            //        continue;
+
+            //    LocalBuilder locTyp = deserializeIL.DeclareLocal(fi.FieldType);
+            //    //MethodInfo brRead = typeof(TStream).GetMethod(GetJsonReaderMethod(fi.FieldType));
+            //    MethodInfo brRead = typeof(T).GetMethod(CreateReaderMethod(fi.FieldType), flag, null, new Type[] { }, null);
+
+            //    //FieldInfo fld = fldMap[fi.Name];
+            //    FieldInfo fld = fi;
+
+
+            //    deserializeIL.Emit(OpCodes.Ldloc, tpmRetEvent);//load new obj on ES
+            //    deserializeIL.Emit(OpCodes.Ldarg_0);//PU binary reader ,load BR on ES
+
+            //    deserializeIL.EmitCall(OpCodes.Callvirt, brRead, null);//PU
+            //    deserializeIL.Emit(OpCodes.Stfld, fld);//PU
+            //    deserializeIL.Emit(OpCodes.Ldloc, tpmRetEvent);
+            //    deserializeIL.Emit(OpCodes.Stloc, tpmRetEvent2);
+
+            //}
+        }
+
         #endregion
 
         #region 反序列化
@@ -1443,7 +1521,7 @@ namespace JShibo.Serialization
                 if (Utils.IsIgnoreAttribute(fi.GetCustomAttributes(true)))
                     continue;
 
-                LocalBuilder locTyp = deserializeIL.DeclareLocal(fi.FieldType);
+                //LocalBuilder locTyp = deserializeIL.DeclareLocal(fi.FieldType);
                 //MethodInfo brRead = typeof(TStream).GetMethod(GetJsonReaderMethod(fi.FieldType));
                 MethodInfo brRead = typeof(T).GetMethod(CreateReaderMethod(fi.FieldType), flag, null, new Type[] { }, null);
 

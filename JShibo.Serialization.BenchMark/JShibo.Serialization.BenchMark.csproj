@@ -108,6 +108,7 @@
     <Compile Include="Entitiy\AutoConfig.cs" />
     <Compile Include="Entitiy\ClubJsonCase.cs" />
     <Compile Include="Tester\BaseTester.cs" />
+    <Compile Include="Tester\ColumnConvertTest.cs" />
     <Compile Include="Tester\CsvTester.cs" />
     <Compile Include="Tester\FastToStringTests.cs" />
     <Compile Include="Tester\SocTester.cs" />

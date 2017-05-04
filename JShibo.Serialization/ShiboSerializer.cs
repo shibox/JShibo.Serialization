@@ -7,6 +7,7 @@ using JShibo.Serialization.Soc;
 using JShibo.Serialization.Json;
 using JShibo.Serialization.Csv;
 using JShibo.Serialization.Transpose;
+using System.Data;
 
 namespace JShibo.Serialization
 {
@@ -305,14 +306,24 @@ namespace JShibo.Serialization
 
         }
 
+        public static ColumnsResult Serialize(IDataReader reader)
+        {
+            //DataTable table = new DataTable();
+            //for (int i = 0; i < reader.FieldCount; i++)
+            //{
+            //    table.Columns.Add(reader.GetName(i), reader.GetFieldType(i));
+            //}
+            return ShiboPivotSerializer.Serialize(reader);
+        }
+
         #endregion
 
-        #region info
+            #region info
 
-        //public static JsonStreamContext GetJsonStreamTypeInfos<T>()
-        //{
-        //    return ShiboJsonStreamSerializer.GetJsonTypes(typeof(T));
-        //}
+            //public static JsonStreamContext GetJsonStreamTypeInfos<T>()
+            //{
+            //    return ShiboJsonStreamSerializer.GetJsonTypes(typeof(T));
+            //}
 
         public static JsonStringContext GetJsonStringTypeInfos<T>()
         {

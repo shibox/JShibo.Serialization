@@ -14,6 +14,7 @@ using JShibo.Serialization.Json;
 namespace JShibo.Serialization
 {
     delegate void Serialize<T>(T agent, object value);
+    public delegate void SerializeWrite<T>(T agent);
     delegate object Deserialize<T>(T agent);
 
     /// <summary>

@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -163,6 +164,23 @@ namespace JShibo.Serialization.Transpose
                 return stream.GetResult();
             }
             return null;
+        }
+
+        internal static ColumnsResult Serialize(IDataReader source)
+        {
+            Type[] types = new Type[source.FieldCount];
+            for (int i = 0; i < types.Length; i++)
+                types[i] = source.GetFieldType(i);
+            SerializeWrite<PivotEncodeObjects> info = Instance.builder.GenerateSerializationWriteType<PivotEncodeObjects>(types);
+            PivotEncodeObjects stream = new PivotEncodeObjects(types, 10000);
+            stream.objs = new object[types.Length];
+            while (source.Read())
+            {
+                source.GetValues(stream.objs);
+                info(stream);
+                stream.Reset();
+            }
+            return stream.GetResult();
         }
 
         #endregion

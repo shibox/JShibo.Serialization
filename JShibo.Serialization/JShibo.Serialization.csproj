@@ -146,9 +146,12 @@
     <Compile Include="StringEscape.cs" />
     <Compile Include="Transpose\ColumnsResult.cs" />
     <Compile Include="Transpose\ColumnWriter.cs" />
+    <Compile Include="Transpose\ColumnWriterDataReader.cs" />
     <Compile Include="Transpose\ConvertILBuilder.cs" />
+    <Compile Include="Transpose\DataReaderWrapper.cs" />
     <Compile Include="Transpose\PivotDecode.cs" />
     <Compile Include="Transpose\PivotEncode.cs" />
+    <Compile Include="Transpose\PivotEncodeObjects.cs" />
     <Compile Include="Transpose\PivotEncodeSize.cs" />
     <Compile Include="Transpose\ShiboPivotSerializer.cs" />
     <Compile Include="TypeInfo.cs" />
