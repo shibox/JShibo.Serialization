@@ -1540,19 +1540,15 @@ namespace JShibo.Serialization.Common
         // Requires positive x
         public static int StringSize(int value)
         {
+            int n = 1;
             if (value < 0)
             {
                 value = -value;
-                for (int i = 0; ; i++)
-                    if (value <= intSizeTable[i])
-                        return i + 2;
+                n += 1;
             }
-            else
-            {
-                for (int i = 0; ; i++)
-                    if (value <= intSizeTable[i])
-                        return i + 1;
-            }
+            for (int i = 0; ; i++)
+                if (value <= intSizeTable[i])
+                    return i + n;
         }
 
         public static int StringSize(uint x)
