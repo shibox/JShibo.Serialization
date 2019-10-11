@@ -9,9 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization.BenchM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization.UnitTest", "JShibo.Serialization.UnitTest\JShibo.Serialization.UnitTest.csproj", "{476C9A6B-594B-4876-91F2-47E1FCADFEB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.SerializationCore", "JShibo.SerializationCore\JShibo.SerializationCore.csproj", "{F5D5A20E-ABDC-4328-AC9C-30C3089A0C69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JShibo.SerializationCore", "JShibo.SerializationCore\JShibo.SerializationCore.csproj", "{F5D5A20E-ABDC-4328-AC9C-30C3089A0C69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.SerializationCore.BenchMark", "JShibo.SerializationCore.BenchMark\JShibo.SerializationCore.BenchMark.csproj", "{953019C7-36E7-409D-A6CD-ADDCD0B00DB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JShibo.SerializationCore.BenchMark", "JShibo.SerializationCore.BenchMark\JShibo.SerializationCore.BenchMark.csproj", "{953019C7-36E7-409D-A6CD-ADDCD0B00DB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{5631B6C0-11F8-42C6-979E-9AB03555705D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.SerializationCore.UnitTest", "JShibo.SerializationCore.UnitTest\JShibo.SerializationCore.UnitTest.csproj", "{5FEB90E8-B215-477A-A906-07CC105D5349}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{953019C7-36E7-409D-A6CD-ADDCD0B00DB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{953019C7-36E7-409D-A6CD-ADDCD0B00DB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{953019C7-36E7-409D-A6CD-ADDCD0B00DB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5631B6C0-11F8-42C6-979E-9AB03555705D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5631B6C0-11F8-42C6-979E-9AB03555705D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5631B6C0-11F8-42C6-979E-9AB03555705D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5631B6C0-11F8-42C6-979E-9AB03555705D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FEB90E8-B215-477A-A906-07CC105D5349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FEB90E8-B215-477A-A906-07CC105D5349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FEB90E8-B215-477A-A906-07CC105D5349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FEB90E8-B215-477A-A906-07CC105D5349}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
