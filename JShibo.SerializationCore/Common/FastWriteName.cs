@@ -9,7 +9,7 @@ namespace JShibo.Serialization.Common
         /// <param name="name"></param>
         /// <param name="buffer"></param>
         /// <param name="position"></param>
-        public static void Write(string name, byte[] buffer, int position)
+        public unsafe static void Write(string name, byte[] buffer, int position)
         {
             switch (name.Length)
             {
