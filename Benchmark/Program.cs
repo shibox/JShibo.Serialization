@@ -8,7 +8,7 @@ namespace Benchmark
         static void Main(string[] args)
         {
             var summary = BenchmarkRunner.Run<ToStringTests.IntToString>();
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("finish!");
         }
     }
 }

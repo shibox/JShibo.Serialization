@@ -11,7 +11,7 @@ namespace Benchmark
     public class ToStringTests
     {
         [SimpleJob(RunStrategy.Throughput, launchCount: 1,
-        warmupCount: 1, targetCount: 1, invocationCount: 1)]
+        warmupCount: 1, targetCount: 1)]
         [RPlotExporter, RankColumn]
         public class IntToString
         {
