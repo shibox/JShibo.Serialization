@@ -9,6 +9,7 @@ using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using JShibo.Serialization.Json;
 using JShibo.Serialization.BenchMark.Entitiy;
+using JShibo.SerializationCore.BenchMark.Tester;
 
 namespace JShibo.Serialization.BenchMark
 {
@@ -34,7 +35,7 @@ namespace JShibo.Serialization.BenchMark
             //TopQueueTester.TestCase1();
             //Heap.Run();
             //BaseTester.Run();
-            JsonTester.Run();
+            //JsonTester.Run();
             //SocTester.Run();
             //WebServerTester.Run();
             //RestRerviceTester.Run();
@@ -43,6 +44,7 @@ namespace JShibo.Serialization.BenchMark
             //TypeTester.Run();
             //FastToStringTests.Run();
             //RazorTester.Run();
+            ToStringBenckmark.Run();
             //ColumnConvertTest.Test1();
             //object o = NestTester.Search2("bmw");
             //Console.WriteLine(JsonConvert.SerializeObject(o, Formatting.Indented));

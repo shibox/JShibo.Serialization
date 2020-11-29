@@ -20,7 +20,7 @@ namespace JShibo.Serialization.Common
     /// http://blog.csdn.net/krocwang/article/details/4444491
     /// http://www.cnblogs.com/fromchaos/archive/2010/12/07/1898698.html
     /// </summary>
-    public class FastToString
+    public static class FastToString
     {
         #region 常量
 
@@ -478,6 +478,32 @@ namespace JShibo.Serialization.Common
                 *buffer = (byte)((value / 100) + 48);
                 *(buffer + 1) = (byte)(((value % 100) / 10) + 48);
                 *(buffer + 2) = (byte)((value % 10) + 48);
+                return 3;
+            }
+        }
+
+        public unsafe static int ToStringNumber(byte* buffer,byte value)
+        {
+            const byte AsciiDigitStart = (byte)'0';
+            if (value < 10)
+            {
+                *buffer = (byte)(value + 48);
+                return 1;
+            }
+            else if (value < 100)
+            {
+                var tens = (byte)((value * 205u) >> 11); // div10, valid to 1028
+                *buffer = (byte)(tens + AsciiDigitStart);
+                *(buffer + 1) = (byte)(value - (tens * 10) + AsciiDigitStart);
+                return 2;
+            }
+            else
+            {
+                var digit0 = (byte)((value * 41u) >> 12); // div100, valid to 1098
+                var digits01 = (byte)((value * 205u) >> 11); // div10, valid to 1028
+                *buffer = (byte)(digit0 + AsciiDigitStart);
+                *(buffer + 1) = (byte)(digits01 - (digit0 * 10) + AsciiDigitStart);
+                *(buffer + 2) = (byte)(value - (digits01 * 10) + AsciiDigitStart);
                 return 3;
             }
         }
