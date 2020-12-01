@@ -20,7 +20,7 @@ namespace JShibo.Serialization.Common
     /// http://blog.csdn.net/krocwang/article/details/4444491
     /// http://www.cnblogs.com/fromchaos/archive/2010/12/07/1898698.html
     /// </summary>
-    public static class FastToString
+    public unsafe static class FastToString
     {
         #region 常量
 
