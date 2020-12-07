@@ -1,5 +1,5 @@
 # JShibo.Serialization
-注意：该框架现在不是功能还未完成，仅供研究，尽请期待
+注意：该框架现在功能还未完成，仅供研究，尽请期待
 
 the world fastest json Serialize Framework for .Net Core
 it support json,csv,tsv,binary,xml and so on
