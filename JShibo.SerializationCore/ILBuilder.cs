@@ -13,9 +13,28 @@ using JShibo.Serialization.Json;
 
 namespace JShibo.Serialization
 {
-    delegate void Serialize<T>(T agent, object value);
-    public delegate void SerializeWrite<T>(T agent);
-    delegate object Deserialize<T>(T agent);
+    /// <summary>
+    /// 序列化器的委托
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="type"></param>
+    /// <param name="value"></param>
+    delegate void Serialize<T>(T type, object value);
+    /// <summary>
+    /// 序列化后容量预估器委托
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="type"></param>
+    /// <param name="value"></param>
+    delegate void Estimate<T>(T type, object value);
+    public delegate void SerializeWrite<T>(T type);
+    /// <summary>
+    /// 反序列化器委托
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    delegate object Deserialize<T>(T type);
 
     /// <summary>
     /// 中间代码生成器

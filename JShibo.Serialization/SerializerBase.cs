@@ -27,7 +27,7 @@ namespace JShibo.Serialization
 
         internal Dictionary<string, Type> typeNameMap;
         internal Dictionary<Type, Serialize<Data>> typeMap;
-        internal Dictionary<Type, Serialize<Size>> typeSizeMap;
+        internal Dictionary<Type, Estimate<Size>> typeSizeMap;
 
         internal Dictionary<Type, string[]> namesMap;
         internal Dictionary<Type, XType<Data, Info, Size>> xTypes;
@@ -56,7 +56,7 @@ namespace JShibo.Serialization
             //    types = new Dictionary<Type, Info>();
 
             if (typeSizeMap == null)
-                typeSizeMap = new Dictionary<Type, Serialize<Size>>();
+                typeSizeMap = new Dictionary<Type, Estimate<Size>>();
 
             //if (deTypeMap == null)
             //    deTypeMap = new Dictionary<Type, Deserialize<UData>>();
@@ -122,10 +122,10 @@ namespace JShibo.Serialization
             return jsonser;
         }
 
-        private Serialize<Size> GenerateSizeSerializeSurrogate(Type type, bool check)
+        private Estimate<Size> GenerateSizeSerializeSurrogate(Type type, bool check)
         {
             bool isWrite = false;
-            Serialize<Size> jsonser = null;
+            Estimate<Size> jsonser = null;
             if (check == true)
             {
                 if (!type.IsAbstract && Utils.HasSerializableAttribute(type.GetCustomAttributes(true)))
@@ -174,9 +174,9 @@ namespace JShibo.Serialization
             return sr;
         }
 
-        internal Serialize<Size> GenerateSizeSerializeSurrogate(Type type)
+        internal Estimate<Size> GenerateSizeSerializeSurrogate(Type type)
         {
-            Serialize<Size> sr = null;
+            Estimate<Size> sr = null;
             if (typeSizeMap.TryGetValue(type, out sr) == false)
             {
                 sr = GenerateSizeSerializeSurrogate(type, false);

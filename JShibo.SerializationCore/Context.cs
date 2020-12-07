@@ -16,7 +16,7 @@ namespace JShibo.Serialization
     {
         public byte[] Serialize(object graph)
         {
-            ObjectBuffer buffer = new ObjectBuffer();
+            var buffer = new ObjectBuffer();
             Serializer(buffer, graph);
             return buffer.ToArray();
         }

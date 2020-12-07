@@ -20,7 +20,7 @@ namespace JShibo.Serialization.Common
     /// http://blog.csdn.net/krocwang/article/details/4444491
     /// http://www.cnblogs.com/fromchaos/archive/2010/12/07/1898698.html
     /// </summary>
-    public class FastToString
+    public unsafe static class FastToString
     {
         #region 常量
 
@@ -200,6 +200,8 @@ namespace JShibo.Serialization.Common
                 return 5;
             }
         }
+
+
 
         /// <summary>
         /// 正负数处理逻辑、整体块复制还可以优化
@@ -400,6 +402,7 @@ namespace JShibo.Serialization.Common
         }
 
         
+
         public unsafe static int ToString(char* buffer, uint value)
         {
             if (value < 10)
@@ -453,6 +456,98 @@ namespace JShibo.Serialization.Common
                 *buffer = (char)((value / 100) + 48);
                 *(buffer + 1) = (char)(((value % 100) / 10) + 48);
                 *(buffer + 2) = (char)((value % 10) + 48);
+                return 3;
+            }
+        }
+
+        public unsafe static int ToString(byte* buffer, byte value)
+        {
+            if (value < 10)
+            {
+                *buffer = (byte)(value + 48);
+                return 1;
+            }
+            else if (value < 100)
+            {
+                *buffer = (byte)((value / 10) + 48);
+                *(buffer + 1) = (byte)((value % 10) + 48);
+                return 2;
+            }
+            else
+            {
+                *buffer = (byte)((value / 100) + 48);
+                *(buffer + 1) = (byte)(((value % 100) / 10) + 48);
+                *(buffer + 2) = (byte)((value % 10) + 48);
+                return 3;
+            }
+        }
+
+        public unsafe static int ToStringNumber(byte* buffer,byte value)
+        {
+            const byte AsciiDigitStart = (byte)'0';
+            if (value < 10)
+            {
+                *buffer = (byte)(value + 48);
+                return 1;
+            }
+            else if (value < 100)
+            {
+                var tens = (byte)((value * 205u) >> 11); // div10, valid to 1028
+                *buffer = (byte)(tens + AsciiDigitStart);
+                *(buffer + 1) = (byte)(value - (tens * 10) + AsciiDigitStart);
+                return 2;
+            }
+            else
+            {
+                var digit0 = (byte)((value * 41u) >> 12); // div100, valid to 1098
+                var digits01 = (byte)((value * 205u) >> 11); // div10, valid to 1028
+                *buffer = (byte)(digit0 + AsciiDigitStart);
+                *(buffer + 1) = (byte)(digits01 - (digit0 * 10) + AsciiDigitStart);
+                *(buffer + 2) = (byte)(value - (digits01 * 10) + AsciiDigitStart);
+                return 3;
+            }
+        }
+
+        public unsafe static int ToString(char[] buffer,int pos, byte value)
+        {
+            if (value < 10)
+            {
+                buffer[pos] = (char)((value % 10) + 48);
+                return 1;
+            }
+            else if (value < 100)
+            {
+                buffer[pos] = (char)((value / 10) + 48);
+                buffer[pos + 1] = (char)((value % 10) + 48);
+                return 2;
+            }
+            else
+            {
+                buffer[pos] = (char)((value / 10) + 48);
+                buffer[pos + 1] = (char)((value % 10) + 48);
+                buffer[pos + 2] = (char)((value % 100) + 48);
+                return 3;
+            }
+        }
+
+        public unsafe static int ToString(byte[] buffer, int pos, byte value)
+        {
+            if (value < 10)
+            {
+                buffer[pos + 0] = (byte)((value % 10) + 48);
+                return 1;
+            }
+            else if (value < 100)
+            {
+                buffer[pos + 0] = (byte)((value / 10) + 48);
+                buffer[pos + 1] = (byte)((value % 10) + 48);
+                return 2;
+            }
+            else
+            {
+                buffer[pos + 0] = (byte)((value / 10) + 48);
+                buffer[pos + 1] = (byte)((value % 10) + 48);
+                buffer[pos + 2] = (byte)((value % 100) + 48);
                 return 3;
             }
         }
@@ -658,6 +753,9 @@ namespace JShibo.Serialization.Common
             }
         }
 
+        
+        
+        
         public unsafe static int ToStringFast(char[] buffer, int pos, int value)
         {
             bool isMinus = false;
@@ -1540,19 +1638,15 @@ namespace JShibo.Serialization.Common
         // Requires positive x
         public static int StringSize(int value)
         {
+            int n = 1;
             if (value < 0)
             {
                 value = -value;
-                for (int i = 0; ; i++)
-                    if (value <= intSizeTable[i])
-                        return i + 2;
+                n += 1;
             }
-            else
-            {
-                for (int i = 0; ; i++)
-                    if (value <= intSizeTable[i])
-                        return i + 1;
-            }
+            for (int i = 0; ; i++)
+                if (value <= intSizeTable[i])
+                    return i + n;
         }
 
         public static int StringSize(uint x)

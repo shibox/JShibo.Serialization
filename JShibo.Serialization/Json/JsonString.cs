@@ -562,16 +562,6 @@ namespace JShibo.Serialization.Json
 
         private void InternalWrite(int value)
         {
-            //if (sets.NumericCheck == NumericCheckType.Middle)
-            //    position += FastToString.ToString(_buffer, position, value);
-            //else if (sets.NumericCheck == NumericCheckType.Max)
-            //    position += FastToString.ToStringMax(_buffer, position, value);
-            //else
-            //    position += FastToString.ToStringMin(_buffer, position, value);
-
-            //this._buffer[position] = ',';
-            //position++;
-
             position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = ',';
             position++;

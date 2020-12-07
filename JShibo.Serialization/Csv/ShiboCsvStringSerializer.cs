@@ -131,7 +131,7 @@ namespace JShibo.Serialization.Csv
                 info = new CsvStringContext();
                 CreateContext(type, info);
                 info.Serializer = Instance.GenerateDataSerializeSurrogate(type);
-                info.SizeSerializer = Instance.GenerateSizeSerializeSurrogate(type);
+                info.EstimateSize = Instance.GenerateSizeSerializeSurrogate(type);
                 //info.Deserializer = Instance.GetDeserializeSurrogate(type);
                 types.Add(type, info);
                 if (info != null)
@@ -147,7 +147,7 @@ namespace JShibo.Serialization.Csv
             {
                 info = new CsvStringContext();
                 CreateContext(type, info);
-                info.SizeSerializer = Instance.GenerateSizeSerializeSurrogate(type);
+                info.EstimateSize = Instance.GenerateSizeSerializeSurrogate(type);
                 //info.SizeSerialize = GenerateSizeSerializeSurrogate(type);
                 //info.Deserialize = GetJsonDeserializeSurrogateFromType(type);
                 types.Add(type, info);
@@ -440,7 +440,7 @@ namespace JShibo.Serialization.Csv
             Type type = graph.GetType();
             CsvStringContext info = GetLastContext(type);
             CsvStringSize size = new CsvStringSize();
-            info.SizeSerializer(size, graph);
+            info.EstimateSize(size, graph);
             int totalSize = info.MinSize + size.Size;
             CsvString result = null;
             char[] buffer = null;

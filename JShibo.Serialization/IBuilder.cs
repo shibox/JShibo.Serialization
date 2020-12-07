@@ -1125,7 +1125,7 @@ namespace JShibo.Serialization
             #endregion
         }
 
-        internal virtual Serialize<T> GenerateSizeSerializationType<T>(Type type)
+        internal virtual Estimate<T> GenerateSizeSerializationType<T>(Type type)
         {
             DynamicMethod dynamicGet = new DynamicMethod("SizeSerialization_" + type.Name, typeof(void), new Type[] { typeof(T), typeof(object) }, typeof(object), true);
             ILGenerator mthdIL = dynamicGet.GetILGenerator();
@@ -1165,7 +1165,7 @@ namespace JShibo.Serialization
             }
             mthdIL.Emit(OpCodes.Ret);
 
-            return (Serialize<T>)dynamicGet.CreateDelegate(typeof(Serialize<T>));
+            return (Estimate<T>)dynamicGet.CreateDelegate(typeof(Estimate<T>));
         }
 
         internal virtual Deserialize<T> GenerateDeserializationType<T>(Type type)

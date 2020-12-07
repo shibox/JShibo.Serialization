@@ -81,7 +81,7 @@ namespace JShibo.Serialization.Soc
                 info = new ObjectStreamContext();
                 CreateContext(type, info);
                 info.Serializer = Instance.GenerateDataSerializeSurrogate(type);
-                info.SizeSerializer = Instance.GenerateSizeSerializeSurrogate(type);
+                info.EstimateSize = Instance.GenerateSizeSerializeSurrogate(type);
                 info.Deserializer = Instance.GetDeserializeSurrogate(type);
                 types.Add(type, info);
                 if (info != null)
@@ -238,7 +238,7 @@ namespace JShibo.Serialization.Soc
         private static int GetSize(ObjectStreamContext info, object graph)
         {
             ObjectStreamSize insize = new ObjectStreamSize();
-            info.SizeSerializer(insize, graph);
+            info.EstimateSize(insize, graph);
             return info.MinSize + insize.Size;
         }
 

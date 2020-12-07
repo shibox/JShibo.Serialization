@@ -48,7 +48,7 @@ namespace JShibo.Serialization.Json
                     if (Utils.IsDeep(field.FieldType))
                     {
                         info.SerializeList.Add(Instance.GenerateDataSerializeSurrogate(field.FieldType));
-                        info.SizeSerializeList.Add(Instance.GenerateSizeSerializeSurrogate(field.FieldType));
+                        info.EstimateSizeList.Add(Instance.GenerateSizeSerializeSurrogate(field.FieldType));
                         info.DeserializeList.Add(Instance.GetDeserializeSurrogate(field.FieldType));
                         info.TypeCountsList.Add(Instance.GetDeserializeTypes(field.FieldType).Length);
                         info.TypesList.Add(field.FieldType);
@@ -72,7 +72,7 @@ namespace JShibo.Serialization.Json
                     if (Utils.IsDeep(property.PropertyType))
                     {
                         info.SerializeList.Add(Instance.GenerateDataSerializeSurrogate(property.PropertyType));
-                        info.SizeSerializeList.Add(Instance.GenerateSizeSerializeSurrogate(property.PropertyType));
+                        info.EstimateSizeList.Add(Instance.GenerateSizeSerializeSurrogate(property.PropertyType));
                         info.DeserializeList.Add(Instance.GetDeserializeSurrogate(property.PropertyType));
                         info.TypeCountsList.Add(Instance.GetDeserializeTypes(property.PropertyType).Length);
                         info.TypesList.Add(property.PropertyType);
@@ -99,7 +99,7 @@ namespace JShibo.Serialization.Json
                 //info.Serializer = GenerateDataSerializeSurrogate(type);
                 //Console.WriteLine(w.ElapsedMilliseconds);
                 info.Serializer = Instance.GenerateDataSerializeSurrogate(type);
-                info.SizeSerializer = Instance.GenerateSizeSerializeSurrogate(type);
+                info.EstimateSize = Instance.GenerateSizeSerializeSurrogate(type);
                 info.Deserializer = Instance.GetDeserializeSurrogate(type);
                 info.ToArray();
                 types.Add(type, info);
@@ -114,7 +114,7 @@ namespace JShibo.Serialization.Json
             {
                 info = new JsonStringContext();
                 CreateContext(type, info);
-                info.SizeSerializer = Instance.GenerateSizeSerializeSurrogate(type);
+                info.EstimateSize = Instance.GenerateSizeSerializeSurrogate(type);
                 //info.SizeSerializer = Instance.GenerateSizeSerializeSurrogate(type);
                 //info.Deserialize = GetJsonDeserializeSurrogateFromType(type);
                 types.Add(type, info);
@@ -413,7 +413,7 @@ namespace JShibo.Serialization.Json
             stream._buffer[stream.position++] = '}';
         }
 
-        internal static void Serialize(JsonStringSize stream, object graph, Serialize<JsonStringSize> ser)
+        internal static void Serialize(JsonStringSize stream, object graph, Estimate<JsonStringSize> ser)
         {
             ser(stream, graph);
 
@@ -431,7 +431,7 @@ namespace JShibo.Serialization.Json
             JsonStringContext info = GetInfo(type);
             JsonStringSize size = new JsonStringSize();
             size.SetInfo(info);
-            info.SizeSerializer(size, graph);
+            info.EstimateSize(size, graph);
             int totalSize = info.MinSize + size.Size;
             JsonString result = null;
             char[] buffer = null;

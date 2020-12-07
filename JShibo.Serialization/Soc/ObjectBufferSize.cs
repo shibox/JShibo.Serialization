@@ -11,7 +11,7 @@ namespace JShibo.Serialization.Soc
     {
         #region 字段属性构造函数
 
-        internal Serialize<ObjectBufferSize>[] sers;
+        internal Estimate<ObjectBufferSize>[] sers;
         int curObj = 0;
         int size = 0;
         /// <summary>

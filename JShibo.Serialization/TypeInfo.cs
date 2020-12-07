@@ -24,7 +24,7 @@ namespace JShibo.Serialization
 
         internal Type[] deTypes;
         internal Serialize<Data> jsonTypeMap;
-        internal Serialize<Size> jsonTypeSizeMap;
+        internal Estimate<Size> jsonTypeSizeMap;
         internal Deserialize<Data> jsonDeTypeMap;
         internal Info jsonTypes;
         internal string[] namesMap;
@@ -39,7 +39,7 @@ namespace JShibo.Serialization
     {
         internal SerializerSettings Seting = SerializerSettings.Default;
         internal Serialize<Data> Serializer;
-        internal Serialize<Size> SizeSerializer;
+        internal Estimate<Size> EstimateSize;
         internal Deserialize<UData> Deserializer;
         
         internal int ObjectCount = 0;
@@ -49,13 +49,13 @@ namespace JShibo.Serialization
         internal bool IsAllFixedSize = true;
         
         internal List<Serialize<Data>> SerializeList;
-        internal List<Serialize<Size>> SizeSerializeList;
+        internal List<Estimate<Size>> EstimateSizeList;
         internal List<Deserialize<UData>> DeserializeList;
         internal List<Type> TypesList;
         internal List<int> TypeCountsList;
         
         internal Serialize<Data>[] Serializers;
-        internal Serialize<Size>[] SizeSerializers;
+        internal Estimate<Size>[] SizeSerializers;
         internal Deserialize<UData>[] Deserializers;
         internal Type[] Types;
         internal int[] TypeCounts;
@@ -71,7 +71,7 @@ namespace JShibo.Serialization
         internal ObjectContext()
         {
             SerializeList = new List<Serialize<Data>>();
-            SizeSerializeList = new List<Serialize<Size>>();
+            EstimateSizeList = new List<Estimate<Size>>();
             DeserializeList = new List<Deserialize<UData>>();
             TypesList = new List<Type>();
             TypeCountsList = new List<int>();
@@ -81,7 +81,7 @@ namespace JShibo.Serialization
         internal virtual void ToArray()
         {
             Serializers = SerializeList.ToArray();
-            SizeSerializers = SizeSerializeList.ToArray();
+            SizeSerializers = EstimateSizeList.ToArray();
             Deserializers = DeserializeList.ToArray();
             Types = TypesList.ToArray();
             TypeCounts = TypeCountsList.ToArray();

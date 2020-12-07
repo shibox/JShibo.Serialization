@@ -45,7 +45,7 @@ namespace JShibo.Serialization.Soc
                     {
                         info.IsAllBaseType = false;
                         info.SerializeList.Add(Instance.GenerateDataSerializeSurrogate(field.FieldType));
-                        info.SizeSerializeList.Add(Instance.GenerateSizeSerializeSurrogate(field.FieldType));
+                        info.EstimateSizeList.Add(Instance.GenerateSizeSerializeSurrogate(field.FieldType));
                         info.DeserializeList.Add(Instance.GetDeserializeSurrogate(field.FieldType));
                         info.TypeCountsList.Add(Instance.GetDeserializeTypes(field.FieldType).Length);
                         info.TypesList.Add(field.FieldType);
@@ -73,7 +73,7 @@ namespace JShibo.Serialization.Soc
                     {
                         info.IsAllBaseType = false;
                         info.SerializeList.Add(Instance.GenerateDataSerializeSurrogate(property.PropertyType));
-                        info.SizeSerializeList.Add(Instance.GenerateSizeSerializeSurrogate(property.PropertyType));
+                        info.EstimateSizeList.Add(Instance.GenerateSizeSerializeSurrogate(property.PropertyType));
                         info.DeserializeList.Add(Instance.GetDeserializeSurrogate(property.PropertyType));
                         info.TypeCountsList.Add(Instance.GetDeserializeTypes(property.PropertyType).Length);
                         info.TypesList.Add(property.PropertyType);
@@ -101,7 +101,7 @@ namespace JShibo.Serialization.Soc
                 info = new ObjectBufferContext();
                 CreateContext(type, info);
                 info.Serializer = Instance.GenerateDataSerializeSurrogate(type);
-                info.SizeSerializer = Instance.GenerateSizeSerializeSurrogate(type);
+                info.EstimateSize = Instance.GenerateSizeSerializeSurrogate(type);
                 info.Deserializer = Instance.GetDeserializeSurrogate(type);
                 types.Add(type, info);
                 if (info != null)
@@ -260,7 +260,7 @@ namespace JShibo.Serialization.Soc
             if (info.IsAllFixedSize)
                 return info.MinSize + 1;
             ObjectBufferSize insize = new ObjectBufferSize();
-            info.SizeSerializer(insize, graph);
+            info.EstimateSize(insize, graph);
             return info.MinSize + insize.Size + 1;
         }
 

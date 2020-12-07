@@ -1,7 +1,7 @@
 using JShibo.Serialization.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace JShibo.SerializationCore.UnitTest
+namespace JShibo.Serialization.UnitTest
 {
     [TestClass]
     public class ToStringUnitTest

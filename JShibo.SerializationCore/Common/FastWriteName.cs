@@ -1,4 +1,6 @@
 ﻿
+using System.Runtime.CompilerServices;
+
 namespace JShibo.Serialization.Common
 {
     public class FastWriteName
@@ -179,6 +181,7 @@ namespace JShibo.Serialization.Common
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe static void WriteUnsafe(char* tsrc, char* tdst, int size)
         {
             switch (size)

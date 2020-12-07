@@ -16,7 +16,7 @@ namespace JShibo.Serialization.Json
         int size = 0;
 
         internal Type[] types;
-        internal Serialize<JsonStringSize>[] sers;
+        internal Estimate<JsonStringSize>[] sers;
         internal int[] typeCounts;
         internal int[] nameCounts;
 
