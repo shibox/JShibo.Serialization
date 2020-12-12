@@ -3,7 +3,7 @@
 
 the world fastest json Serialize Framework for .Net Core
 it support json,csv,tsv,binary,xml and so on
-超高性能序列化库，可能是世界上最快的序列化框架，为性能而生
+超高性能序列化库，为性能而生
 
 ### Easy to use 简单使用
 ```C#
