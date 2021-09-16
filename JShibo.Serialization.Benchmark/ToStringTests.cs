@@ -10,14 +10,13 @@ namespace JShibo.Serialization.Benchmark
 {
     public class ToStringTests
     {
-        [SimpleJob(RunStrategy.Throughput, launchCount: 1,
-        warmupCount: 1, targetCount: 1)]
-        [RPlotExporter, RankColumn]
+        [SimpleJob(RunStrategy.ColdStart, launchCount: 1, warmupCount: 1, targetCount: 1)]
+        [RankColumn]
         public class IntToString
         {
             
-            private char[] data;
-            private byte[] datab;
+            private static char[] data;
+            private static byte[] datab;
 
             [Params(1000000)]
             public int N;

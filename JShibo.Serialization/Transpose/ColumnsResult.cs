@@ -6,12 +6,20 @@ using System.Threading.Tasks;
 
 namespace JShibo.Serialization.Transpose
 {
-    public class ColumnsResult
+    public class DataColumn
     {
-        public Type[] Types { get; set; }
-        public object[] Values { get; set; }
-        public string[] Names { get; set; }
-        public string TableName { get; set; }
+        /// <summary>
+        /// 对应的列类型
+        /// </summary>
+        public Type Type { get; set; }
+        /// <summary>
+        /// 对应的列值数组
+        /// </summary>
+        public object Value { get; set; }
+        /// <summary>
+        /// 对应的列名称
+        /// </summary>
+        public string Name { get; set; }
     }
 
     public class ColumnResultList

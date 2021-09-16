@@ -8,6 +8,24 @@ using ProtoBuf;
 
 namespace JShibo.Serialization.BenchMark.Entitiy
 {
+    public class TestAllBaseType
+    {
+        public bool boolValue { get; set; } = true;
+        public bool boolValueFalse { get; set; } = false;
+        public byte byteValue { get; set; } = 123;
+        public sbyte sbyteValue { get; set; } = -123;
+        public char charValue { get; set; } = '中';
+        public short shortValue { get; set; } = 23547;
+        public ushort ushortValue { get; set; } = 36877;
+        public int intValue { get; set; } = -9796;
+        public uint uintValue { get; set; } = 457;
+        public long longValue { get; set; } = 457789544;
+        public ulong ulongValue { get; set; } = 457789544;
+        public float floatValue { get; set; } = 4588;
+        public double doubleValue { get; set; } = 54615555;
+        public decimal decimalValue { get; set; } = 54615555;
+    }
+
     //[Serializable]
     public class TestClassAllType
     {

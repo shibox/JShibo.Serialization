@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using JShibo.Serialization.Json;
 using JShibo.Serialization.BenchMark.Entitiy;
 using JShibo.SerializationCore.BenchMark.Tester;
+using JShibo.Serialization.BenchMark.Tester;
 
 namespace JShibo.Serialization.BenchMark
 {
@@ -39,18 +40,17 @@ namespace JShibo.Serialization.BenchMark
             //SocTester.Run();
             //WebServerTester.Run();
             //RestRerviceTester.Run();
-            //CsvTester.Test(null);
             //TransposeTester.Test(null);
             //TypeTester.Run();
             //FastToStringTests.Run();
             //RazorTester.Run();
-            ToStringBenckmark.Run();
+            //ToStringBenckmark.Run();
             //ColumnConvertTest.Test1();
             //object o = NestTester.Search2("bmw");
             //Console.WriteLine(JsonConvert.SerializeObject(o, Formatting.Indented));
 
 
-            //CsvTester.Test(null);
+            CsvTester.Test(null);
             //JsonTester.TestCase1();
             //JsonTester.TestCase2();
             //JsonTester.TestFrom("bigjson.txt");

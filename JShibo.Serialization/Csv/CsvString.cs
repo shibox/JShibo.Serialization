@@ -26,11 +26,10 @@ namespace JShibo.Serialization.Csv
 
         #region 字段
 
-        internal string json = string.Empty;
+        //internal string json = string.Empty;
         internal Type[] types;
         internal Serialize<CsvString>[] sers;
         internal int[] typeCounts;
-        //internal int[] nameCounts;
 
         internal string[] names = new string[0];
         internal char[] _buffer = null;
@@ -110,17 +109,6 @@ namespace JShibo.Serialization.Csv
             sets = set;
         }
 
-        public CsvString(string json)
-            : this(json, SerializerSettings.Default)
-        {
-        }
-
-        public CsvString(string json, SerializerSettings set)
-        {
-            this.json = json;
-            sets = set;
-        }
-
         internal CsvString(CsvString stream)
         {
             this._buffer = stream._buffer;
@@ -132,14 +120,6 @@ namespace JShibo.Serialization.Csv
         #endregion
 
         #region 方法
-
-        private unsafe void FixPointer()
-        {
-            fixed (char* pd = &_buffer[position])
-            {
-                bp = pd;
-            }
-        }
 
         internal void Resize(int size)
         {
@@ -159,27 +139,6 @@ namespace JShibo.Serialization.Csv
                 }
             }
         }
-
-        //internal virtual unsafe void ResizeAndWriteName()
-        //{
-        //    if (names.Length > 0)
-        //    {
-        //        string name = names[current];
-        //        fixed (char* psrc = name, pdst = &_buffer[position])
-        //        {
-        //            char* tsrc = psrc, tdst = pdst;
-        //            *tdst++ = Quote;
-        //            //FastWriteName.Write(name, _buffer, ref position);
-        //            //FastWriteName.Write(name, _buffer, position);
-        //            Utils.wstrcpy(tdst, tsrc, name.Length);
-        //            tdst += name.Length;
-        //            *tdst++ = Quote;
-        //            *tdst++ = ':';
-        //            position += name.Length + 3;
-        //        }
-        //        current++;
-        //    }
-        //}
 
         internal virtual unsafe void ResizeAndWriteName(int size)
         {
@@ -335,6 +294,7 @@ namespace JShibo.Serialization.Csv
 
         internal unsafe void WriteHeader(string[] headers)
         {
+            var start = position;
             fixed (char* pdst = &_buffer[position])
             {
                 char* tdst = pdst;
@@ -345,20 +305,31 @@ namespace JShibo.Serialization.Csv
                     {
                         Utils.wstrcpy(tdst, psrc, len);
                         tdst += len;
-                        *tdst++ = ' ';
+                        *tdst++ = ',';
                         position += len + 1;
                     }
+                }
+                if (headers.Length > 0)
+                {
+                    tdst--;
+                    position--;
                 }
                 *tdst++ = '\r';
                 *tdst++ = '\n';
                 position += 2;
             }
+            bp += position - start;
         }
 
-        internal void WriteNewLine()
+        internal unsafe void WriteNewLine()
         {
-            this._buffer[position-1] = '\r';
-            this._buffer[position] = '\n';
+            //this._buffer[position - 1] = '\r';
+            //this._buffer[position] = '\n';
+            //position++;
+
+            *(bp - 1) = '\r';
+            *(bp + 0) = '\n';
+            bp ++;
             position++;
         }
 
@@ -481,11 +452,72 @@ namespace JShibo.Serialization.Csv
 
         }
 
-        internal void Write(byte value)
+        internal unsafe void Write(byte value)
         {
-            position += FastToString.ToString(_buffer, position, value);
-            this._buffer[position] = Separator;
-            position++;
+            //position += FastToString.ToString(_buffer, position, value);
+            //this._buffer[position] = Separator;
+            //position++;
+
+            //int value = v;
+            //fixed (char* ptr = &_buffer[position])
+            //{
+            //    char* buffer = ptr;
+            //    //FastToString.ToStringSign(buffer, value, ref position);
+
+            //    if (value < 10)
+            //    {
+            //        *buffer = (char)(value + (char)'0');
+            //        *(buffer + 1) = Separator;
+            //        position += 2;
+            //    }
+            //    else if (value < 100)
+            //    {
+            //        var tens = (char)((value * 205u) >> 11); // div10, valid to 1028
+            //        *buffer = (char)(tens + (char)'0');
+            //        *(buffer + 1) = (char)(value - (tens * 10) + (char)'0');
+            //        *(buffer + 2) = Separator;
+            //        position += 3;
+            //    }
+            //    else
+            //    {
+            //        var digit0 = (char)((value * 41u) >> 12); // div100, valid to 1098
+            //        var digits01 = (char)((value * 205u) >> 11); // div10, valid to 1028
+            //        *buffer = (char)(digit0 + (char)'0');
+            //        *(buffer + 1) = (char)(digits01 - (digit0 * 10) + (char)'0');
+            //        *(buffer + 2) = (char)(value - (digits01 * 10) + (char)'0');
+            //        *(buffer + 3) = Separator;
+            //        position += 4;
+            //    }
+            //}
+
+
+            if (value < 10)
+            {
+                *bp = (char)(value + (char)'0');
+                *(bp + 1) = Separator;
+                bp += 2;
+                position += 2;
+            }
+            else if (value < 100)
+            {
+                var tens = (char)((value * 205u) >> 11); // div10, valid to 1028
+                *bp = (char)(tens + (char)'0');
+                *(bp + 1) = (char)(value - (tens * 10) + (char)'0');
+                *(bp + 2) = Separator;
+                bp += 3;
+                position += 3;
+            }
+            else
+            {
+                var digit0 = (char)((value * 41u) >> 12); // div100, valid to 1098
+                var digits01 = (char)((value * 205u) >> 11); // div10, valid to 1028
+                *bp = (char)(digit0 + (char)'0');
+                *(bp + 1) = (char)(digits01 - (digit0 * 10) + (char)'0');
+                *(bp + 2) = (char)(value - (digits01 * 10) + (char)'0');
+                *(bp + 3) = Separator;
+                bp += 4;
+                position += 4;
+            }
         }
 
         internal void Write(sbyte value)

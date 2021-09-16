@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Text;
 using JShibo.Serialization.Common;
 using JShibo.Serialization;
+using System.Buffers;
+using System.Runtime.InteropServices;
 
 namespace JShibo.Serialization.Csv
 {
@@ -18,8 +20,10 @@ namespace JShibo.Serialization.Csv
 
         static ShiboCsvStringSerializer()
         {
-            Instance = new ShiboCsvStringSerializer();
-            Instance.builder = new CsvILBuilder();
+            Instance = new ShiboCsvStringSerializer
+            {
+                builder = new CsvILBuilder()
+            };
             Instance.RegisterAssemblyTypes();
         }
 
@@ -34,99 +38,38 @@ namespace JShibo.Serialization.Csv
         /// <param name="info"></param>
         internal static void CreateContext(Type type, CsvStringContext info)
         {
-
-            FieldInfo[] fields = type.GetFields(info.Seting.Flags);
-            foreach (FieldInfo field in fields)
+            var fields = type.GetFields(info.Seting.Flags);
+            foreach (var field in fields)
             {
                 if (Utils.IsIgnoreAttribute(field) == false)
                 {
-                    string name = Utils.GetAttributeName(field);
+                    var name = Utils.GetAttributeName(field);
                     info.NamesList.Add(name);
-                    //info.MinSize += name.Length + 3;
+
                     if (Utils.IsDeep(field.FieldType))
-                    {
                         info.IsAllFixedSize = false;
-                    }
                     else
                         info.MinSize += Instance.builder.GetSize(field.FieldType);
                 }
             }
-            PropertyInfo[] propertys = type.GetProperties(info.Seting.Flags);
-            foreach (PropertyInfo property in propertys)
+            var propertys = type.GetProperties(info.Seting.Flags);
+            foreach (var property in propertys)
             {
                 if (Utils.IsIgnoreAttribute(property) == false)
                 {
                     string name = Utils.GetAttributeName(property);
                     info.NamesList.Add(name);
-                    //info.MinSize += name.Length + 3;
                     if (Utils.IsDeep(property.PropertyType))
-                    {
                         info.IsAllFixedSize = false;
-                    }
                     else
                         info.MinSize += Instance.builder.GetSize(property.PropertyType);
                 }
             }
-
-
-            //if (Instance.builder.IsBaseType(type) == true)
-            //{
-            //    info.IsBaseType = true;
-            //    return;
-            //}
-            //if (type.IsArray)
-            //{
-
-            //}
-            //else if (type.GetInterface("IEnumerable") == typeof(IEnumerable) || type == typeof(IEnumerable))
-            //{
-            //    Type[] gtypes = type.GenericTypeArguments;
-            //    if (gtypes.Length == 1)
-            //    {
-            //        Type tp = gtypes[0];
-            //        FieldInfo[] fields = tp.GetFields(info.Seting.Flags);
-            //        foreach (FieldInfo field in fields)
-            //        {
-            //            if (Utils.IsIgnoreAttribute(field) == false)
-            //            {
-            //                string name = Utils.GetAttributeName(field);
-            //                info.NamesList.Add(name);
-            //                //info.MinSize += name.Length + 3;
-            //                if (Utils.IsDeep(field.FieldType))
-            //                {
-            //                    info.IsAllFixedSize = false;
-            //                }
-            //                else
-            //                    info.MinSize += Instance.builder.GetSize(field.FieldType);
-            //            }
-            //        }
-            //        PropertyInfo[] propertys = tp.GetProperties(info.Seting.Flags);
-            //        foreach (PropertyInfo property in propertys)
-            //        {
-            //            if (Utils.IsIgnoreAttribute(property) == false)
-            //            {
-            //                string name = Utils.GetAttributeName(property);
-            //                info.NamesList.Add(name);
-            //                //info.MinSize += name.Length + 3;
-            //                if (Utils.IsDeep(property.PropertyType))
-            //                {
-            //                    info.IsAllFixedSize = false;
-            //                }
-            //                else
-            //                    info.MinSize += Instance.builder.GetSize(property.PropertyType);
-            //            }
-            //        }
-            //    }
-            //}
-            //else
-            //    return;
-
         }
 
         internal static CsvStringContext GetContext(Type type)
         {
-            CsvStringContext info = null;
-            if (types.TryGetValue(type, out info) == false)
+            if (types.TryGetValue(type, out var info) == false)
             {
                 info = new CsvStringContext();
                 CreateContext(type, info);
@@ -142,8 +85,7 @@ namespace JShibo.Serialization.Csv
 
         internal static CsvStringContext GetSizeInfos(Type type)
         {
-            CsvStringContext info = null;
-            if (types.TryGetValue(type, out info) == false)
+            if (types.TryGetValue(type, out var info) == false)
             {
                 info = new CsvStringContext();
                 CreateContext(type, info);
@@ -157,166 +99,15 @@ namespace JShibo.Serialization.Csv
             return info;
         }
 
-
-        //internal static void LoopSerialize(CsvString stream, object graph)
-        //{
-        //    CsvString loopStream = new CsvString(stream);
-        //    loopStream.WriteStartObject();
-
-        //    Type type = graph.GetType();
-        //    CsvStringContext info = null;
-        //    if (type == Instance.lastObjectLoopSerType)
-        //        info = lastObjectLoopTypeInfo;
-        //    else
-        //    {
-        //        Instance.lastObjectLoopSerType = type;
-        //        info = GetContext(type);
-        //        lastObjectLoopTypeInfo = info;
-        //    }
-        //    loopStream.SetInfo(info);
-
-        //    info.Serializer(loopStream, graph);
-        //    stream.position = loopStream.position;
-        //    stream._buffer = loopStream._buffer;
-
-        //    if (stream._buffer[stream.position - 1] == ',')
-        //    {
-        //        stream._buffer[stream.position - 1] = '}';
-        //        stream._buffer[stream.position++] = ',';
-        //    }
-        //    else
-        //        stream._buffer[stream.position++] = '}';
-        //}
-
-        //internal static void LoopSerializeList(CsvString stream, IList value)
-        //{
-        //    CsvString loopStream = new CsvString(stream);
-        //    loopStream.isRoot = false;
-        //    loopStream.WriteStartArray();
-
-        //    object v = value[0];
-        //    Type type = v.GetType();
-
-        //    CsvStringContext info = GetContext(type);
-        //    loopStream.SetInfo(info);
-
-        //    loopStream.WriteStartObject();
-        //    info.Serializer(loopStream, v);
-        //    loopStream.WriteEndObject();
-
-        //    int count = value.Count;
-        //    for (int i = 1; i < count; i++)
-        //    {
-        //        v = value[i];
-        //        if (v != null)
-        //        {
-        //            loopStream.current = 0;
-        //            loopStream.WriteStartObject();
-        //            info.Serializer(loopStream, value[i]);
-        //            loopStream.WriteEndObject();
-        //        }
-        //        else
-        //            loopStream.WriteNullWithoutName();
-        //    }
-        //    stream.position = loopStream.position;
-        //    stream._buffer = loopStream._buffer;
-            
-        //    stream.WriteEndArray();
-        //}
-
-        //internal static void LoopSerializeEnumerable(CsvString stream, IEnumerable value)
-        //{
-        //    IEnumerator it = value.GetEnumerator();
-        //    if (it.MoveNext())
-        //    {
-        //        CsvString loopStream = new CsvString(stream);
-        //        loopStream.isRoot = false;
-        //        loopStream.WriteStartArray();
-
-        //        object v = it.Current;
-        //        Type type = v.GetType();
-
-        //        CsvStringContext info = GetContext(type);
-        //        loopStream.SetInfo(info);
-
-        //        loopStream.WriteStartObject();
-        //        info.Serializer(loopStream, v);
-        //        loopStream.WriteEndObject();
-
-        //        while (it.MoveNext())
-        //        {
-        //            v = it.Current;
-        //            if (v != null)
-        //            {
-        //                loopStream.current = 0;
-        //                loopStream.WriteStartObject();
-        //                info.Serializer(loopStream, v);
-        //                loopStream.WriteEndObject();
-        //            }
-        //            else
-        //                loopStream.WriteNullWithoutName();
-        //        }
-
-        //        stream.position = loopStream.position;
-        //        stream._buffer = loopStream._buffer;
-
-        //        stream.WriteEndArray();
-        //    }
-        //    else
-        //        stream.WriteZeroArrayWithoutName();
-        //}
-
-        //internal static void LoopSerializeObjectList(CsvString stream, IList value)
-        //{
-        //    CsvString loopStream = new CsvString(stream);
-        //    loopStream.isRoot = false;
-        //    loopStream.WriteStartArray();
-
-        //    object v = value[0];
-        //    Type type = v.GetType();
-        //    CsvStringContext info = GetContext(type);
-        //    loopStream.SetInfo(info);
-
-        //    loopStream.WriteStartObject();
-        //    info.Serializer(loopStream, v);
-        //    loopStream.WriteEndObject();
-
-        //    int count = value.Count;
-        //    for (int i = 1; i < count; i++)
-        //    {
-        //        v = value[i];
-        //        if (v != null)
-        //        {
-        //            if (v.GetType() == type)
-        //            {
-        //                loopStream.current = 0;
-        //                loopStream.WriteStartObject();
-        //                info.Serializer(loopStream, v);
-        //                loopStream.WriteEndObject();
-        //            }
-        //            else
-        //                LoopSerialize(loopStream, v);
-        //        }
-        //        else
-        //            loopStream.WriteNullWithoutName();
-        //    }
-        //    stream.position = loopStream.position;
-        //    stream._buffer = loopStream._buffer;
-
-        //    stream.WriteEndArray();
-        //}
-
         #endregion
 
         #region 公共的
 
         internal static CsvStringContext GetLastContext(Type type)
         {
-            CsvStringContext info = null;
+            CsvStringContext info;
             if (type == Instance.lastSerType)
-            {
                 info = Instance.lastSerTypeInfo;
-            }
             else
             {
                 info = GetContext(type);
@@ -326,18 +117,11 @@ namespace JShibo.Serialization.Csv
             return info;
         }
 
-        internal static string Serialize(object graph)
+        internal unsafe static string Serialize(object graph)
         {
-            //Type type = graph.GetType();
-            //CsvStringContext info = GetLastContext(type);
-            //char[] buffer = CharsBufferManager.GetBuffer(info.MinSize);
-            //CsvString stream = new CsvString(buffer);
-            //Serialize(stream, graph, info);
-            //CharsBufferManager.SetBuffer(stream.GetBuffer());
-            //return stream.ToString();
-
             if (graph.GetType().IsArray)
             {
+                GCHandle handle = default;
                 Array ar = (Array)graph;
                 if (ar.Length == 0)
                     return null;
@@ -349,17 +133,27 @@ namespace JShibo.Serialization.Csv
                     if (isFirst)
                     {
                         info = GetLastContext(item.GetType());
+                        //if(info.IsAllBaseType)
                         int size = info.MinSize * ar.Length + info.GetHeaderSize();
-                        char[] buffer = CharsBufferManager.GetBuffer(size);
+                        //char[] buffer = CharsBufferManager.GetBuffer(size);
+                        char[] buffer = ArrayPool<char>.Shared.Rent(size);
+                        handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
                         stream = new CsvString(buffer);
+                        fixed (char* pointer = buffer)
+                        {
+                            stream.bp = pointer;
+                        }
                         stream.WriteHeader(info.Names);
                         isFirst = false;
                     }
                     info.Serializer(stream, item);
                     stream.WriteNewLine();
                 }
-                CharsBufferManager.SetBuffer(stream.GetBuffer());
-                return stream.ToString();
+                //CharsBufferManager.SetBuffer(stream.GetBuffer());
+                ArrayPool<char>.Shared.Return(stream.GetBuffer());
+                var ret = stream.ToString();
+                handle.Free();
+                return ret;
             }
             else
             {
@@ -426,20 +220,11 @@ namespace JShibo.Serialization.Csv
             }
         }
 
-        //internal static void Serialize(CsvString stream, object graph, Serialize<CsvString> ser)
-        //{
-        //    stream._buffer[stream.position++] = '{';
-        //    ser(stream, graph);
-        //    if (stream._buffer[stream.position - 1] == ',')
-        //        stream.position--;
-        //    stream._buffer[stream.position++] = '}';
-        //}
-
         internal static CsvString SerializeToBuffer(object graph)
         {
             Type type = graph.GetType();
             CsvStringContext info = GetLastContext(type);
-            CsvStringSize size = new CsvStringSize();
+            var size = new CsvStringSize();
             info.EstimateSize(size, graph);
             int totalSize = info.MinSize + size.Size;
             CsvString result = null;

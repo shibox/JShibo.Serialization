@@ -19,8 +19,10 @@ namespace JShibo.Serialization.Transpose
 
         static ShiboPivotSerializer()
         {
-            Instance = new ShiboPivotSerializer();
-            Instance.builder = new ConvertILBuilder();
+            Instance = new ShiboPivotSerializer
+            {
+                builder = new ConvertILBuilder()
+            };
             Instance.RegisterAssemblyTypes();
         }
 
@@ -35,44 +37,29 @@ namespace JShibo.Serialization.Transpose
         /// <param name="info"></param>
         internal static void CreateContext(Type type, ConvertContext info)
         {
-            FieldInfo[] fields = type.GetFields(info.Seting.Flags);
-            foreach (FieldInfo field in fields)
+            var fields = type.GetFields(info.Seting.Flags);
+            foreach (var field in fields)
             {
                 if (Utils.IsIgnoreAttribute(field) == false)
                 {
                     string name = Utils.GetAttributeName(field);
                     info.NamesList.Add(name);
-                    //info.MinSize += name.Length + 3;
-                    //if (Utils.IsDeep(field.FieldType))
-                    //{
-                    //    info.IsAllFixedSize = false;
-                    //}
-                    //else
-                    //    info.MinSize += Instance.builder.GetSize(field.FieldType);
                 }
             }
-            PropertyInfo[] propertys = type.GetProperties(info.Seting.Flags);
-            foreach (PropertyInfo property in propertys)
+            var propertys = type.GetProperties(info.Seting.Flags);
+            foreach (var property in propertys)
             {
                 if (Utils.IsIgnoreAttribute(property) == false)
                 {
                     string name = Utils.GetAttributeName(property);
                     info.NamesList.Add(name);
-                    //info.MinSize += name.Length + 3;
-                    //if (Utils.IsDeep(property.PropertyType))
-                    //{
-                    //    info.IsAllFixedSize = false;
-                    //}
-                    //else
-                    //    info.MinSize += Instance.builder.GetSize(property.PropertyType);
                 }
             }
         }
 
         internal static ConvertContext GetContext(Type type)
         {
-            ConvertContext info = null;
-            if (types.TryGetValue(type, out info) == false)
+            if (types.TryGetValue(type, out var info) == false)
             {
                 info = new ConvertContext();
                 CreateContext(type, info);
@@ -85,23 +72,6 @@ namespace JShibo.Serialization.Transpose
             }
             return info;
         }
-
-        //internal static ConvertContext GetSizeInfos(Type type)
-        //{
-        //    ConvertContext info = null;
-        //    if (types.TryGetValue(type, out info) == false)
-        //    {
-        //        info = new ConvertContext();
-        //        CreateContext(type, info);
-        //        info.SizeSerializer = Instance.GenerateSizeSerializeSurrogate(type);
-        //        //info.SizeSerialize = GenerateSizeSerializeSurrogate(type);
-        //        //info.Deserialize = GetJsonDeserializeSurrogateFromType(type);
-        //        types.Add(type, info);
-        //        if (info != null)
-        //            info.ToArray();
-        //    }
-        //    return info;
-        //}
 
         #endregion
 
@@ -123,7 +93,7 @@ namespace JShibo.Serialization.Transpose
             return info;
         }
 
-        internal static ColumnsResult Serialize(object graph)
+        internal static DataColumn[] Serialize(object graph)
         {
             if (graph.GetType().IsArray)
             {
@@ -132,18 +102,35 @@ namespace JShibo.Serialization.Transpose
                 if (list.Length > 0)
                     type = list.GetValue(0).GetType();
                 ConvertContext info = GetLastContext(type);
-                PivotEncode stream = null;
-                
+                PivotEncode encoder = null;
                 if (list != null)
                 {
-                    stream = new PivotEncode(type, list.Length);
+                    encoder = new PivotEncode(type, list.Length);
+                    //if (list is IList)
+                    //{
+                    //    IList vv = list as IList;
+                    //    for (int i = 0; i < list.Length; i++)
+                    //    {
+                    //        info.Serializer(encoder, vv[i]);
+                    //        encoder.num++;
+                    //        encoder.idx = 0;
+                    //        encoder.Reset();
+                    //    }
+                    //}
+                    //else
+                    //{
                     for (int i = 0; i < list.Length; i++)
                     {
-                        info.Serializer(stream, list.GetValue(i));
-                        stream.Reset();
+                        info.Serializer(encoder, list.GetValue(i));
+                        encoder.num++;
+                        encoder.idx = 0;
+                        //encoder.Reset();
                     }
+                    //}
+
                 }
-                return stream.GetResult();
+                encoder.Dispose();
+                return encoder.GetResult();
             }
             Type[] gtypes = graph.GetType().GenericTypeArguments;
             if (gtypes.Length == 1)
@@ -166,14 +153,16 @@ namespace JShibo.Serialization.Transpose
             return null;
         }
 
-        internal static ColumnsResult Serialize(IDataReader source)
+        internal static DataColumn Serialize(IDataReader source)
         {
-            Type[] types = new Type[source.FieldCount];
+            var types = new Type[source.FieldCount];
             for (int i = 0; i < types.Length; i++)
                 types[i] = source.GetFieldType(i);
             SerializeWrite<PivotEncodeObjects> info = Instance.builder.GenerateSerializationWriteType<PivotEncodeObjects>(types);
-            PivotEncodeObjects stream = new PivotEncodeObjects(types, 10000);
-            stream.objs = new object[types.Length];
+            var stream = new PivotEncodeObjects(types, 10000)
+            {
+                objs = new object[types.Length]
+            };
             while (source.Read())
             {
                 source.GetValues(stream.objs);

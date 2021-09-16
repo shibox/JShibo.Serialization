@@ -296,7 +296,7 @@ namespace JShibo.Serialization
 
         #region Transpose
 
-        public static ColumnsResult ToColumns(object value)
+        public static Transpose.DataColumn[] ToColumns(object value)
         {
             return ShiboPivotSerializer.Serialize(value);
         }
@@ -306,7 +306,7 @@ namespace JShibo.Serialization
 
         }
 
-        public static ColumnsResult Serialize(IDataReader reader)
+        public static Transpose.DataColumn Serialize(IDataReader reader)
         {
             //DataTable table = new DataTable();
             //for (int i = 0; i < reader.FieldCount; i++)

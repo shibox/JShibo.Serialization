@@ -9,7 +9,7 @@ namespace JShibo.Serialization
     /// <summary>
     /// ×Ö·û»º´æ¹ÜÀíÇø
     /// </summary>
-    internal class CharsBufferManager
+    public class CharsBufferManager
     {
         #region ×Ö¶Î
 

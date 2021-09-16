@@ -9,7 +9,11 @@ namespace JShibo.Serialization.Csv
 {
     internal class CsvILBuilder : IBuilder
     {
-
+        /// <summary>
+        /// 获取对于csv方式序列化，该类型最小分配长度
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         internal override int GetSize(Type type)
         {
             if (type == TypeConsts.Boolean)

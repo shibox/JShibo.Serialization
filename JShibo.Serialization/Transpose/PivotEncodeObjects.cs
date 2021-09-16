@@ -206,7 +206,7 @@ namespace JShibo.Serialization.Transpose
 
         #region 公共
 
-        public ColumnsResult GetResult()
+        public DataColumn GetResult()
         {
 
             return null;

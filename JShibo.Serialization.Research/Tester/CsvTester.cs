@@ -15,8 +15,8 @@ namespace JShibo.Serialization.BenchMark.Tester
         public static TestResult Test(object graph)
         {
             //RunIntObjSeries();
-            //RunCsvArrayTest();
-            RunReadCsv();
+            RunCsvArrayTest();
+            //RunReadCsv();
             return null;
         }
 
@@ -37,17 +37,11 @@ namespace JShibo.Serialization.BenchMark.Tester
             //v.Add(new Int32Class());
 
             int n = 100;
-            Int32Class[] v = new Int32Class[n];
+            var v = new Int32Class[n];
             for (int i = 0; i < n; i++)
                 v[i] = ShiboSerializer.Initialize<Int32Class>();
-            
-
-            //Int32Class v = Int32Class.Init();
-            string csv = ShiboSerializer.ToCsv(v);
-
+            var csv = ShiboSerializer.ToCsv(v);
             //CsvHelper.CsvWriter c = new CsvHelper.CsvWriter();
-
-
             Console.WriteLine(csv);
         }
 
@@ -78,8 +72,8 @@ namespace JShibo.Serialization.BenchMark.Tester
         public static void RunIntObjSeries()
         {
             //Random rd = new Random(1);
-            Random rd = new Random(1);
-            List<IXYV> floats = new List<IXYV>(100000);
+            var rd = new Random(1);
+            var floats = new List<IXYV>(100000);
             for (int i = 0; i < floats.Capacity; i++)
             {
                 //floats.Add(new IXYV() { X = rd.Next() >> 15, Y = rd.Next() >> 15, V = rd.Next() >> 15 });
@@ -122,6 +116,26 @@ namespace JShibo.Serialization.BenchMark.Tester
 
             Console.WriteLine(list.Count);
             Console.ReadLine();
+        }
+
+        public static TestResult Test2(object graph)
+        {
+            //ShiboSerializer.Serialize(os, graph, sets);
+
+            //List<int> v = new List<int>();
+            //v.Add(123);
+            //v.Add(456);
+
+            var v = new List<bool>
+            {
+                true,
+                false
+            };
+
+            //Int32Class v = Int32Class.Init();
+            string csv = ShiboSerializer.ToCsv(v);
+            Console.WriteLine(csv);
+            return null;
         }
 
         public class IXYV

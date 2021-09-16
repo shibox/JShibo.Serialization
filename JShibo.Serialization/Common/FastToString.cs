@@ -530,6 +530,35 @@ namespace JShibo.Serialization.Common
             }
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe static void ToStringSign(char* buffer, int value,ref int pos)
+        {
+            if (value < 10)
+            {
+                *buffer = (char)(value + (char)'0');
+                *(buffer + 1) = ',';
+                pos += 2;
+            }
+            else if (value < 100)
+            {
+                var tens = (char)((value * 205u) >> 11); // div10, valid to 1028
+                *buffer = (char)(tens + (char)'0');
+                *(buffer + 1) = (char)(value - (tens * 10) + (char)'0');
+                *(buffer + 2) = ',';
+                pos += 3;
+            }
+            else
+            {
+                var digit0 = (char)((value * 41u) >> 12); // div100, valid to 1098
+                var digits01 = (char)((value * 205u) >> 11); // div10, valid to 1028
+                *buffer = (char)(digit0 + (char)'0');
+                *(buffer + 1) = (char)(digits01 - (digit0 * 10) + (char)'0');
+                *(buffer + 2) = (char)(value - (digits01 * 10) + (char)'0');
+                *(buffer + 3) = ',';
+                pos += 4;
+            }
+        }
+
         public unsafe static int ToString(byte[] buffer, int pos, byte value)
         {
             if (value < 10)
@@ -936,8 +965,6 @@ namespace JShibo.Serialization.Common
             for (int i = 0; i < size; i++)
                 *buffer++ = *(buffer + skip);
             return size;
-            //pos += size;
-            //return buffer;
         }
 
         public unsafe static int ToStringFast(char[] buffer, int pos, long value)

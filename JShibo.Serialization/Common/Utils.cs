@@ -165,6 +165,11 @@ namespace JShibo.Serialization.Common
             return false;
         }
 
+        /// <summary>
+        /// 是否包含集合等类型，不是基础类型
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         internal static bool IsDeep(Type type)
         {
             if (type.IsGenericType)
@@ -412,32 +417,43 @@ namespace JShibo.Serialization.Common
             return false;
         }
 
+        /// <summary>
+        /// 是否包含需要忽略该字段的属性
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
         internal static bool IsIgnoreAttribute(FieldInfo info)
         {
             object[] atts = info.GetCustomAttributes(true);
             foreach (Attribute att in atts)
             {
                 if (att is NotSerialized)
-                {
                     return true;
-                }
             }
             return false;
         }
 
+        /// <summary>
+        /// 是否包含需要忽略该字段的属性
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
         internal static bool IsIgnoreAttribute(PropertyInfo info)
         {
             object[] atts = info.GetCustomAttributes(true);
             foreach (Attribute att in atts)
             {
                 if (att is NotSerialized)
-                {
                     return true;
-                }
             }
             return false;
         }
 
+        /// <summary>
+        /// 获取字段的属性名，如果有标注的属性名，返回标注的属性名，否则返回字段名
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
         internal static string GetAttributeName(FieldInfo info)
         {
             object[] atts = info.GetCustomAttributes(true);
@@ -472,9 +488,7 @@ namespace JShibo.Serialization.Common
             foreach (Attribute att in atts)
             {
                 if (att is CheckAttribute)
-                {
                     return ((CheckAttribute)att);
-                }
             }
             return CheckAttribute.Default;
         }
@@ -485,9 +499,7 @@ namespace JShibo.Serialization.Common
             foreach (Attribute att in atts)
             {
                 if (att is CheckAttribute)
-                {
                     return ((CheckAttribute)att);
-                }
             }
             return CheckAttribute.Default;
         }
@@ -1044,11 +1056,6 @@ namespace JShibo.Serialization.Common
                 {
                     *dmem++ = '\\';
                     *dmem++ = 'u';
-                    //*dmem++ = IntToHex((*smem >> 12) & '\x000f');
-                    //*dmem++ = IntToHex((*smem >> 8) & '\x000f');
-                    //*dmem++ = IntToHex((*smem >> 4) & '\x000f');
-                    //*dmem++ = IntToHex(*smem++ & '\x000f');
-
                     *dmem++ = (tv = ((*smem >> 12) & '\x000f')) <= 9 ? (char)(tv + 48) : (char)(tv + 87);
                     *dmem++ = (tv = ((*smem >> 8) & '\x000f')) <= 9 ? (char)(tv + 48) : (char)(tv + 87);
                     *dmem++ = (tv = ((*smem >> 4) & '\x000f')) <= 9 ? (char)(tv + 48) : (char)(tv + 87);
@@ -2009,206 +2016,6 @@ namespace JShibo.Serialization.Common
 
         #endregion
 
-        #region 值类型字节转换相关
-
-        public unsafe static void BlockCopy(int[] src, int srcOffset, byte[] dst, int dstOffset, int count)
-        {
-            //fixed (int* pdSrc = &src[srcOffset])
-            //{
-            //    fixed (byte* pdDst = &dst[dstOffset])
-            //    {
-            //        int* smem = pdSrc;
-            //        int byteCount = count;
-            //        byte* dmem = pdDst;
-            //        if (byteCount > 0)
-            //        {
-            //            while (byteCount >= 16)
-            //            {
-            //                *((uint*)dmem) = *((uint*)smem);
-            //                *((uint*)(dmem + 4)) = *((uint*)(smem + 1));
-            //                *((uint*)(dmem + 8)) = *((uint*)(smem + 2));
-            //                *((uint*)(dmem + 12)) = *((uint*)(smem + 3));
-            //                dmem += 16;
-            //                smem += 4;
-            //                byteCount -= 16;
-            //            }
-            //            if ((byteCount & 8) != 0)
-            //            {
-            //                *((uint*)dmem) = *((uint*)smem);
-            //                *((uint*)(dmem + 4)) = *((uint*)(smem + 1));
-            //                dmem += 8;
-            //                smem += 2;
-            //            }
-            //            if ((byteCount & 4) != 0)
-            //            {
-            //                *((uint*)dmem) = *((uint*)smem);
-            //                dmem += 4;
-            //                smem += 1;
-            //            }
-            //        }
-            //    }
-            //}
-
-
-            fixed (int* pdSrc = &src[srcOffset])
-            {
-                fixed (byte* pdDst = &dst[dstOffset])
-                {
-                    int* smem = pdSrc;
-                    int byteCount = count;
-                    int* dmem = (int*)pdDst;
-                    if (byteCount > 0)
-                    {
-                        while (byteCount >= 16)
-                        {
-                            *(dmem) = *(smem);
-                            *((dmem + 1)) = *((smem + 1));
-                            *((dmem + 2)) = *((smem + 2));
-                            *((dmem + 3)) = *((smem + 3));
-                            dmem += 4;
-                            smem += 4;
-                            byteCount -= 16;
-                        }
-                        if ((byteCount & 8) != 0)
-                        {
-                            *(dmem) = *(smem);
-                            *((dmem + 1)) = *((smem + 1));
-                            dmem += 2;
-                            smem += 2;
-                        }
-                        if ((byteCount & 4) != 0)
-                        {
-                            *((uint*)dmem) = *((uint*)smem);
-                            dmem += 1;
-                            smem += 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        public unsafe static void BlockCopy(byte[] src, int srcOffset, int[] dst, int dstOffset, int count)
-        {
-            fixed (byte* pdSrc = &src[srcOffset])
-            {
-                fixed (int* pdDst = &dst[dstOffset])
-                {
-                    byte* smem = pdSrc;
-                    int byteCount = count;
-                    int* dmem = pdDst;
-                    if (byteCount > 0)
-                    {
-                        while (byteCount >= 16)
-                        {
-                            *((uint*)dmem) = *((uint*)smem);
-                            *((uint*)(dmem + 1)) = *((uint*)(smem + 4));
-                            *((uint*)(dmem + 2)) = *((uint*)(smem + 8));
-                            *((uint*)(dmem + 3)) = *((uint*)(smem + 12));
-                            dmem += 4;
-                            smem += 16;
-                            byteCount -= 16;
-                        }
-                        if ((byteCount & 8) != 0)
-                        {
-                            *((uint*)dmem) = *((uint*)smem);
-                            *((uint*)(dmem + 1)) = *((uint*)(smem + 4));
-                            dmem += 2;
-                            smem += 8;
-                        }
-                    }
-                }
-            }
-
-        }
-
-        public unsafe static void BlockCopy(long[] src, int srcOffset, byte[] dst, int dstOffset, int count)
-        {
-            fixed (long* pdSrc = &src[srcOffset])
-            {
-                fixed (byte* pdDst = &dst[dstOffset])
-                {
-                    uint* smem = (uint*)pdSrc;
-                    int byteCount = count;
-                    byte* dmem = pdDst;
-                    if (byteCount > 0)
-                    {
-                        //while (byteCount >= 16)
-                        //{
-                        //    *((uint*)dmem) = *((uint*)smem);
-                        //    *((uint*)(dmem + 4)) = *((uint*)(smem + 1));
-                        //    *((uint*)(dmem + 8)) = *((uint*)(smem + 2));
-                        //    *((uint*)(dmem + 12)) = *((uint*)(smem + 3));
-                        //    dmem += 16;
-                        //    smem += 4;
-                        //    byteCount -= 16;
-                        //}
-                        //if ((byteCount & 8) != 0)
-                        //{
-                        //    *((uint*)dmem) = *((uint*)smem);
-                        //    *((uint*)(dmem + 4)) = *((uint*)(smem + 1));
-                        //    dmem += 8;
-                        //    smem += 2;
-                        //}
-
-                        while (byteCount >= 16)
-                        {
-                            *((uint*)dmem) = *(smem);
-                            *((uint*)(dmem + 4)) = *(smem + 1);
-                            *((uint*)(dmem + 8)) = *(smem + 2);
-                            *((uint*)(dmem + 12)) = *(smem + 3);
-                            dmem += 16;
-                            smem += 4;
-                            byteCount -= 16;
-                        }
-                        if ((byteCount & 8) != 0)
-                        {
-                            *((uint*)dmem) = *(smem);
-                            *((uint*)(dmem + 4)) = *(smem + 1);
-                            dmem += 8;
-                            smem += 2;
-                        }
-                    }
-                }
-            }
-
-        }
-
-        public unsafe static void BlockCopy(byte[] src, int srcOffset, long[] dst, int dstOffset, int count)
-        {
-            fixed (byte* pdSrc = &src[srcOffset])
-            {
-                fixed (long* pdDst = &dst[dstOffset])
-                {
-                    byte* smem = pdSrc;
-                    int byteCount = count;
-                    long* dmem = pdDst;
-                    if (byteCount > 0)
-                    {
-                        while (byteCount >= 16)
-                        {
-                            *((uint*)dmem) = *((uint*)smem);
-                            *((uint*)(dmem + 4)) = *((uint*)(smem + 4));
-                            *((uint*)(dmem + 8)) = *((uint*)(smem + 8));
-                            *((uint*)(dmem + 12)) = *((uint*)(smem + 12));
-                            dmem += 16;
-                            smem += 16;
-                            byteCount -= 16;
-                        }
-                        if ((byteCount & 8) != 0)
-                        {
-                            *((uint*)dmem) = *((uint*)smem);
-                            *((uint*)(dmem + 4)) = *((uint*)(smem + 4));
-                            dmem += 8;
-                            smem += 8;
-                        }
-                    }
-                }
-            }
-
-        }
-
-        #endregion
-
         /// <summary>
         /// 不同的值类型的位移运算的偏移
         /// </summary>
@@ -2254,58 +2061,5 @@ namespace JShibo.Serialization.Common
             return -1;
         }
 
-        #region test
-
-        unsafe static char* dm = null;
-        unsafe static char* sm = null;
-        static Action[] act = null;
-
-        private static Action[] GetAct()
-        {
-            if (act == null)
-            {
-                act = new Action[65535];
-                for (int i = 0; i < 65535; i++)
-                {
-                    if (i != '"')
-                        act[i] = W;
-                    else
-                        act[i] = WS;
-                }
-            }
-            return act;
-        }
-
-        public unsafe static void W()
-        {
-            *dm++ = *sm++;
-        }
-
-        public unsafe static void WS()
-        {
-            *dm++ = *sm++;
-        }
-
-        /// <summary>
-        /// 经测试，比switch还慢
-        /// </summary>
-        /// <param name="dmem"></param>
-        /// <param name="smem"></param>
-        /// <param name="charCount"></param>
-        /// <returns></returns>
-        internal unsafe static int WriteUsAct(char* dmem, char* smem, int charCount)
-        {
-            dm = dmem;
-            sm = smem;
-            Action[] act = GetAct();
-            for (int i = 0; i < charCount; i++)
-                act[*smem]();
-            dmem = dm;
-            smem = sm;
-            return 0;
-        }
-
-
-        #endregion
     }
 }

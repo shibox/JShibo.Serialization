@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace JShibo.Serialization.Transpose
 {
-    public class ColumnWriter: IWriterBaseType
+    public unsafe class ColumnWriter: IWriterBaseType,IDisposable
     {
         #region 字段
 
-        int pos = 0;
+        int count = 0;
         Type type = null;
         string name = string.Empty;
         bool[] boolValues = null;
@@ -23,6 +25,7 @@ namespace JShibo.Serialization.Transpose
         string[] stringValues = null;
         DateTime[] datetimeValues = null;
         byte[] byteValues = null;
+        byte* bytePtr;
         short[] shortValues = null;
         int[] intValues = null;
         long[] longValues = null;
@@ -35,176 +38,204 @@ namespace JShibo.Serialization.Transpose
 
         #endregion
 
+        public int Count => count;
+
+        public string Name => name;
+
+        public Type Type => type;
+
+        public object Value => GetValue();
+
         #region 构造函数
 
-        public ColumnWriter(Type type,string name, int count)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type">类型</param>
+        /// <param name="name">类型名称</param>
+        /// <param name="cap">初始化的容量</param>
+        public ColumnWriter(Type type,string name, int cap)
         {
             this.type = type;
             this.name = name;
             if (type == typeof(bool))
-                boolValues = new bool[count];
+                boolValues = new bool[cap];
             else if (type == typeof(char))
-                charValues = new char[count];
+                charValues = new char[cap];
             else if (type == typeof(sbyte))
-                sbyteValues = new sbyte[count];
+                sbyteValues = new sbyte[cap];
             else if (type == typeof(ushort))
-                ushortValues = new ushort[count];
+                ushortValues = new ushort[cap];
             else if (type == typeof(float))
-                floatValues = new float[count];
+                floatValues = new float[cap];
             else if (type == typeof(double))
-                doubleValues = new double[count];
+                doubleValues = new double[cap];
             else if (type == typeof(decimal))
-                decimalValues = new decimal[count];
+                decimalValues = new decimal[cap];
             else if (type == typeof(string))
-                stringValues = new string[count];
+                stringValues = new string[cap];
             else if (type == typeof(DateTime))
-                datetimeValues = new DateTime[count];
+                datetimeValues = new DateTime[cap];
             else if (type == typeof(byte))
-                byteValues = new byte[count];
+            {
+                //byteValues = new byte[cap];
+                byteValues = GC.AllocateUninitializedArray<byte>(cap, true);
+                fixed (byte* ptr = byteValues)
+                    bytePtr = ptr;
+            }
+                
             else if (type == typeof(short))
-                shortValues = new short[count];
+                shortValues = new short[cap];
             else if (type == typeof(int))
-                intValues = new int[count];
+                intValues = new int[cap];
             else if (type == typeof(long))
-                longValues = new long[count];
+                longValues = new long[cap];
             else if (type == typeof(object))
-                objectValues = new object[count];
+                objectValues = new object[cap];
             else if (type == typeof(DateTimeOffset))
-                dateTimeOffsetValues = new DateTimeOffset[count];
+                dateTimeOffsetValues = new DateTimeOffset[cap];
             else if (type == typeof(uint))
-                uintValues = new uint[count];
+                uintValues = new uint[cap];
             else if (type == typeof(ulong))
-                ulongValues = new ulong[count];
+                ulongValues = new ulong[cap];
             else if (type == typeof(TimeSpan))
-                timeSpanValues = new TimeSpan[count];
+                timeSpanValues = new TimeSpan[cap];
             else if (type == typeof(Guid))
-                guidValues = new Guid[count];
-            
+                guidValues = new Guid[cap];
+            else
+                throw new NotSupportedException("不支持该类型");
         }
 
         #endregion
 
         #region 方法
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(byte value)
         {
-            byteValues[pos] = value;
-            pos++;
+            //*bytePtr = value;
+            //bytePtr++;
+            byteValues[count] = value;
+            count++;
         }
 
         public void Write(short value)
         {
-            shortValues[pos] = value;
-            pos++;
+            shortValues[count] = value;
+            count++;
         }
 
         public void Write(int value)
         {
-            intValues[pos] = value;
-            pos++;
+            intValues[count] = value;
+            count++;
         }
 
         public void Write(long value)
         {
-            longValues[pos] = value;
-            pos++;
+            longValues[count] = value;
+            count++;
         }
 
         public void Write(object value)
         {
-            objectValues[pos] = value;
-            pos++;
+            objectValues[count] = value;
+            count++;
         }
 
         public void Write(bool value)
         {
-            boolValues[pos] = value;
-            pos++;
+            boolValues[count] = value;
+            count++;
         }
 
         public void Write(char value)
         {
-            charValues[pos] = value;
-            pos++;
+            charValues[count] = value;
+            count++;
         }
 
         public void Write(sbyte value)
         {
-            sbyteValues[pos] = value;
-            pos++;
+            sbyteValues[count] = value;
+            count++;
         }
 
         public void Write(ushort value)
         {
-            ushortValues[pos] = value;
-            pos++;
+            ushortValues[count] = value;
+            count++;
         }
 
         public void Write(uint value)
         {
-            uintValues[pos] = value;
-            pos++;
+            uintValues[count] = value;
+            count++;
         }
 
         public void Write(ulong value)
         {
-            ulongValues[pos] = value;
-            pos++;
+            ulongValues[count] = value;
+            count++;
         }
 
         public void Write(float value)
         {
-            floatValues[pos] = value;
-            pos++;
+            floatValues[count] = value;
+            count++;
         }
 
         public void Write(double value)
         {
-            doubleValues[pos] = value;
-            pos++;
+            doubleValues[count] = value;
+            count++;
         }
 
         public void Write(decimal value)
         {
-            decimalValues[pos] = value;
-            pos++;
+            decimalValues[count] = value;
+            count++;
         }
 
         public void Write(DateTime value)
         {
-            datetimeValues[pos] = value;
-            pos++;
+            datetimeValues[count] = value;
+            count++;
         }
 
         public void Write(string value)
         {
-            stringValues[pos] = value;
-            pos++;
+            stringValues[count] = value;
+            count++;
         }
 
         public void Write(DateTimeOffset value)
         {
-            dateTimeOffsetValues[pos] = value;
-            pos++;
+            dateTimeOffsetValues[count] = value;
+            count++;
         }
 
         public void Write(TimeSpan value)
         {
-            timeSpanValues[pos] = value;
-            pos++;
+            timeSpanValues[count] = value;
+            count++;
         }
 
         public void Write(Guid value)
         {
-            guidValues[pos] = value;
-            pos++;
+            guidValues[count] = value;
+            count++;
         }
 
         #endregion
 
         #region 公共
 
-        public object GetValue()
+        /// <summary>
+        /// 获取列中存储的值
+        /// </summary>
+        /// <returns>返回数据数组</returns>
+        public Array GetValue()
         {
             if (type == typeof(bool))
                 return boolValues;
@@ -245,6 +276,11 @@ namespace JShibo.Serialization.Transpose
             else if (type == typeof(Guid))
                 return guidValues ;
             return null;
+        }
+
+        public void Dispose()
+        {
+            
         }
 
         #endregion

@@ -43,9 +43,18 @@ namespace JShibo.Serialization
         internal Deserialize<UData> Deserializer;
         
         internal int ObjectCount = 0;
+        /// <summary>
+        /// 序列化的对象是否是基础类型，如int
+        /// </summary>
         internal bool IsBaseType = false;
+        /// <summary>
+        /// 被序列化的对象是否全是基元类型，如int
+        /// </summary>
         internal bool IsAllBaseType = true;
         internal bool IsHaveObjectType = false;
+        /// <summary>
+        /// 被序列化的对象是否全是固定可估算出大小的类型，如int，datetime等
+        /// </summary>
         internal bool IsAllFixedSize = true;
         
         internal List<Serialize<Data>> SerializeList;

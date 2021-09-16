@@ -489,7 +489,7 @@ namespace JShibo.Serialization.Soc
         //{
         //    if (_buffer.Length < position + 4)
         //        Resize(4);
-            
+
         //    fixed (byte* pd = &_buffer[position])
         //        *((int*)pd) = *((int*)&value);
         //    position += 4;
@@ -1118,8 +1118,6 @@ namespace JShibo.Serialization.Soc
 
         #endregion
 
-        #region Write BaseType 无注释检查
-
         #region Write BaseType
 
         unsafe public void Write(int value)
@@ -1362,8 +1360,6 @@ namespace JShibo.Serialization.Soc
         {
             WriteNotSupported();
         }
-
-        #endregion
 
         #endregion
 
