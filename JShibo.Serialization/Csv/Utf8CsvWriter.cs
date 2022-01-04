@@ -1,38 +1,33 @@
-﻿using System;
-using System.Collections;
+﻿using JShibo.Serialization.Common;
+using JShibo.Serialization.Json;
+using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
-using JShibo.Serialization.Common;
-using JShibo.Serialization.Json;
+using System.Threading.Tasks;
 
 namespace JShibo.Serialization.Csv
 {
-    public class CsvString
+    public class Utf8CsvWriter
     {
         #region 常量
 
-        //const char OBJECT_START = '{';
-        //const char OBJECT_END = '}';
-        //const char ARRAY_START = '[';
-        //const char ARRAY_END = ']';
-        const char COLON = ':';
-        const char COMMA = ',';
-        const char Separator=',';
+        const byte COLON = (byte)':';
+        const byte COMMA = (byte)',';
+        const byte Separator = (byte)',';
 
         #endregion
 
         #region 字段
 
-        //internal string json = string.Empty;
         internal Type[] types;
-        internal Serialize<CsvString>[] sers;
+        internal Serialize<Utf8CsvWriter>[] sers;
         internal int[] typeCounts;
 
-        internal string[] names = new string[0];
-        internal char[] _buffer = null;
+        internal byte[][] names = new byte[0][];
+        internal byte[] _buffer = null;
         internal int position = 0;
         internal int current = 0;
         internal int currSer = 0;
@@ -43,10 +38,10 @@ namespace JShibo.Serialization.Csv
         /// <summary>
         /// 用于切换使用单引号还是双引号写入，该方式用于减少判断，而使用字段访问
         /// </summary>
-        internal char Quote = '"';
+        internal byte Quote = (byte)'"';
         internal SerializerSettings sets = SerializerSettings.Default;
 
-        unsafe internal char* bp = null;
+        //unsafe internal byte* bp = null;
 
         #endregion
 
@@ -71,45 +66,45 @@ namespace JShibo.Serialization.Csv
 
         #region 构造函数
 
-        public CsvString()
+        public Utf8CsvWriter()
             : this(64)
         {
         }
 
-        public CsvString(int capacity)
+        public Utf8CsvWriter(int capacity)
             : this(capacity, SerializerSettings.Default)
         {
         }
 
-        public CsvString(char[] buffer)
+        public Utf8CsvWriter(byte[] buffer)
             : this(buffer, SerializerSettings.Default)
         {
         }
 
-        public CsvString(ref char[] buffer)
+        public Utf8CsvWriter(ref byte[] buffer)
             : this(ref buffer, SerializerSettings.Default)
         {
         }
 
-        public CsvString(char[] buffer, SerializerSettings set)
+        public Utf8CsvWriter(byte[] buffer, SerializerSettings set)
         {
             _buffer = buffer;
             sets = set;
         }
 
-        public CsvString(ref char[] buffer, SerializerSettings set)
+        public Utf8CsvWriter(ref byte[] buffer, SerializerSettings set)
         {
             _buffer = buffer;
             sets = set;
         }
 
-        public CsvString(int capacity, SerializerSettings set)
+        public Utf8CsvWriter(int capacity, SerializerSettings set)
         {
-            _buffer = new char[capacity];
+            _buffer = new byte[capacity];
             sets = set;
         }
 
-        internal CsvString(CsvString stream)
+        internal Utf8CsvWriter(Utf8CsvWriter stream)
         {
             this._buffer = stream._buffer;
             this.position = stream.position;
@@ -127,14 +122,14 @@ namespace JShibo.Serialization.Csv
             {
                 if (size > _buffer.Length)
                 {
-                    char[] temp = new char[_buffer.Length + size];
-                    Buffer.BlockCopy(_buffer, 0, temp, 0, position * 2);
+                    byte[] temp = new byte[_buffer.Length + size];
+                    Buffer.BlockCopy(_buffer, 0, temp, 0, position);
                     _buffer = temp;
                 }
                 else
                 {
-                    char[] temp = new char[_buffer.Length * 2];
-                    Buffer.BlockCopy(_buffer, 0, temp, 0, position * 2);
+                    byte[] temp = new byte[_buffer.Length * 2];
+                    Buffer.BlockCopy(_buffer, 0, temp, 0, position);
                     _buffer = temp;
                 }
             }
@@ -146,40 +141,40 @@ namespace JShibo.Serialization.Csv
                 Resize(size);
         }
 
-        internal virtual unsafe void ResizeAndWriteName(string name)
+        internal virtual unsafe void ResizeAndWriteName(byte[] name)
         {
             if (_buffer.Length < position + name.Length)
                 Resize(name.Length + 4);
-            fixed (char* psrc = name, pdst = &_buffer[position])
+            fixed (byte* psrc = name, pdst = &_buffer[position])
             {
-                char* tsrc = psrc, tdst = pdst;
+                byte* tsrc = psrc, tdst = pdst;
                 *tdst++ = Quote;
                 Utils.wstrcpy(tdst, tsrc, name.Length);
                 tdst += name.Length;
                 *tdst++ = Quote;
-                *tdst++ = ':';
+                *tdst++ = (byte)':';
                 position += name.Length + 3;
             }
             current++;
         }
 
-        internal void SetInfo(CsvStringContext info)
+        internal void SetInfo(CsvBytesContext info)
         {
-            if (info.Names.Length > 0)
-            {
-                if (sets.CamelCase)
-                    names = info.GetNamesCamelCase();
-                else
-                    names = info.Names;
-                if (sets.UseSingleQuotes)
-                    Quote = '\'';
+            //if (info.Names.Length > 0)
+            //{
+            //    if (sets.CamelCase)
+            //        names = info.GetNamesCamelCase();
+            //    else
+            //        names = info.Names;
+            //    if (sets.UseSingleQuotes)
+            //        Quote = (byte)'\'';
 
-                sers = info.Serializers;
-                types = info.Types;
-                typeCounts = info.TypeCounts;
-            }
-            else
-                isJsonBaseType = true;
+            //    sers = info.Serializers;
+            //    types = info.Types;
+            //    typeCounts = info.TypeCounts;
+            //}
+            //else
+            //    isJsonBaseType = true;
         }
 
         #endregion
@@ -193,10 +188,10 @@ namespace JShibo.Serialization.Csv
             else
             {
                 ResizeAndWriteName(SizeConsts.NULL_SIZE);
-                _buffer[position] = 'n';
-                _buffer[position + 1] = 'u';
-                _buffer[position + 2] = 'l';
-                _buffer[position + 3] = 'l';
+                _buffer[position + 0] = (byte)'n';
+                _buffer[position + 1] = (byte)'u';
+                _buffer[position + 2] = (byte)'l';
+                _buffer[position + 3] = (byte)'l';
                 _buffer[position + 4] = Separator;
                 position += 5;
             }
@@ -205,44 +200,44 @@ namespace JShibo.Serialization.Csv
         internal void WriteNullWithoutName()
         {
             Resize(5);
-            _buffer[position] = 'n';
-            _buffer[position + 1] = 'u';
-            _buffer[position + 2] = 'l';
-            _buffer[position + 3] = 'l';
+            _buffer[position + 0] = (byte)'n';
+            _buffer[position + 1] = (byte)'u';
+            _buffer[position + 2] = (byte)'l';
+            _buffer[position + 3] = (byte)'l';
             _buffer[position + 4] = Separator;
             position += 5;
         }
 
-        private unsafe char* InternalWrite(char* buffer, string value)
+        private unsafe byte* InternalWrite(byte* buffer, string value)
         {
             if (value == null)
             {
-                *buffer++ = 'n';
-                *buffer++ = 'u';
-                *buffer++ = 'l';
-                *buffer++ = 'l';
-                *buffer++ = Separator;
+                *buffer++ = (byte)'n';
+                *buffer++ = (byte)'u';
+                *buffer++ = (byte)'l';
+                *buffer++ = (byte)'l';
+                *buffer++ = (byte)Separator;
                 position += 5;
                 return buffer;
             }
             else if (value.Length == 0)
             {
-                *buffer++ = Quote;
-                *buffer++ = Quote;
-                *buffer++ = Separator;
+                *buffer++ = (byte)Quote;
+                *buffer++ = (byte)Quote;
+                *buffer++ = (byte)Separator;
                 position += 3;
             }
             else
             {
                 int escCount = 0;
-                *buffer++ = Quote;
+                *buffer++ = (byte)Quote;
                 fixed (char* chs = value)
                 {
                     if (sets.Escape == StringEscape.Default)
                     {
                         if (sets.CheckJsonEscape == CheckEscape.None) //&& Utils.FastFindEscape(chs,value.Length)==true) //&& value.IndexOf('"') != -1)
                         {
-                            Utils.wstrcpy(buffer, chs, value.Length);
+                            //Utils.wstrcpy(buffer, chs, value.Length);
                             buffer += value.Length;
                         }
                         //else if (sets.CheckJsonEscape == CheckEscape.May)
@@ -263,12 +258,12 @@ namespace JShibo.Serialization.Csv
                         {
                             //escCount = Utils.WriteUsAct(buffer, chs, value.Length);
                             //escCount = Utils.CheckThenCopy(buffer, chs, value.Length);
-                            escCount = Utils.CheckFullThenCopy(buffer, chs, value.Length);
+                            //escCount = Utils.CheckFullThenCopy(buffer, chs, value.Length);
                             buffer += value.Length + escCount;
                         }
                         else if (sets.CheckJsonEscape == CheckEscape.OnlyCheckQuote)
                         {
-                            escCount = Utils.CheckThenCopy(buffer, chs, value.Length);
+                            //escCount = Utils.CheckThenCopy(buffer, chs, value.Length);
                             buffer += value.Length + escCount;
                         }
                         position += value.Length + 3 + escCount;
@@ -281,9 +276,9 @@ namespace JShibo.Serialization.Csv
                     //}
                     else if (sets.Escape == StringEscape.EscapeNonAscii)
                     {
-                        int ecount = Utils.ToCharAsUnicode(buffer, chs, value.Length);
-                        buffer += ecount * 6 + value.Length - ecount;
-                        position += ecount * 6 + value.Length - ecount + 3;
+                        //int ecount = Utils.ToCharAsUnicode(buffer, chs, value.Length);
+                        //buffer += ecount * 6 + value.Length - ecount;
+                        //position += ecount * 6 + value.Length - ecount + 3;
                     }
                 }
                 *buffer++ = Quote;
@@ -292,20 +287,20 @@ namespace JShibo.Serialization.Csv
             return buffer;
         }
 
-        internal unsafe void WriteHeader(string[] headers)
+        internal unsafe void WriteHeader(byte[][] headers)
         {
             var start = position;
-            fixed (char* pdst = &_buffer[position])
+            fixed (byte* pdst = &_buffer[position])
             {
-                char* tdst = pdst;
+                byte* tdst = pdst;
                 for (int i = 0; i < headers.Length; i++)
                 {
                     int len = headers[i].Length;
-                    fixed (char* psrc=headers[i])
+                    fixed (byte* psrc = headers[i])
                     {
                         Utils.wstrcpy(tdst, psrc, len);
                         tdst += len;
-                        *tdst++ = ',';
+                        *tdst++ = (byte)',';
                         position += len + 1;
                     }
                 }
@@ -314,23 +309,38 @@ namespace JShibo.Serialization.Csv
                     tdst--;
                     position--;
                 }
-                *tdst++ = '\r';
-                *tdst++ = '\n';
+                *tdst++ = (byte)'\r';
+                *tdst++ = (byte)'\n';
                 position += 2;
             }
-            bp += position - start;
+            //bp += position - start;
+        }
+
+        internal unsafe void WriteHeader(byte[] headers)
+        {
+            var start = position;
+            fixed (byte* pdst = &_buffer[position], psrc = headers)
+            {
+                var tdst = pdst;
+                Utils.wstrcpy(tdst, psrc, headers.Length);
+                tdst += headers.Length;
+                *tdst++ = (byte)'\r';
+                *tdst++ = (byte)'\n';
+                position += headers.Length + 2;
+            }
+            //bp += position - start;
         }
 
         internal unsafe void WriteNewLine()
         {
-            //this._buffer[position - 1] = '\r';
-            //this._buffer[position] = '\n';
-            //position++;
-
-            *(bp - 1) = '\r';
-            *(bp + 0) = '\n';
-            bp ++;
+            _buffer[position - 1] = (byte)'\r';
+            _buffer[position] = (byte)'\n';
             position++;
+
+            //*(bp - 1) = (byte)'\r';
+            //*(bp + 0) = (byte)'\n';
+            //bp++;
+            //position++;
         }
 
         #endregion
@@ -452,6 +462,7 @@ namespace JShibo.Serialization.Csv
 
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(byte value)
         {
             //position += FastToString.ToString(_buffer, position, value);
@@ -459,88 +470,92 @@ namespace JShibo.Serialization.Csv
             //position++;
 
             //int value = v;
-            //fixed (char* ptr = &_buffer[position])
+            fixed (byte* ptr = &_buffer[position])
+            {
+                FastToString.ToStringSign(ptr, value, ref position);
+
+                //char* buffer = ptr;
+                //if (value < 10)
+                //{
+                //    *buffer = (char)(value + (char)'0');
+                //    *(buffer + 1) = Separator;
+                //    position += 2;
+                //}
+                //else if (value < 100)
+                //{
+                //    var tens = (char)((value * 205u) >> 11); // div10, valid to 1028
+                //    *buffer = (char)(tens + (char)'0');
+                //    *(buffer + 1) = (char)(value - (tens * 10) + (char)'0');
+                //    *(buffer + 2) = Separator;
+                //    position += 3;
+                //}
+                //else
+                //{
+                //    var digit0 = (char)((value * 41u) >> 12); // div100, valid to 1098
+                //    var digits01 = (char)((value * 205u) >> 11); // div10, valid to 1028
+                //    *buffer = (char)(digit0 + (char)'0');
+                //    *(buffer + 1) = (char)(digits01 - (digit0 * 10) + (char)'0');
+                //    *(buffer + 2) = (char)(value - (digits01 * 10) + (char)'0');
+                //    *(buffer + 3) = Separator;
+                //    position += 4;
+                //}
+            }
+
+
+            //if (value < 10)
             //{
-            //    char* buffer = ptr;
-            //    //FastToString.ToStringSign(buffer, value, ref position);
-
-            //    if (value < 10)
-            //    {
-            //        *buffer = (char)(value + (char)'0');
-            //        *(buffer + 1) = Separator;
-            //        position += 2;
-            //    }
-            //    else if (value < 100)
-            //    {
-            //        var tens = (char)((value * 205u) >> 11); // div10, valid to 1028
-            //        *buffer = (char)(tens + (char)'0');
-            //        *(buffer + 1) = (char)(value - (tens * 10) + (char)'0');
-            //        *(buffer + 2) = Separator;
-            //        position += 3;
-            //    }
-            //    else
-            //    {
-            //        var digit0 = (char)((value * 41u) >> 12); // div100, valid to 1098
-            //        var digits01 = (char)((value * 205u) >> 11); // div10, valid to 1028
-            //        *buffer = (char)(digit0 + (char)'0');
-            //        *(buffer + 1) = (char)(digits01 - (digit0 * 10) + (char)'0');
-            //        *(buffer + 2) = (char)(value - (digits01 * 10) + (char)'0');
-            //        *(buffer + 3) = Separator;
-            //        position += 4;
-            //    }
+            //    *bp = (byte)(value + (char)'0');
+            //    *(bp + 1) = (byte)Separator;
+            //    bp += 2;
+            //    position += 2;
             //}
-
-
-            if (value < 10)
-            {
-                *bp = (char)(value + (char)'0');
-                *(bp + 1) = Separator;
-                bp += 2;
-                position += 2;
-            }
-            else if (value < 100)
-            {
-                var tens = (char)((value * 205u) >> 11); // div10, valid to 1028
-                *bp = (char)(tens + (char)'0');
-                *(bp + 1) = (char)(value - (tens * 10) + (char)'0');
-                *(bp + 2) = Separator;
-                bp += 3;
-                position += 3;
-            }
-            else
-            {
-                var digit0 = (char)((value * 41u) >> 12); // div100, valid to 1098
-                var digits01 = (char)((value * 205u) >> 11); // div10, valid to 1028
-                *bp = (char)(digit0 + (char)'0');
-                *(bp + 1) = (char)(digits01 - (digit0 * 10) + (char)'0');
-                *(bp + 2) = (char)(value - (digits01 * 10) + (char)'0');
-                *(bp + 3) = Separator;
-                bp += 4;
-                position += 4;
-            }
+            //else if (value < 100)
+            //{
+            //    var tens = (byte)((value * 205u) >> 11); // div10, valid to 1028
+            //    *bp = (byte)(tens + (char)'0');
+            //    *(bp + 1) = (byte)(value - (tens * 10) + (char)'0');
+            //    *(bp + 2) = Separator;
+            //    bp += 3;
+            //    position += 3;
+            //}
+            //else
+            //{
+            //    var digit0 = (char)((value * 41u) >> 12); // div100, valid to 1098
+            //    var digits01 = (char)((value * 205u) >> 11); // div10, valid to 1028
+            //    *bp = (byte)(digit0 + (char)'0');
+            //    *(bp + 1) = (byte)(digits01 - (digit0 * 10) + (char)'0');
+            //    *(bp + 2) = (byte)(value - (digits01 * 10) + (char)'0');
+            //    *(bp + 3) = Separator;
+            //    bp += 4;
+            //    position += 4;
+            //}
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(sbyte value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(short value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(ushort value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(int value)
         {
             position += FastToString.ToString(_buffer, position, value);
@@ -548,48 +563,55 @@ namespace JShibo.Serialization.Csv
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(uint value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(long value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(ulong value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(float value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(double value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(decimal value)
         {
-            position += FastToString.ToString(_buffer, position, value);
+            //position += FastToString.ToString(_buffer, position, value);
             this._buffer[position] = Separator;
             position++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(string value)
         {
             if (value == null)
@@ -611,99 +633,106 @@ namespace JShibo.Serialization.Csv
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(bool value)
         {
             if (value)
             {
-                _buffer[position] = 't';
-                _buffer[position + 1] = 'r';
-                _buffer[position + 2] = 'u';
-                _buffer[position + 3] = 'e';
+                _buffer[position] = (byte)'t';
+                _buffer[position + 1] = (byte)'r';
+                _buffer[position + 2] = (byte)'u';
+                _buffer[position + 3] = (byte)'e';
                 _buffer[position + 4] = Separator;
                 position += 5;
             }
             else
             {
-                _buffer[position] = 'f';
-                _buffer[position + 1] = 'a';
-                _buffer[position + 2] = 'l';
-                _buffer[position + 3] = 's';
-                _buffer[position + 4] = 'e';
+                _buffer[position] = (byte)'f';
+                _buffer[position + 1] = (byte)'a';
+                _buffer[position + 2] = (byte)'l';
+                _buffer[position + 3] = (byte)'s';
+                _buffer[position + 4] = (byte)'e';
                 _buffer[position + 5] = Separator;
                 position += 6;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(char value)
         {
             _buffer[position] = Quote;
-            _buffer[position + 1] = value;
+            //_buffer[position + 1] = value;
             _buffer[position + 2] = Quote;
             this._buffer[position + 3] = Separator;
             position += 4;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(DateTime value)
         {
-            fixed (char* pd = &_buffer[position])
+            fixed (byte* pd = &_buffer[position])
             {
-                char* p = pd;
+                byte* p = pd;
                 *p++ = Quote;
-                p = FastToString.ToString(p, ref position, value);
+                //p = FastToString.ToString(p, ref position, value);
                 *p++ = Quote;
                 *p++ = Separator;
                 position += 3;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(DateTimeOffset value)
         {
-            fixed (char* pd = &_buffer[position])
+            fixed (byte* pd = &_buffer[position])
             {
-                char* p = pd;
+                byte* p = pd;
                 *p++ = Quote;
-                p = FastToString.ToString(p, ref position, value);
+                //p = FastToString.ToString(p, ref position, value);
                 *p++ = Quote;
                 *p++ = Separator;
                 position += 3;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(TimeSpan value)
         {
-            fixed (char* pd = &_buffer[position])
+            fixed (byte* pd = &_buffer[position])
             {
-                char* p = pd;
+                byte* p = pd;
                 *p++ = Quote;
-                p = FastToString.ToString(p, ref position, value);
+                //p = FastToString.ToString(p, ref position, value);
                 *p++ = Quote;
                 *p++ = Separator;
                 position += 3;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(Guid value)
         {
-            fixed (char* pd = &_buffer[position])
+            fixed (byte* pd = &_buffer[position])
             {
-                char* p = pd;
+                byte* p = pd;
                 *p++ = Quote;
-                p = FastToString.ToString(p, ref position, value);
+                //p = FastToString.ToString(p, ref position, value);
                 *p++ = Quote;
                 *p++ = Separator;
                 position += 3;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(Uri value)
         {
             Resize((value.AbsoluteUri.Length) + 10);
-            fixed (char* pd = &_buffer[position])
+            fixed (byte* pd = &_buffer[position])
             {
-                char* p = pd;
-                p = FastToString.ToString(p, ref position, value);
-                *p++ = '\r';
-                *p++ = '\n';
+                byte* p = pd;
+                //p = FastToString.ToString(p, ref position, value);
+                *p++ = (byte)'\r';
+                *p++ = (byte)'\n';
                 position += 2;
             }
         }
@@ -714,18 +743,18 @@ namespace JShibo.Serialization.Csv
 
         internal unsafe void Write(int[] value)
         {
-            fixed (char* pd = &_buffer[position])
+            fixed (byte* pd = &_buffer[position])
             {
-                char* p = pd;
-                for (int i = 0; i < value.Length-1; i++)
+                byte* p = pd;
+                for (int i = 0; i < value.Length - 1; i++)
                 {
-                    p = FastToString.ToString(p, ref position, value[i]);
-                    *p++ = ',';
+                    //p = FastToString.ToString(p, ref position, value[i]);
+                    *p++ = (byte)',';
                     position++;
                 }
-                p = FastToString.ToString(p, ref position, value[value.Length - 1]);
-                *p++ = ']';
-                *p = ',';
+                //p = FastToString.ToString(p, ref position, value[value.Length - 1]);
+                *p++ = (byte)']';
+                *p = (byte)',';
                 position += 2;
             }
         }
@@ -746,63 +775,33 @@ namespace JShibo.Serialization.Csv
 
         public override string ToString()
         {
-            //if (_buffer[position - 1] == ',')
-            //    position--;
-            return new string(_buffer, 0, position);
+            if (_buffer[position - 1] == ',')
+                position--;
+            return Encoding.UTF8.GetString(_buffer, 0, position);
         }
 
-        public ArraySegment<char> ToArraySegment()
+        public ArraySegment<byte> ToArraySegment()
         {
             if (_buffer[position - 1] == ',')
                 position--;
-            return new ArraySegment<char>(_buffer, 0, position);
+            return new ArraySegment<byte>(_buffer, 0, position);
         }
 
         public void WriteTo(Stream stream)
         {
-            //if (_buffer[position - 1] == ',')
-            //    position--;
-
-            //if (unFlag == true)
-            //{
-            //    if (stream is MemoryStream)
-            //    {
-            //        stream.Write(_buffer, 1, position - 1);
-            //    }
-            //    else if (stream is FileStream)
-            //    {
-            //        stream.Write(_buffer, 1, position - 1);
-            //    }
-            //    else
-            //    {
-            //        stream.Write(_buffer, 1, position - 1);
-            //    }
-            //}
-            //else
-            //{
-            //    if (stream is MemoryStream)
-            //    {
-            //        stream.Write(_buffer, 0, position);
-            //    }
-            //    else if (stream is FileStream)
-            //    {
-            //        stream.Write(_buffer, 0, position);
-            //    }
-            //    else
-            //    {
-            //        stream.Write(_buffer, 0, position);
-            //    }
-            //}
+            if (_buffer[position - 1] == ',')
+                position--;
+            stream.Write(_buffer, 0, position);
         }
 
-        public char[] GetBuffer()
+        public byte[] GetBuffer()
         {
             return _buffer;
         }
 
-        public char[] ToArray()
+        public byte[] ToArray()
         {
-            char[] temp = new char[position];
+            var temp = new byte[position];
             Buffer.BlockCopy(_buffer, 0, temp, 0, position << 1);
             return temp;
         }
@@ -885,14 +884,14 @@ namespace JShibo.Serialization.Csv
 
         private unsafe void WriteString(string value)
         {
-            fixed (char* psrc = value, pdst = &_buffer[position])
-            {
-                char* tsrc = psrc, tdst = pdst;
-                Utils.wstrcpy(tdst, tsrc, value.Length);
-                tdst += value.Length;
-                *tdst++ = Separator;
-                position += value.Length + 1;
-            }
+            //fixed (char* psrc = value, pdst = &_buffer[position])
+            //{
+            //    char* tsrc = psrc, tdst = pdst;
+            //    Utils.wstrcpy(tdst, tsrc, value.Length);
+            //    tdst += value.Length;
+            //    *tdst++ = Separator;
+            //    position += value.Length + 1;
+            //}
 
             //fixed (char* psrc = value, pdst = &_buffer[position])
             //{
@@ -948,7 +947,7 @@ namespace JShibo.Serialization.Csv
             //}
         }
 
-        private unsafe void WriteString(string value,char next)
+        private unsafe void WriteString(string value, char next)
         {
             #region old
             //fixed (char* psrc = value, pdst = &_buffer[position])
@@ -963,61 +962,60 @@ namespace JShibo.Serialization.Csv
             //}
             #endregion
 
-            fixed (char* psrc = value, pdst = &_buffer[position])
-            {
-                char* tsrc = psrc, tdst = pdst;
-                *tdst++ = Quote;
-                int escCount = 0;
-                if (sets.Escape == StringEscape.Default)
-                {
-                    if (sets.CheckJsonEscape == CheckEscape.None)
-                    {
-                        Utils.wstrcpy(tdst, tsrc, value.Length);
-                        tdst += value.Length;
-                    }
-                    //else if (sets.CheckJsonEscape == CheckEscape.May)
-                    //{
-                    //    if (value.IndexOf('"') != -1)
-                    //    {
-                    //        escCount = Utils.CheckThenCopy(tdst, tsrc, value.Length);
-                    //        tdst += value.Length + escCount;
-                    //    }
-                    //    else
-                    //    {
-                    //        Utils.wstrcpy(tdst, tsrc, value.Length);
-                    //        tdst += value.Length;
-                    //    }
-                    //}
-                    else if (sets.CheckJsonEscape == CheckEscape.Must)
-                    {
-                        escCount = Utils.CheckFullThenCopy(tdst, tsrc, value.Length);
-                        tdst += value.Length + escCount;
-                    }
-                    else if (sets.CheckJsonEscape == CheckEscape.OnlyCheckQuote)
-                    {
-                        escCount = Utils.CheckThenCopy(tdst, tsrc, value.Length);
-                        tdst += value.Length + escCount;
-                    }
-                    position += value.Length + 3 + escCount;
-                }
-                //else if (sets.Escape == StringEscape.EscapeHtml)
-                //{
-                //    Utils.wstrcpy(buffer, chs, value.Length);
-                //    buffer += value.Length;
-                //    position += value.Length + 3 + escCount;
-                //}
-                else if (sets.Escape == StringEscape.EscapeNonAscii)
-                {
-                    int ecount = Utils.ToCharAsUnicode(tdst, tsrc, value.Length);
-                    tdst += ecount * 6 + value.Length - ecount;
-                    position += ecount * 6 + value.Length - ecount + 3;
-                }
-                *tdst++ = Quote;
-                *tdst++ = next;
-            }
+            //fixed (char* psrc = value, pdst = &_buffer[position])
+            //{
+            //    char* tsrc = psrc, tdst = pdst;
+            //    *tdst++ = Quote;
+            //    int escCount = 0;
+            //    if (sets.Escape == StringEscape.Default)
+            //    {
+            //        if (sets.CheckJsonEscape == CheckEscape.None)
+            //        {
+            //            Utils.wstrcpy(tdst, tsrc, value.Length);
+            //            tdst += value.Length;
+            //        }
+            //        //else if (sets.CheckJsonEscape == CheckEscape.May)
+            //        //{
+            //        //    if (value.IndexOf('"') != -1)
+            //        //    {
+            //        //        escCount = Utils.CheckThenCopy(tdst, tsrc, value.Length);
+            //        //        tdst += value.Length + escCount;
+            //        //    }
+            //        //    else
+            //        //    {
+            //        //        Utils.wstrcpy(tdst, tsrc, value.Length);
+            //        //        tdst += value.Length;
+            //        //    }
+            //        //}
+            //        else if (sets.CheckJsonEscape == CheckEscape.Must)
+            //        {
+            //            escCount = Utils.CheckFullThenCopy(tdst, tsrc, value.Length);
+            //            tdst += value.Length + escCount;
+            //        }
+            //        else if (sets.CheckJsonEscape == CheckEscape.OnlyCheckQuote)
+            //        {
+            //            escCount = Utils.CheckThenCopy(tdst, tsrc, value.Length);
+            //            tdst += value.Length + escCount;
+            //        }
+            //        position += value.Length + 3 + escCount;
+            //    }
+            //    //else if (sets.Escape == StringEscape.EscapeHtml)
+            //    //{
+            //    //    Utils.wstrcpy(buffer, chs, value.Length);
+            //    //    buffer += value.Length;
+            //    //    position += value.Length + 3 + escCount;
+            //    //}
+            //    else if (sets.Escape == StringEscape.EscapeNonAscii)
+            //    {
+            //        int ecount = Utils.ToCharAsUnicode(tdst, tsrc, value.Length);
+            //        tdst += ecount * 6 + value.Length - ecount;
+            //        position += ecount * 6 + value.Length - ecount + 3;
+            //    }
+            //    *tdst++ = Quote;
+            //    *tdst++ = next;
+            //}
         }
 
         #endregion
-
     }
 }

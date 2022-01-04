@@ -7,11 +7,11 @@ using System.Text;
 
 namespace JShibo.Serialization.Soc
 {
-    public class ObjectUstream : OBase,IReader
+    public class ObjecStreamReader : OBase,IReader
     {
         #region 字段
 
-        internal Deserialize<ObjectUstream>[] desers;
+        internal Deserialize<ObjecStreamReader>[] desers;
         internal Stream _stream = null;
         internal byte[] _buffer = null;
         internal long startPosition = 0;
@@ -20,7 +20,7 @@ namespace JShibo.Serialization.Soc
 
         #region 构造函数
 
-        public ObjectUstream(Stream stream)
+        public ObjecStreamReader(Stream stream)
         {
             _buffer = new byte[1024] ;
         }

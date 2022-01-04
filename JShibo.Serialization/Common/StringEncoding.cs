@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace JShibo.SerializationCore.Common
+namespace JShibo.Serialization.Common
 {
     internal static class StringEncoding
     {

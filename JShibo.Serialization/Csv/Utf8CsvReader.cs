@@ -5,7 +5,7 @@ using System.Text;
 
 namespace JShibo.Serialization.Csv
 {
-    public class CsvUstring
+    public class Utf8CsvReader
     {
 
     }

@@ -9,18 +9,18 @@ using System.Text;
 
 namespace JShibo.Serialization.Soc
 {
-    public class ObjectUbuffer : OBase, IReader
+    public class ObjectReader : OBase, IReader
     {
         #region 字段
 
-        internal Deserialize<ObjectUbuffer>[] desers;
+        internal Deserialize<ObjectReader>[] desers;
         internal byte[] _buffer = null;
 
         #endregion
 
         #region 构造函数
 
-        public ObjectUbuffer(byte[] buffer)
+        public ObjectReader(byte[] buffer)
         {
             _buffer = buffer;
             position = 1;
@@ -1060,7 +1060,7 @@ namespace JShibo.Serialization.Soc
         public object ReadObject()
         {
             //return desers[curObj++](this);
-            object value = ShiboObjectBufferSerializer.Deserialize(this, desers[curObj++]);
+            object value = ObjectBufferSerializer.Deserialize(this, desers[curObj++]);
             return value;
         }
 

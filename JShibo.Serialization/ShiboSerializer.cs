@@ -244,7 +244,7 @@ namespace JShibo.Serialization
         /// <returns></returns>
         public static byte[] BinarySerialize(object graph)
         {
-            return ShiboObjectBufferSerializer.Serialize(graph);
+            return ObjectBufferSerializer.Serialize(graph);
         }
 
         /// <summary>
@@ -252,19 +252,19 @@ namespace JShibo.Serialization
         /// </summary>
         /// <param name="graph"></param>
         /// <param name="stream"></param>
-        public static void BinarySerialize(ObjectBuffer stream, object graph)
+        public static void BinarySerialize(ObjectWriter stream, object graph)
         {
-            ShiboObjectBufferSerializer.Serialize(stream, graph);
+            ObjectBufferSerializer.Serialize(stream, graph);
         }
 
-        public static void BinarySerialize(ObjectStream stream, object graph)
+        public static void BinarySerialize(ObjectStreamWriter stream, object graph)
         {
-            ShiboObjectStreamSerializer.Serialize(stream, graph);
+            ObjectStreamSerializer.Serialize(stream, graph);
         }
 
         public static void BinarySerialize(Stream stream, object graph)
         {
-            ShiboObjectBufferSerializer.Serialize(stream,graph);
+            ObjectBufferSerializer.Serialize(stream,graph);
         }
 
         #endregion
@@ -273,14 +273,14 @@ namespace JShibo.Serialization
 
         public static T BinaryDeserialize<T>(byte[] buffer)
         {
-            ObjectUbuffer stream = new ObjectUbuffer(buffer);
-            return ShiboObjectBufferSerializer.Deserialize<T>(stream);
+            ObjectReader stream = new ObjectReader(buffer);
+            return ObjectBufferSerializer.Deserialize<T>(stream);
         }
 
         public static object BinaryDeserialize(byte[] buffer,Type type)
         {
-            ObjectUbuffer stream = new ObjectUbuffer(buffer);
-            return ShiboObjectBufferSerializer.Deserialize(stream, type);
+            ObjectReader stream = new ObjectReader(buffer);
+            return ObjectBufferSerializer.Deserialize(stream, type);
         }
 
         #endregion
@@ -289,16 +289,26 @@ namespace JShibo.Serialization
 
         public static string ToCsv(object value)
         {
-            return ShiboCsvStringSerializer.Serialize(value);
+            return CsvStringSerializer.Serialize(value);
+        }
+
+        public static Span<byte> ToCsvUtf8(object value)
+        {
+            return Utf8CsvSerializer.Serialize(value);
+        }
+
+        public static CsvStringWriter ToCsvBuffer(object value)
+        {
+            return CsvStringSerializer.SerializeToBuffer(value);
         }
 
         #endregion
 
         #region Transpose
 
-        public static Transpose.DataColumn[] ToColumns(object value)
+        public static Transpose.DataColumn[] ToColumns(object value,bool useCache=true)
         {
-            return ShiboPivotSerializer.Serialize(value);
+            return ShiboPivotSerializer.Serialize(value, useCache);
         }
 
         public static void ToObjects(object value)
@@ -318,12 +328,12 @@ namespace JShibo.Serialization
 
         #endregion
 
-            #region info
+        #region info
 
-            //public static JsonStreamContext GetJsonStreamTypeInfos<T>()
-            //{
-            //    return ShiboJsonStreamSerializer.GetJsonTypes(typeof(T));
-            //}
+        //public static JsonStreamContext GetJsonStreamTypeInfos<T>()
+        //{
+        //    return ShiboJsonStreamSerializer.GetJsonTypes(typeof(T));
+        //}
 
         public static JsonStringContext GetJsonStringTypeInfos<T>()
         {
@@ -391,7 +401,7 @@ namespace JShibo.Serialization
         /// <returns></returns>
         public static long Sizeof(object value)
         {
-            return ShiboObjectBufferSerializer.Sizeof(value);
+            return ObjectBufferSerializer.Sizeof(value);
         }
 
         #endregion

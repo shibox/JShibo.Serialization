@@ -176,7 +176,24 @@ namespace JShibo.Serialization
 
     public class CsvContext<Data, UData, Size> : TextContext<Data, UData, Size>
     {
-        
+        public string NamesCommaString;
+        public string NamesSplitString;
+        public string NamesSpaceString;
+
+        public byte[] NamesCommaBytes;
+        public byte[] NamesSplitBytes;
+        public byte[] NamesSpaceBytes;
+
+        public void FormatNames()
+        {
+            NamesCommaString = string.Join(',', Names);
+            NamesSplitString = string.Join('|', Names);
+            NamesSpaceString = string.Join('\t', Names);
+
+            NamesCommaBytes = Encoding.UTF8.GetBytes(NamesCommaString);
+            NamesSplitBytes = Encoding.UTF8.GetBytes(NamesSplitString);
+            NamesSpaceBytes = Encoding.UTF8.GetBytes(NamesSpaceString);
+        }
     }
 
     public class XmlContext<Data, UData, Size> : TextContext<Data, UData, Size>

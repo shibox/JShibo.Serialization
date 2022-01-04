@@ -28,6 +28,11 @@ namespace JShibo.Serialization.Common
         private Guid Value;
 
         [FieldOffset(0)]
+        public readonly ulong L00;
+        [FieldOffset(8)]
+        public readonly ulong L01;
+
+        [FieldOffset(0)]
         public readonly byte B00;
         [FieldOffset(1)]
         public readonly byte B01;
@@ -70,41 +75,41 @@ namespace JShibo.Serialization.Common
         }
     }
 
-    [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    internal struct GuidStructSoc
-    {
-        [FieldOffset(0)]
-        private Guid Value;
+    //[StructLayout(LayoutKind.Explicit, Pack = 1)]
+    //internal struct GuidStructSoc
+    //{
+    //    [FieldOffset(0)]
+    //    private Guid Value;
 
-        [FieldOffset(0)]
-        public readonly int _a;
-        [FieldOffset(4)]
-        public readonly short _b;
-        [FieldOffset(6)]
-        public readonly short _c;
-        [FieldOffset(8)]
-        public readonly byte _d;
-        [FieldOffset(9)]
-        public readonly byte _e;
-        [FieldOffset(10)]
-        public readonly byte _f;
-        [FieldOffset(11)]
-        public readonly byte _g;
-        [FieldOffset(12)]
-        public readonly byte _h;
-        [FieldOffset(13)]
-        public readonly byte _i;
-        [FieldOffset(14)]
-        public readonly byte _j;
-        [FieldOffset(15)]
-        public readonly byte _k;
+    //    [FieldOffset(0)]
+    //    public readonly int _a;
+    //    [FieldOffset(4)]
+    //    public readonly short _b;
+    //    [FieldOffset(6)]
+    //    public readonly short _c;
+    //    [FieldOffset(8)]
+    //    public readonly byte _d;
+    //    [FieldOffset(9)]
+    //    public readonly byte _e;
+    //    [FieldOffset(10)]
+    //    public readonly byte _f;
+    //    [FieldOffset(11)]
+    //    public readonly byte _g;
+    //    [FieldOffset(12)]
+    //    public readonly byte _h;
+    //    [FieldOffset(13)]
+    //    public readonly byte _i;
+    //    [FieldOffset(14)]
+    //    public readonly byte _j;
+    //    [FieldOffset(15)]
+    //    public readonly byte _k;
 
-        public GuidStructSoc(Guid invisibleMembers)
-            : this()
-        {
-            Value = invisibleMembers;
-        }
-    }
+    //    public GuidStructSoc(Guid invisibleMembers)
+    //        : this()
+    //    {
+    //        Value = invisibleMembers;
+    //    }
+    //}
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
     internal struct DecimalStruct

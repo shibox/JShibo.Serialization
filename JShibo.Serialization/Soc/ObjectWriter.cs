@@ -24,11 +24,11 @@ namespace JShibo.Serialization.Soc
     /// 
     /// Soc全称：Shibo Object Component
     /// </summary>
-    public class ObjectBuffer :OBase, IWriter,IVWriter, IByteBase
+    public class ObjectWriter :OBase, IWriter,IVWriter, IByteBase
     {
         #region 字段
 
-        internal Serialize<ObjectBuffer>[] sers;
+        internal Serialize<ObjectWriter>[] sers;
         internal byte[] _buffer = null;
         unsafe internal byte* bp = null;
 
@@ -36,17 +36,17 @@ namespace JShibo.Serialization.Soc
 
         #region 构造函数
 
-        public ObjectBuffer()
+        public ObjectWriter()
             : this(64)
         {
         }
 
-        public ObjectBuffer(int cap)
+        public ObjectWriter(int cap)
         {
             _buffer = new byte[cap];
         }
 
-        public ObjectBuffer(byte[] buffer)
+        public ObjectWriter(byte[] buffer)
         {
             _buffer = buffer;
         }
@@ -1308,30 +1308,17 @@ namespace JShibo.Serialization.Soc
             fixed (byte* ds = &_buffer[position])
             {
                 byte* pd = ds;
-                GuidStructSoc guid = new GuidStructSoc(value);
-                int a = guid._a;
-                short b = guid._b, c = guid._c;
-                *((int*)pd) = *((int*)&a);
-                *((short*)(pd + 4)) = *((short*)&b);
-                *((short*)(pd + 6)) = *((short*)&c);
-                pd += 8;
-
-                *pd++ = guid._d;
-                *pd++ = guid._e;
-                *pd++ = guid._f;
-                *pd++ = guid._g;
-                *pd++ = guid._h;
-                *pd++ = guid._i;
-                *pd++ = guid._j;
-                *pd++ = guid._k;
+                var guid = new GuidStruct(value);
+                *(ulong*)(pd + 0) = guid.L00;
+                *(ulong*)(pd + 8) = guid.L01;
             }
             position += 16;
         }
 
         public void Write(Stream value)
         {
-            long len = value.Length;
-
+            //long len = value.Length;
+            //value.Write(_buffer, 0, position);
         }
 
         public void WriteVInt(int value)

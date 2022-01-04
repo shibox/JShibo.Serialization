@@ -13,32 +13,6 @@ namespace JShibo.Serialization.BenchMark.Tester
     {
         #region 基础测试
 
-        public unsafe static void TestCopy()
-        {
-            string s = "album/userphotos/2014/2/15/7a7f_71d8bd20_71d8bd20.jpghrfh";
-            char[] buffer = new char[1000000];
-            Stopwatch w = Stopwatch.StartNew();
-            for (int j = 0; j < 1000; j++)
-            {
-                fixed (char* pb = &buffer[0])
-                {
-                    char* a = pb;
-                    for (int i = 0; i < 10000; i++)
-                    {
-                        fixed (char* pd = s)
-                        {
-                            FastWriteName.WriteUnsafe(a, pd, s.Length);
-                            //Utils.wstrcpy( a,pd, s.Length);
-                            a += s.Length;
-                        }
-                    }
-                }
-            }
-            w.Stop();
-            Console.WriteLine(w.ElapsedMilliseconds);
-
-        }
-
         public static void Int32Parser()
         {
             string s = "123456789,";

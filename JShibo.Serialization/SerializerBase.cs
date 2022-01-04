@@ -74,7 +74,7 @@ namespace JShibo.Serialization
             try
             {
                 AssemblyName[] assembly = Assembly.GetEntryAssembly().GetReferencedAssemblies();
-                foreach (AssemblyName ass in assembly)
+                foreach (var ass in assembly)
                 {
                     AppDomain.CurrentDomain.Load(ass);
                 }
@@ -97,7 +97,7 @@ namespace JShibo.Serialization
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -166,8 +166,7 @@ namespace JShibo.Serialization
 
         internal Serialize<Data> GenerateDataSerializeSurrogate(Type type)
         {
-            Serialize<Data> sr = null;
-            if (typeMap.TryGetValue(type, out sr) == false)
+            if (typeMap.TryGetValue(type, out var sr) == false)
             {
                 sr = GenerateDataSerializeSurrogate(type, false);
             }
@@ -176,8 +175,7 @@ namespace JShibo.Serialization
 
         internal Estimate<Size> GenerateSizeSerializeSurrogate(Type type)
         {
-            Estimate<Size> sr = null;
-            if (typeSizeMap.TryGetValue(type, out sr) == false)
+            if (typeSizeMap.TryGetValue(type, out var sr) == false)
             {
                 sr = GenerateSizeSerializeSurrogate(type, false);
             }
@@ -196,10 +194,9 @@ namespace JShibo.Serialization
 
         protected Type[] GetDeserializeTypes(Type type)
         {
-            Type[] sr = null;
-            if (deTypes.TryGetValue(type, out sr) == false)
+            if (deTypes.TryGetValue(type, out var sr) == false)
             {
-                List<Type> types = new List<Type>();
+                var types = new List<Type>();
                 Utils.GetTypes(type, types);
                 sr = types.ToArray();
                 deTypes.Add(type, sr);
@@ -209,10 +206,9 @@ namespace JShibo.Serialization
 
         internal string[] GetSerializeNames(Type type)
         {
-            string[] sr = null;
-            if (namesMap.TryGetValue(type, out sr) == false)
+            if (namesMap.TryGetValue(type, out var sr) == false)
             {
-                List<string> types = new List<string>();
+                var types = new List<string>();
                 Utils.GetNames(type, types);
                 sr = types.ToArray();
                 namesMap.Add(type, sr);
@@ -475,8 +471,7 @@ namespace JShibo.Serialization
 
         internal Deserialize<UData> GetDeserializeSurrogate(Type type)
         {
-            Deserialize<UData> sr = null;
-            if (deTypeMap.TryGetValue(type, out sr) == false)
+            if (deTypeMap.TryGetValue(type, out var sr) == false)
             {
                 sr = GenerateDeserializeSurrogate(type, false);
             }

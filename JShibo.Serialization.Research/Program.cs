@@ -9,7 +9,6 @@ using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using JShibo.Serialization.Json;
 using JShibo.Serialization.BenchMark.Entitiy;
-using JShibo.SerializationCore.BenchMark.Tester;
 using JShibo.Serialization.BenchMark.Tester;
 
 namespace JShibo.Serialization.BenchMark
@@ -501,14 +500,6 @@ namespace JShibo.Serialization.BenchMark
             ms.Close();
             return jsonString;
         }
-
-       
-
-
-
-
-
-
 
         public static void TTTT()
         {

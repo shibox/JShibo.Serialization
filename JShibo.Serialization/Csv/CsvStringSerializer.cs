@@ -11,16 +11,16 @@ using System.Runtime.InteropServices;
 
 namespace JShibo.Serialization.Csv
 {
-    internal class ShiboCsvStringSerializer : SerializerBase<CsvString, CsvUstring, CsvStringContext, CsvStringSize>
+    internal class CsvStringSerializer : SerializerBase<CsvStringWriter, CsvStringReader, CsvStringContext, CsvStringSize>
     {
 
-        static ShiboCsvStringSerializer Instance;
+        static CsvStringSerializer Instance;
 
         #region 构造函数
 
-        static ShiboCsvStringSerializer()
+        static CsvStringSerializer()
         {
-            Instance = new ShiboCsvStringSerializer
+            Instance = new CsvStringSerializer
             {
                 builder = new CsvILBuilder()
             };
@@ -78,7 +78,10 @@ namespace JShibo.Serialization.Csv
                 //info.Deserializer = Instance.GetDeserializeSurrogate(type);
                 types.Add(type, info);
                 if (info != null)
+                {
                     info.ToArray();
+                    info.FormatNames();
+                }
             }
             return info; 
         }
@@ -94,7 +97,10 @@ namespace JShibo.Serialization.Csv
                 //info.Deserialize = GetJsonDeserializeSurrogateFromType(type);
                 types.Add(type, info);
                 if (info != null)
+                {
                     info.ToArray();
+                    info.FormatNames();
+                }
             }
             return info;
         }
@@ -127,7 +133,7 @@ namespace JShibo.Serialization.Csv
                     return null;
                 bool isFirst = true;
                 CsvStringContext info = null;
-                CsvString stream = null;
+                CsvStringWriter stream = null;
                 foreach (object item in ar)
                 {
                     if (isFirst)
@@ -138,12 +144,13 @@ namespace JShibo.Serialization.Csv
                         //char[] buffer = CharsBufferManager.GetBuffer(size);
                         char[] buffer = ArrayPool<char>.Shared.Rent(size);
                         handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                        stream = new CsvString(buffer);
-                        fixed (char* pointer = buffer)
-                        {
-                            stream.bp = pointer;
-                        }
-                        stream.WriteHeader(info.Names);
+                        stream = new CsvStringWriter(buffer);
+                        //fixed (char* pointer = buffer)
+                        //{
+                        //    stream.bp = pointer;
+                        //}
+                        //stream.WriteHeader(info.Names);
+                        stream.WriteHeader(info.NamesCommaString);
                         isFirst = false;
                     }
                     info.Serializer(stream, item);
@@ -162,20 +169,20 @@ namespace JShibo.Serialization.Csv
                 {
                     Type type = gtypes[0];
                     CsvStringContext info = GetLastContext(type);
-                    CsvString stream = null;
+                    CsvStringWriter stream = null;
                     IList list = graph as IList;
                     if (list != null)
                     {
                         int size = info.MinSize * list.Count + info.GetHeaderSize();
-                        char[] buffer = CharsBufferManager.GetBuffer(size);
-                        stream = new CsvString(buffer);
+                        char[] buffer = XPoolSave<char>.Rent(size);
+                        stream = new CsvStringWriter(buffer);
                         stream.WriteHeader(info.Names);
                         for (int i = 0; i < list.Count; i++)
                         {
                             info.Serializer(stream, list[i]);
                             stream.WriteNewLine();
                         }
-                        CharsBufferManager.SetBuffer(stream.GetBuffer());
+                        XPoolSave<char>.Return(stream.GetBuffer());
                     }
                     return stream.ToString();
                 }
@@ -197,7 +204,7 @@ namespace JShibo.Serialization.Csv
         //    Serialize(stream, graph, info);
         //}
 
-        internal static void Serialize(CsvString stream, object graph, CsvStringContext info)
+        internal static void Serialize(CsvStringWriter stream, object graph, CsvStringContext info)
         {
             if (info.IsBaseType == false)
             {
@@ -220,32 +227,32 @@ namespace JShibo.Serialization.Csv
             }
         }
 
-        internal static CsvString SerializeToBuffer(object graph)
+        internal static CsvStringWriter SerializeToBuffer(object graph)
         {
             Type type = graph.GetType();
             CsvStringContext info = GetLastContext(type);
             var size = new CsvStringSize();
             info.EstimateSize(size, graph);
             int totalSize = info.MinSize + size.Size;
-            CsvString result = null;
+            CsvStringWriter result = null;
             char[] buffer = null;
             if (totalSize > 400)
             {
-                buffer = CharsBufferManager.GetBuffer(totalSize);
-                result = new CsvString(buffer);
+                buffer = XPoolSave<char>.Rent(totalSize);
+                result = new CsvStringWriter(buffer);
                 Serialize(result, graph, info);
-                CharsBufferManager.SetBuffer(result.GetBuffer());
+                XPoolSave<char>.Return(result.GetBuffer());
             }
             else
             {
                 buffer = new char[totalSize];
-                result = new CsvString(buffer);
+                result = new CsvStringWriter(buffer);
                 Serialize(result, graph, info);
             }
             return result;
         }
 
-        internal static T Deserialize<T>(CsvString stream, CsvStringContext info)
+        internal static T Deserialize<T>(CsvStringWriter stream, CsvStringContext info)
         {
             //if (info.IsJsonBaseType == false)
             //    stream.position++;
@@ -262,7 +269,7 @@ namespace JShibo.Serialization.Csv
             return default(T);
         }
 
-        internal static T Deserialize<T>(CsvString stream)
+        internal static T Deserialize<T>(CsvStringWriter stream)
         {
             Type type = typeof(T);
             CsvStringContext info = null;

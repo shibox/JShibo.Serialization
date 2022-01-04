@@ -7,11 +7,11 @@ using System.Text;
 
 namespace JShibo.Serialization.Soc
 {
-    public class ObjectStream :IWriter, IByteBase
+    public class ObjectStreamWriter :IWriter, IByteBase
     {
         #region 字段
 
-        internal Serialize<ObjectBuffer>[] sers;
+        internal Serialize<ObjectWriter>[] sers;
         internal Stream _stream = null;
         internal byte[] _buffer = null;
         internal long startPosition = 0;
@@ -20,14 +20,14 @@ namespace JShibo.Serialization.Soc
 
         #region 构造函数
 
-        public ObjectStream(Stream stream)
+        public ObjectStreamWriter(Stream stream)
         {
             this._stream = stream;
             this._buffer = new byte[1024];
             this.startPosition = stream.Position;
         }
 
-        public ObjectStream(Stream stream,int size)
+        public ObjectStreamWriter(Stream stream,int size)
         {
             this._stream = stream;
             this._buffer = new byte[1024];

@@ -437,10 +437,10 @@ namespace JShibo.Serialization.Json
             char[] buffer = null;
             if (totalSize > 400)
             {
-                buffer = CharsBufferManager.GetBuffer(totalSize);
+                buffer = XPoolSave<char>.Rent(totalSize);
                 result = new JsonString(buffer);
                 Serialize(result, graph, info);
-                CharsBufferManager.SetBuffer(result.GetBuffer());
+                XPoolSave<char>.Return(result.GetBuffer());
             }
             else
             {

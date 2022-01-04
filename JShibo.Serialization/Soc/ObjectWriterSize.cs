@@ -7,11 +7,11 @@ using JShibo.Serialization.Common;
 
 namespace JShibo.Serialization.Soc
 {
-    public class ObjectBufferSize : ISize
+    public class ObjectWriterSize : ISize
     {
         #region 字段属性构造函数
 
-        internal Estimate<ObjectBufferSize>[] sers;
+        internal Estimate<ObjectWriterSize>[] sers;
         int curObj = 0;
         int size = 0;
         /// <summary>
@@ -32,7 +32,7 @@ namespace JShibo.Serialization.Soc
             get { return isExact; }
         }
 
-        internal ObjectBufferSize()
+        internal ObjectWriterSize()
         { }
 
         internal void SetInfo(ObjectBufferContext info)

@@ -1,17 +1,19 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace JShibo.Serialization
 {
     /// <summary>
-    /// ×Ö·û»º´æ¹ÜÀíÇø
+    /// æ¯”è¾ƒèŠ‚çº¦å†…å­˜çš„å†…å­˜æ± 
     /// </summary>
-    public class CharsBufferManager
+    /// <typeparam name="T"></typeparam>
+    public class XPoolSave<T> where T : struct
     {
-        #region ×Ö¶Î
+        #region å­—æ®µ
 
         static int MinSize = 32;
         static int MaxSize = 1024 * 1024 * 16;
@@ -20,20 +22,20 @@ namespace JShibo.Serialization
         static int Middle = 0;
 
         static int[] indexs = null;
-        static List<Stack<char[]>> buffers = null;
-        static char[] tempBuffer;
+        static List<Stack<T[]>> buffers = null;
+        static T[] tempBuffer;
         static int tempIndex = -1;
 
         #endregion
 
-        #region ¹¹Ôìº¯Êý
+        #region æž„é€ å‡½æ•°
 
-        static CharsBufferManager()
+        static XPoolSave()
         {
-            buffers = new List<Stack<char[]>>();
+            buffers = new List<Stack<T[]>>();
             MaxIndex = (int)Math.Log(MaxSize / MinSize, 1.1) + 1;
             for (int i = 0; i < MaxIndex; i++)
-                buffers.Add(new Stack<char[]>());
+                buffers.Add(new Stack<T[]>());
             indexs = new int[MaxIndex];
             for (int i = 0; i < MaxIndex; i++)
                 indexs[i] = (int)(MinSize * Math.Pow(1.1, i));
@@ -42,10 +44,10 @@ namespace JShibo.Serialization
         }
 
         #endregion
-        
-        #region ·½·¨
 
-        public static char[] GetBuffer(int size)
+        #region æ–¹æ³•
+
+        public static T[] Rent(int size)
         {
             int index = BinarySearch(size);
             if (tempIndex == index)
@@ -56,56 +58,14 @@ namespace JShibo.Serialization
                 tempIndex = index;
                 return tempBuffer;
             }
-            return new char[size];
+            return new T[size];
         }
 
-        public static void SetBuffer(char[] value)
+        public static void Return(T[] value)
         {
             int index = BinarySearch(value.Length);
             if (index != tempIndex && index < MaxIndex)
                 buffers[index].Push(value);
-        }
-
-        public static char[] GetBufferSync(int size)
-        {
-            int index = BinarySearch(size);
-            char[] result = null;
-            if (index < MaxIndex)
-            {
-                Stack<char[]> buffer = buffers[index];
-                if (buffer.Count > 0)
-                {
-                    try
-                    {
-                        Monitor.Enter(buffer);
-                        if (buffer.Count > 0)
-                            result = buffer.Pop();
-                    }
-                    finally
-                    {
-                        Monitor.Exit(buffer);
-                    }
-                }
-            }
-            result = new char[size];
-            return result;
-        }
-
-        public static void SetBufferSync(char[] value)
-        {
-            int index = BinarySearch(value.Length);
-            if (index != tempIndex && index < MaxIndex)
-                buffers[index].Push(value);
-
-            //int index = (int)Math.Log(value.Length / MinSize, 1.1);
-            //if (index < MaxIndex)
-            //{
-            //    Stack<char[]> buffer = buffers[index];
-            //    //lock (buffer)
-            //    //{
-            //    buffer.Push(value);
-            //    //}
-            //}
         }
 
         private static int BinarySearch(int value)
@@ -129,6 +89,4 @@ namespace JShibo.Serialization
         #endregion
 
     }
-
 }
-

@@ -1,12 +1,11 @@
 ﻿using JShibo.Serialization.Common;
-using JShibo.SerializationCore.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace JShibo.SerializationCore.BenchMark.Tester
+namespace JShibo.Serialization.BenchMark.Tester
 {
     public class ToStringBenckmark
     {

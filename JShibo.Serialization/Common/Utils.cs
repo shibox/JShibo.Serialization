@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Data;
 //using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace JShibo.Serialization.Common
@@ -819,148 +820,29 @@ namespace JShibo.Serialization.Common
             #endregion
         }
 
-        /// <summary>
-        /// 系统内部的快速拷贝方法
-        /// </summary>
-        /// <param name="dmem"></param>
-        /// <param name="smem"></param>
-        /// <param name="charCount"></param>
-        public static unsafe void wstrcpy(char* dmem, char* smem, int charCount)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void wstrcpy(byte* dmem, byte* smem, int byteCount)
         {
-            if (charCount > 0)
-            {
-                while (charCount >= 8)
-                {
-                    *((uint*)dmem) = *((uint*)smem);
-                    *((uint*)(dmem + 2)) = *((uint*)(smem + 2));
-                    *((uint*)(dmem + 4)) = *((uint*)(smem + 4));
-                    *((uint*)(dmem + 6)) = *((uint*)(smem + 6));
-                    dmem += 8;
-                    smem += 8;
-                    charCount -= 8;
-                }
-                if ((charCount & 4) != 0)
-                {
-                    *((uint*)dmem) = *((uint*)smem);
-                    *((uint*)(dmem + 2)) = *((uint*)(smem + 2));
-                    dmem += 4;
-                    smem += 4;
-                }
-                if ((charCount & 2) != 0)
-                {
-                    *((uint*)dmem) = *((uint*)smem);
-                    dmem += 2;
-                    smem += 2;
-                }
-                if ((charCount & 1) != 0)
-                {
-                    *dmem = *smem;
-                }
-            }
-
-            #region old
-
-            //原始的字符拷贝int和uint指针不能相互转换，进行了部分修改。
-            //if (charCount > 0)
-            //{
-            //    if ((((int)dmem) & 2) != 0)
-            //    {
-            //        dmem[0] = smem[0];
-            //        dmem++;
-            //        smem++;
-            //        charCount--;
-            //    }
-            //    while (charCount >= 8)
-            //    {
-            //        *((int*)dmem) = *((uint*)smem);
-            //        *((int*)(dmem + 2)) = *((uint*)(smem + 2));
-            //        *((int*)(dmem + 4)) = *((uint*)(smem + 4));
-            //        *((int*)(dmem + 6)) = *((uint*)(smem + 6));
-            //        dmem += 8;
-            //        smem += 8;
-            //        charCount -= 8;
-            //    }
-            //    if ((charCount & 4) != 0)
-            //    {
-            //        *((int*)dmem) = *((uint*)smem);
-            //        *((int*)(dmem + 2)) = *((uint*)(smem + 2));
-            //        dmem += 4;
-            //        smem += 4;
-            //    }
-            //    if ((charCount & 2) != 0)
-            //    {
-            //        *((int*)dmem) = *((uint*)smem);
-            //        dmem += 2;
-            //        smem += 2;
-            //    }
-            //    if ((charCount & 1) != 0)
-            //    {
-            //        dmem[0] = smem[0];
-            //    }
-            //}
-
-            #endregion
+            Buffer.MemoryCopy(smem, dmem, byteCount, byteCount);
         }
 
-        internal static unsafe void wstrcpy(byte* dmem, byte* smem, int byteCount)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void wstrcpy(char* dmem, char* smem, int byteCount)
         {
-            if (byteCount > 0)
-            {
-                while (byteCount >= 16)
-                {
-                    *((uint*)dmem) = *((uint*)smem);
-                    *((uint*)(dmem + 4)) = *((uint*)(smem + 4));
-                    *((uint*)(dmem + 8)) = *((uint*)(smem + 8));
-                    *((uint*)(dmem + 12)) = *((uint*)(smem + 12));
-                    dmem += 16;
-                    smem += 16;
-                    byteCount -= 16;
-                }
-                if ((byteCount & 8) != 0)
-                {
-                    *((uint*)dmem) = *((uint*)smem);
-                    *((uint*)(dmem + 4)) = *((uint*)(smem + 4));
-                    dmem += 8;
-                    smem += 8;
-                }
-                if ((byteCount & 4) != 0)
-                {
-                    *((uint*)dmem) = *((uint*)smem);
-                    dmem += 4;
-                    smem += 4;
-                }
-                if ((byteCount & 2) != 0)
-                {
-                    *((ushort*)dmem) = *((ushort*)smem);
-                    dmem += 2;
-                    smem += 2;
-                }
-                if ((byteCount & 1) != 0)
-                {
-                    *dmem = *smem;
-                }
-            }
+            Buffer.MemoryCopy(smem, dmem, byteCount << 1, byteCount << 1);
         }
 
-        internal static unsafe void FastCopyGuid(char* dmem, char* smem)
+        public static unsafe void FastCopyGuid(char* dmem, char* smem)
         {
-            *((uint*)dmem) = *((uint*)smem);
-            *((uint*)(dmem + 2)) = *((uint*)(smem + 2));
-            *((uint*)(dmem + 4)) = *((uint*)(smem + 4));
-            *((uint*)(dmem + 6)) = *((uint*)(smem + 6));
-            *((uint*)(dmem + 8)) = *((uint*)(smem + 8));
-            *((uint*)(dmem + 10)) = *((uint*)(smem + 10));
-            *((uint*)(dmem + 12)) = *((uint*)(smem + 12));
-            *((uint*)(dmem + 14)) = *((uint*)(smem + 14));
-            *((uint*)(dmem + 16)) = *((uint*)(smem + 16));
-            *((uint*)(dmem + 18)) = *((uint*)(smem + 18));
-            *((uint*)(dmem + 20)) = *((uint*)(smem + 20));
-            *((uint*)(dmem + 22)) = *((uint*)(smem + 22));
-            *((uint*)(dmem + 24)) = *((uint*)(smem + 24));
-            *((uint*)(dmem + 26)) = *((uint*)(smem + 26));
-            *((uint*)(dmem + 28)) = *((uint*)(smem + 28));
-            *((uint*)(dmem + 30)) = *((uint*)(smem + 30));
-            *((uint*)(dmem + 32)) = *((uint*)(smem + 32));
+            *((ulong*)(dmem + 0)) = *((ulong*)(smem + 0));
+            *((ulong*)(dmem + 4)) = *((ulong*)(smem + 4));
+            *((ulong*)(dmem + 8)) = *((ulong*)(smem + 8));
+            *((ulong*)(dmem + 12)) = *((ulong*)(smem + 12));
+            *((ulong*)(dmem + 16)) = *((ulong*)(smem + 16));
+            *((ulong*)(dmem + 20)) = *((ulong*)(smem + 20));
+            *((ulong*)(dmem + 24)) = *((ulong*)(smem + 24));
+            *((ulong*)(dmem + 28)) = *((ulong*)(smem + 28));
+            *((ulong*)(dmem + 32)) = *((ulong*)(smem + 32));
             *((uint*)(dmem + 34)) = *((uint*)(smem + 34));
         }
 
@@ -972,42 +854,7 @@ namespace JShibo.Serialization.Common
         /// <returns></returns>
         internal static unsafe bool FastFindEscape(char* smem, int charCount)
         {
-            if (charCount > 0)
-            {
-                while (charCount >= 8)
-                {
-                    //if (*smem++ != '"' && *smem++ != '"' && *smem++ != '"' && *smem++ != '"' && *smem++ != '"' && *smem++ != '"' && *smem++ != '"' && *smem++ != '"')
-                    //    charCount -= 8;
-                    if (*smem != '"' && *(smem + 1) != '"' && *(smem + 2) != '"' && *(smem + 3) != '"' && *(smem + 4) != '"' && *(smem + 5) != '"' && *(smem + 6) != '"' && *(smem + 7) != '"')
-                    {
-                        charCount -= 8;
-                        smem += 8;
-                    }
-                    else
-                        return true;
-                }
-                if ((charCount & 4) != 0)
-                {
-                    if (*smem++ != '"' && *smem++ != '"' && *smem++ != '"' && *smem++ != '"')
-                        ;
-                    else
-                        return true;
-                }
-                if ((charCount & 2) != 0)
-                {
-                    if (*smem++ == '"' || *smem++ == '"')
-                        ;
-                    else
-                        return true;
-                }
-                if ((charCount & 1) != 0)
-                {
-                    if (*smem++ == '"')
-                        ;
-                    else
-                        return true;
-                }
-            }
+            //查找字符串中的“"”符号，高性能方案使用SIMD实现
             return false;
         }
 
@@ -1067,133 +914,133 @@ namespace JShibo.Serialization.Common
             return ecount;
         }
 
-        internal static unsafe int ConvertToBase64Array(char* outChars, byte* inData, int offset, int length, bool insertLineBreaks)
-        {
-            int num = length % 3;
-            int num2 = offset + (length - num);
-            int index = 0;
-            int num4 = 0;
-            fixed (char* chRef = base64Table)
-            {
-                int num5;
-                for (num5 = offset; num5 < num2; num5 += 3)
-                {
-                    if (insertLineBreaks)
-                    {
-                        if (num4 == 0x4c)
-                        {
-                            outChars[index++] = '\r';
-                            outChars[index++] = '\n';
-                            num4 = 0;
-                        }
-                        num4 += 4;
-                    }
-                    outChars[index] = chRef[(inData[num5] & 0xfc) >> 2];
-                    outChars[index + 1] = chRef[((inData[num5] & 3) << 4) | ((inData[num5 + 1] & 240) >> 4)];
-                    outChars[index + 2] = chRef[((inData[num5 + 1] & 15) << 2) | ((inData[num5 + 2] & 0xc0) >> 6)];
-                    outChars[index + 3] = chRef[inData[num5 + 2] & 0x3f];
-                    index += 4;
-                }
-                num5 = num2;
-                if ((insertLineBreaks && (num != 0)) && (num4 == 0x4c))
-                {
-                    outChars[index++] = '\r';
-                    outChars[index++] = '\n';
-                }
-                switch (num)
-                {
-                    case 1:
-                        outChars[index] = chRef[(inData[num5] & 0xfc) >> 2];
-                        outChars[index + 1] = chRef[(inData[num5] & 3) << 4];
-                        outChars[index + 2] = chRef[0x40];
-                        outChars[index + 3] = chRef[0x40];
-                        index += 4;
-                        break;
+        //internal static unsafe int ConvertToBase64Array(char* outChars, byte* inData, int offset, int length, bool insertLineBreaks)
+        //{
+        //    int num = length % 3;
+        //    int num2 = offset + (length - num);
+        //    int index = 0;
+        //    int num4 = 0;
+        //    fixed (char* chRef = base64Table)
+        //    {
+        //        int num5;
+        //        for (num5 = offset; num5 < num2; num5 += 3)
+        //        {
+        //            if (insertLineBreaks)
+        //            {
+        //                if (num4 == 0x4c)
+        //                {
+        //                    outChars[index++] = '\r';
+        //                    outChars[index++] = '\n';
+        //                    num4 = 0;
+        //                }
+        //                num4 += 4;
+        //            }
+        //            outChars[index] = chRef[(inData[num5] & 0xfc) >> 2];
+        //            outChars[index + 1] = chRef[((inData[num5] & 3) << 4) | ((inData[num5 + 1] & 240) >> 4)];
+        //            outChars[index + 2] = chRef[((inData[num5 + 1] & 15) << 2) | ((inData[num5 + 2] & 0xc0) >> 6)];
+        //            outChars[index + 3] = chRef[inData[num5 + 2] & 0x3f];
+        //            index += 4;
+        //        }
+        //        num5 = num2;
+        //        if ((insertLineBreaks && (num != 0)) && (num4 == 0x4c))
+        //        {
+        //            outChars[index++] = '\r';
+        //            outChars[index++] = '\n';
+        //        }
+        //        switch (num)
+        //        {
+        //            case 1:
+        //                outChars[index] = chRef[(inData[num5] & 0xfc) >> 2];
+        //                outChars[index + 1] = chRef[(inData[num5] & 3) << 4];
+        //                outChars[index + 2] = chRef[0x40];
+        //                outChars[index + 3] = chRef[0x40];
+        //                index += 4;
+        //                break;
 
-                    case 2:
-                        outChars[index] = chRef[(inData[num5] & 0xfc) >> 2];
-                        outChars[index + 1] = chRef[((inData[num5] & 3) << 4) | ((inData[num5 + 1] & 240) >> 4)];
-                        outChars[index + 2] = chRef[(inData[num5 + 1] & 15) << 2];
-                        outChars[index + 3] = chRef[0x40];
-                        index += 4;
-                        break;
-                }
-            }
-            return index;
-        }
+        //            case 2:
+        //                outChars[index] = chRef[(inData[num5] & 0xfc) >> 2];
+        //                outChars[index + 1] = chRef[((inData[num5] & 3) << 4) | ((inData[num5 + 1] & 240) >> 4)];
+        //                outChars[index + 2] = chRef[(inData[num5 + 1] & 15) << 2];
+        //                outChars[index + 3] = chRef[0x40];
+        //                index += 4;
+        //                break;
+        //        }
+        //    }
+        //    return index;
+        //}
 
-        internal static unsafe int ConvertToBase64Array(byte* outChars, byte* inData, int offset, int length, bool insertLineBreaks)
-        {
-            int num = length % 3;
-            int num2 = offset + (length - num);
-            int index = 0;
-            int num4 = 0;
-            fixed (char* chRef = base64Table)
-            {
-                int num5;
-                for (num5 = offset; num5 < num2; num5 += 3)
-                {
-                    if (insertLineBreaks)
-                    {
-                        if (num4 == 0x4c)
-                        {
-                            outChars[index++] = (byte)'\r';
-                            outChars[index++] = (byte)'\n';
-                            num4 = 0;
-                        }
-                        num4 += 4;
-                    }
-                    outChars[index] = (byte)chRef[(inData[num5] & 0xfc) >> 2];
-                    outChars[index + 1] = (byte)chRef[((inData[num5] & 3) << 4) | ((inData[num5 + 1] & 240) >> 4)];
-                    outChars[index + 2] = (byte)chRef[((inData[num5 + 1] & 15) << 2) | ((inData[num5 + 2] & 0xc0) >> 6)];
-                    outChars[index + 3] = (byte)chRef[inData[num5 + 2] & 0x3f];
-                    index += 4;
-                }
-                num5 = num2;
-                if ((insertLineBreaks && (num != 0)) && (num4 == 0x4c))
-                {
-                    outChars[index++] = (byte)'\r';
-                    outChars[index++] = (byte)'\n';
-                }
-                switch (num)
-                {
-                    case 1:
-                        outChars[index] = (byte)chRef[(inData[num5] & 0xfc) >> 2];
-                        outChars[index + 1] = (byte)chRef[(inData[num5] & 3) << 4];
-                        outChars[index + 2] = (byte)chRef[0x40];
-                        outChars[index + 3] = (byte)chRef[0x40];
-                        index += 4;
-                        break;
+        //internal static unsafe int ConvertToBase64Array(byte* outChars, byte* inData, int offset, int length, bool insertLineBreaks)
+        //{
+        //    int num = length % 3;
+        //    int num2 = offset + (length - num);
+        //    int index = 0;
+        //    int num4 = 0;
+        //    fixed (char* chRef = base64Table)
+        //    {
+        //        int num5;
+        //        for (num5 = offset; num5 < num2; num5 += 3)
+        //        {
+        //            if (insertLineBreaks)
+        //            {
+        //                if (num4 == 0x4c)
+        //                {
+        //                    outChars[index++] = (byte)'\r';
+        //                    outChars[index++] = (byte)'\n';
+        //                    num4 = 0;
+        //                }
+        //                num4 += 4;
+        //            }
+        //            outChars[index] = (byte)chRef[(inData[num5] & 0xfc) >> 2];
+        //            outChars[index + 1] = (byte)chRef[((inData[num5] & 3) << 4) | ((inData[num5 + 1] & 240) >> 4)];
+        //            outChars[index + 2] = (byte)chRef[((inData[num5 + 1] & 15) << 2) | ((inData[num5 + 2] & 0xc0) >> 6)];
+        //            outChars[index + 3] = (byte)chRef[inData[num5 + 2] & 0x3f];
+        //            index += 4;
+        //        }
+        //        num5 = num2;
+        //        if ((insertLineBreaks && (num != 0)) && (num4 == 0x4c))
+        //        {
+        //            outChars[index++] = (byte)'\r';
+        //            outChars[index++] = (byte)'\n';
+        //        }
+        //        switch (num)
+        //        {
+        //            case 1:
+        //                outChars[index] = (byte)chRef[(inData[num5] & 0xfc) >> 2];
+        //                outChars[index + 1] = (byte)chRef[(inData[num5] & 3) << 4];
+        //                outChars[index + 2] = (byte)chRef[0x40];
+        //                outChars[index + 3] = (byte)chRef[0x40];
+        //                index += 4;
+        //                break;
 
-                    case 2:
-                        outChars[index] = (byte)chRef[(inData[num5] & 0xfc) >> 2];
-                        outChars[index + 1] = (byte)chRef[((inData[num5] & 3) << 4) | ((inData[num5 + 1] & 240) >> 4)];
-                        outChars[index + 2] = (byte)chRef[(inData[num5 + 1] & 15) << 2];
-                        outChars[index + 3] = (byte)chRef[0x40];
-                        index += 4;
-                        break;
-                }
-            }
-            return index;
-        }
+        //            case 2:
+        //                outChars[index] = (byte)chRef[(inData[num5] & 0xfc) >> 2];
+        //                outChars[index + 1] = (byte)chRef[((inData[num5] & 3) << 4) | ((inData[num5 + 1] & 240) >> 4)];
+        //                outChars[index + 2] = (byte)chRef[(inData[num5 + 1] & 15) << 2];
+        //                outChars[index + 3] = (byte)chRef[0x40];
+        //                index += 4;
+        //                break;
+        //        }
+        //    }
+        //    return index;
+        //}
 
         internal static T[] Resize<T>(T[] buffer, int shift)
         {
-            T[] result = new T[buffer.Length << 1];
+            var result = new T[buffer.Length << 1];
             Buffer.BlockCopy(buffer, 0, result, 0, buffer.Length << shift);
             return result;
         }
 
         internal static T[] ToArray<T>(T[] buffer, int offset, int size, int shift)
         {
-            T[] result = new T[size];
+            var result = new T[size];
             Buffer.BlockCopy(buffer, offset << shift, result, 0, size << shift);
             return result;
         }
 
         internal static short[] ToArrayShort(int[] buffer, int offset, int size)
         {
-            short[] result = new short[size];
+            var result = new short[size];
             for (int i = offset; i < offset + size; i++)
                 result[i] = (short)buffer[i];
             return result;
@@ -1201,7 +1048,7 @@ namespace JShibo.Serialization.Common
 
         internal static List<short> ToListShort(int[] buffer, int offset, int size)
         {
-            List<short> result = new List<short>(size);
+            var result = new List<short>(size);
             for (int i = offset; i < offset + size; i++)
                 result.Add((short)buffer[i]);
             return result;
@@ -1209,7 +1056,7 @@ namespace JShibo.Serialization.Common
 
         internal static ushort[] ToArrayUShort(uint[] buffer, int offset, int size)
         {
-            ushort[] result = new ushort[size];
+            var result = new ushort[size];
             for (int i = offset; i < offset + size; i++)
                 result[i] = (ushort)buffer[i];
             return result;
@@ -1217,7 +1064,7 @@ namespace JShibo.Serialization.Common
 
         internal static List<ushort> ToListUShort(uint[] buffer, int offset, int size)
         {
-            List<ushort> result = new List<ushort>(size);
+            var result = new List<ushort>(size);
             for (int i = offset; i < offset + size; i++)
                 result.Add((ushort)buffer[i]);
             return result;
@@ -1225,7 +1072,7 @@ namespace JShibo.Serialization.Common
 
         internal static byte[] ToArrayByte(uint[] buffer, int offset, int size)
         {
-            byte[] result = new byte[size];
+            var result = new byte[size];
             for (int i = offset; i < offset + size; i++)
                 result[i] = (byte)buffer[i];
             return result;
@@ -1233,7 +1080,7 @@ namespace JShibo.Serialization.Common
 
         internal static List<byte> ToListByte(uint[] buffer, int offset, int size)
         {
-            List<byte> result = new List<byte>(size);
+            var result = new List<byte>(size);
             for (int i = offset; i < offset + size; i++)
                 result.Add((byte)buffer[i]);
             return result;
@@ -1241,7 +1088,7 @@ namespace JShibo.Serialization.Common
 
         internal static sbyte[] ToArraySByte(int[] buffer, int offset, int size)
         {
-            sbyte[] result = new sbyte[size];
+            var result = new sbyte[size];
             for (int i = offset; i < offset + size; i++)
                 result[i] = (sbyte)buffer[i];
             return result;
@@ -1249,7 +1096,7 @@ namespace JShibo.Serialization.Common
 
         internal static List<sbyte> ToListSByte(int[] buffer, int offset, int size)
         {
-            List<sbyte> result = new List<sbyte>(size);
+            var result = new List<sbyte>(size);
             for (int i = offset; i < offset + size; i++)
                 result.Add((sbyte)buffer[i]);
             return result;
@@ -1726,15 +1573,15 @@ namespace JShibo.Serialization.Common
         internal static int ReadSize(byte[] buffer, ref int index)
         {
             int len = buffer[index]  >> 5;
-            int result = 0;
+            int result;
             if (len == 0)
                 result = buffer[index] & 0x1F;
             else if (len == 1)
-                result = (int)((buffer[index] & 0x1F) << 8) | (int)(buffer[index + 1]);
+                result = (buffer[index] & 0x1F) << 8 | (buffer[index + 1]);
             else if (len == 2)
-                result = (int)((buffer[index] & 0x1F) << 16) | (int)(buffer[index + 1] << 8) | (int)(buffer[index + 2]);
+                result = ((buffer[index] & 0x1F) << 16) | (buffer[index + 1] << 8) | (buffer[index + 2]);
             else
-                result = (int)((buffer[index] & 0x1F) << 24) | (int)(buffer[index + 1] << 16) | (int)(buffer[index + 2] << 8) | (int)(buffer[index + 3]);
+                result = ((buffer[index] & 0x1F) << 24) | (buffer[index + 1] << 16) | (buffer[index + 2] << 8) | (buffer[index + 3]);
             index += len + 1;
             return result;
         }
@@ -1762,256 +1609,256 @@ namespace JShibo.Serialization.Common
 
         #region 写入长度（指针）
 
-        internal unsafe static byte* WriteVLong1(byte* by, int id, ref int pos)
+        internal unsafe static byte* WriteVLong1(byte* source, int id, ref int pos)
         {
             if (id < 128)
             {
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)(id & 0x7F);
                 pos++;
             }
             else if (id < 128 * 128)
             {
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 2;
             }
             else if (id < 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 3;
             }
             else if (id < 128 * 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 4;
             }
             else
             {
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 5;
             }
-            return by;
+            return source;
         }
 
-        internal unsafe static byte* WriteVLong1(byte* by, uint id, ref int pos)
+        internal unsafe static byte* WriteVLong1(byte* source, uint id, ref int pos)
         {
             if (id < 128)
             {
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)(id & 0x7F);
                 pos++;
             }
             else if (id < 128 * 128)
             {
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 2;
             }
             else if (id < 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 3;
             }
             else if (id < 128 * 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 4;
             }
             else
             {
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 5;
             }
-            return by;
+            return source;
         }
 
-        internal unsafe static byte* WriteVLong1(byte* by, long id, ref int pos)
+        internal unsafe static byte* WriteVLong1(byte* source, long id, ref int pos)
         {
             if (id < 128)
             {
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)(id & 0x7F);
                 pos++;
             }
             else if (id < 128 * 128)
             {
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 2;
             }
             else if (id < 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 3;
             }
             else if (id < 128 * 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 4;
             }
             else if (id < 128 * 128 * 128 * 128 * 128L)
             {
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 5;
             }
             else if (id < 128 * 128 * 128 * 128 * 128L * 128)
             {
-                *by++ = (byte)((id >> 35) | 0x80);
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 35) | 0x80);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 6;
             }
             else if (id < 128 * 128 * 128 * 128 * 128L * 128 * 128)
             {
-                *by++ = (byte)((id >> 42) | 0x80);
-                *by++ = (byte)((id >> 35) | 0x80);
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 42) | 0x80);
+                *source++ = (byte)((id >> 35) | 0x80);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 7;
             }
             else if (id < 128 * 128 * 128 * 128 * 128L * 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 49) | 0x80);
-                *by++ = (byte)((id >> 42) | 0x80);
-                *by++ = (byte)((id >> 35) | 0x80);
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 49) | 0x80);
+                *source++ = (byte)((id >> 42) | 0x80);
+                *source++ = (byte)((id >> 35) | 0x80);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 8;
             }
             else
             {
-                *by++ = (byte)((id >> 56) | 0x80);
-                *by++ = (byte)((id >> 49) | 0x80);
-                *by++ = (byte)((id >> 42) | 0x80);
-                *by++ = (byte)((id >> 35) | 0x80);
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 56) | 0x80);
+                *source++ = (byte)((id >> 49) | 0x80);
+                *source++ = (byte)((id >> 42) | 0x80);
+                *source++ = (byte)((id >> 35) | 0x80);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 9;
             }
-            return by;
+            return source;
         }
 
-        internal unsafe static byte* WriteVLong1(byte* by, ulong id, ref int pos)
+        internal unsafe static byte* WriteVLong1(byte* source, ulong id, ref int pos)
         {
             if (id < 128)
             {
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)(id & 0x7F);
                 pos++;
             }
             else if (id < 128 * 128)
             {
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 2;
             }
             else if (id < 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 3;
             }
             else if (id < 128 * 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 4;
             }
             else if (id < 128 * 128 * 128 * 128 * 128L)
             {
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 5;
             }
             else if (id < 128 * 128 * 128 * 128 * 128L * 128)
             {
-                *by++ = (byte)((id >> 35) | 0x80);
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 35) | 0x80);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 6;
             }
             else if (id < 128 * 128 * 128 * 128 * 128L * 128 * 128)
             {
-                *by++ = (byte)((id >> 42) | 0x80);
-                *by++ = (byte)((id >> 35) | 0x80);
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 42) | 0x80);
+                *source++ = (byte)((id >> 35) | 0x80);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 7;
             }
             else if (id < 128 * 128 * 128 * 128 * 128L * 128 * 128 * 128)
             {
-                *by++ = (byte)((id >> 49) | 0x80);
-                *by++ = (byte)((id >> 42) | 0x80);
-                *by++ = (byte)((id >> 35) | 0x80);
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 49) | 0x80);
+                *source++ = (byte)((id >> 42) | 0x80);
+                *source++ = (byte)((id >> 35) | 0x80);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 8;
             }
             else
             {
-                *by++ = (byte)((id >> 56) | 0x80);
-                *by++ = (byte)((id >> 49) | 0x80);
-                *by++ = (byte)((id >> 42) | 0x80);
-                *by++ = (byte)((id >> 35) | 0x80);
-                *by++ = (byte)((id >> 28) | 0x80);
-                *by++ = (byte)((id >> 21) | 0x80);
-                *by++ = (byte)((id >> 14) | 0x80);
-                *by++ = (byte)((id >> 7) | 0x80);
-                *by++ = (byte)(id & 0x7F);
+                *source++ = (byte)((id >> 56) | 0x80);
+                *source++ = (byte)((id >> 49) | 0x80);
+                *source++ = (byte)((id >> 42) | 0x80);
+                *source++ = (byte)((id >> 35) | 0x80);
+                *source++ = (byte)((id >> 28) | 0x80);
+                *source++ = (byte)((id >> 21) | 0x80);
+                *source++ = (byte)((id >> 14) | 0x80);
+                *source++ = (byte)((id >> 7) | 0x80);
+                *source++ = (byte)(id & 0x7F);
                 pos += 9;
             }
-            return by;
+            return source;
         }
 
         #endregion
@@ -2059,6 +1906,16 @@ namespace JShibo.Serialization.Common
             else if (v is Guid)
                 return 4;
             return -1;
+        }
+
+        public static string NextString(this Random rd)
+        {
+            const string Letter = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var len = rd.Next(1, 200);
+            var chars = new char[len];
+            for (int i = 0; i < chars.Length; i++)
+                chars[i] = Letter[rd.Next(0, Letter.Length)];
+            return new string(chars);
         }
 
     }

@@ -12,29 +12,29 @@ using System.Threading.Tasks;
 
 namespace JShibo.Serialization
 {
-    public class ObjectBufferContext : ObjectContext<ObjectBuffer, ObjectUbuffer, ObjectBufferSize>
+    public class ObjectBufferContext : ObjectContext<ObjectWriter, ObjectReader, ObjectWriterSize>
     {
         public byte[] Serialize(object graph)
         {
-            var buffer = new ObjectBuffer();
+            var buffer = new ObjectWriter();
             Serializer(buffer, graph);
             return buffer.ToArray();
         }
 
         internal void Serialize(Stream stream, object graph)
         {
-            int size = ShiboObjectBufferSerializer.GetSize(this, graph);
-            ObjectBuffer buffer = new ObjectBuffer(size);
+            int size = ObjectBufferSerializer.GetSize(this, graph);
+            ObjectWriter buffer = new ObjectWriter(size);
             Serializer(buffer, graph);
             stream.Write(buffer.GetBuffer(), 0, buffer.position);
         }
 
-        public void Serialize(ObjectBuffer stream, object graph)
+        public void Serialize(ObjectWriter stream, object graph)
         {
             Serializer(stream, graph);
         }
 
-        public T Deserialize<T>(ObjectUbuffer stream)
+        public T Deserialize<T>(ObjectReader stream)
         {
             //if (info.IsJsonBaseType == false)
             //    stream.position++;
@@ -52,7 +52,7 @@ namespace JShibo.Serialization
 
     }
 
-    public class ObjectStreamContext : ObjectContext<ObjectStream, ObjectUstream, ObjectStreamSize>
+    public class ObjectStreamContext : ObjectContext<ObjectStreamWriter, ObjecStreamReader, ObjectStreamSize>
     {
 
 
@@ -62,7 +62,24 @@ namespace JShibo.Serialization
     {
     }
 
-    public class CsvStringContext : CsvContext<CsvString, CsvUstring, CsvStringSize>
+    public class CsvStringContext : CsvContext<CsvStringWriter, CsvStringReader, CsvStringSize>
+    {
+        public int HeaderSize;
+
+        /// <summary>
+        /// 获取csv头最大占用的长度
+        /// </summary>
+        /// <returns></returns>
+        public int GetHeaderSize()
+        {
+            int size = 0;
+            for (int i = 0; i < Names.Length; i++)
+                size += (Names[i].Length << 1) + 2;
+            return size;
+        }
+    }
+
+    public class CsvBytesContext : CsvContext<Utf8CsvWriter, Utf8CsvReader, CsvBytesSize>
     {
         public int HeaderSize;
 
@@ -75,7 +92,7 @@ namespace JShibo.Serialization
         }
     }
 
-    public class XmlStringContext : XmlContext<CsvString, CsvUstring, CsvStringSize>
+    public class XmlStringContext : XmlContext<CsvStringWriter, CsvStringReader, CsvStringSize>
     {
         
 

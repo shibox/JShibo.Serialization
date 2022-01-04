@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JShibo.SerializationCore.Common
+namespace JShibo.Serialization.Common
 {
     public unsafe static class NumberHelper
     {

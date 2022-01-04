@@ -38,6 +38,8 @@ namespace JShibo.Serialization.Transpose
 
         #endregion
 
+        #region 属性
+
         public int Count => count;
 
         public string Name => name;
@@ -45,6 +47,8 @@ namespace JShibo.Serialization.Transpose
         public Type Type => type;
 
         public object Value => GetValue();
+
+        #endregion
 
         #region 构造函数
 

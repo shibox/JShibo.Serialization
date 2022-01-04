@@ -8,13 +8,13 @@ using JShibo.Serialization.Common;
 
 namespace JShibo.Serialization.Soc
 {
-    internal class ShiboTypeObjectBufferSerializer : SerializerBase<ObjectBuffer, ObjectUbuffer, ObjectBufferContext, ObjectBufferSize>
+    internal class TypedObjectBufferSerializer : SerializerBase<ObjectWriter, ObjectReader, ObjectBufferContext, ObjectWriterSize>
     {
-        static ShiboTypeObjectBufferSerializer Instance;
+        static TypedObjectBufferSerializer Instance;
 
-        static ShiboTypeObjectBufferSerializer()
+        static TypedObjectBufferSerializer()
         {
-            Instance = new ShiboTypeObjectBufferSerializer();
+            Instance = new TypedObjectBufferSerializer();
             Instance.builder = new SocILBuilder();
             Instance.RegisterAssemblyTypes();
         }
@@ -27,7 +27,7 @@ namespace JShibo.Serialization.Soc
                 return;
             }
 
-            FieldInfo[] fields = type.GetFields(info.Seting.Flags);
+            var fields = type.GetFields(info.Seting.Flags);
             foreach (FieldInfo field in fields)
             {
                 if (Utils.IsIgnoreAttribute(field) == false)
@@ -68,8 +68,7 @@ namespace JShibo.Serialization.Soc
 
         internal static ObjectBufferContext GetJsonTypes(Type type)
         {
-            ObjectBufferContext info = null;
-            if (types.TryGetValue(type, out info) == false)
+            if (types.TryGetValue(type, out var info) == false)
             {
                 info = new ObjectBufferContext();
                 GetJsonTypes(type, info);

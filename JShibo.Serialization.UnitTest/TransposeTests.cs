@@ -25,7 +25,6 @@ namespace JShibo.Serialization.UnitTest
             var v1 = ServiceStack.Text.CsvSerializer.SerializeToCsv((byte[])ret[0].Value);
             var v2 = ServiceStack.Text.CsvSerializer.SerializeToCsv(bytes);
             Assert.AreEqual(v1, v2);
-            //Assert.AreEqual((byte[])ret[0].Value, bytes);
         }
 
         [TestMethod]
@@ -38,8 +37,8 @@ namespace JShibo.Serialization.UnitTest
             var bytes = new int[data.Length];
             for (int i = 0; i < data.Length; i++)
                 bytes[i] = data[i].V0;
-            var v1 = ServiceStack.Text.CsvSerializer.SerializeToCsv((int[])ret[0].Value);
-            var v2 = ServiceStack.Text.CsvSerializer.SerializeToCsv(bytes);
+            var v1 = Csv((int[])ret[0].Value);
+            var v2 = Csv(bytes);
             Assert.AreEqual(v1, v2);
         }
 
@@ -53,8 +52,8 @@ namespace JShibo.Serialization.UnitTest
             var bytes = new long[data.Length];
             for (int i = 0; i < data.Length; i++)
                 bytes[i] = data[i].V0;
-            var v1 = ServiceStack.Text.CsvSerializer.SerializeToCsv((long[])ret[0].Value);
-            var v2 = ServiceStack.Text.CsvSerializer.SerializeToCsv(bytes);
+            var v1 = Csv((long[])ret[0].Value);
+            var v2 = Csv(bytes);
             Assert.AreEqual(v1, v2);
         }
 
@@ -115,6 +114,11 @@ namespace JShibo.Serialization.UnitTest
         public static string Json(object o)
         {
             return JsonConvert.SerializeObject(o);
+        }
+
+        public static string Csv<T>(T[] o)
+        {
+            return ServiceStack.Text.CsvSerializer.SerializeToCsv(o);
         }
 
 

@@ -184,7 +184,7 @@ namespace JShibo.Serialization.Json
                     *tdst++ = Quote;
                     //FastWriteName.Write(name, _buffer, ref position);
                     //FastWriteName.Write(name, _buffer, position);
-                    FastWriteName.WriteUnsafe(tsrc, tdst, name.Length);
+                    Buffer.MemoryCopy(tsrc, tdst, name.Length * 2,name.Length * 2);
                     //Utils.wstrcpy(tdst, tsrc, name.Length);
                     tdst += name.Length;
                     *tdst++ = Quote;

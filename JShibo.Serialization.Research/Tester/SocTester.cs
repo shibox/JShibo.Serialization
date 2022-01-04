@@ -57,7 +57,7 @@ namespace JShibo.Serialization.BenchMark
 
                 int size = 0;
                 string s = string.Empty;
-                ObjectStream socOStream = new ObjectStream(socStream);
+                ObjectStreamWriter socOStream = new ObjectStreamWriter(socStream);
 
                 //ShiboSerializer.BinSerialize(os, graph, sets);
                 //ShiboSerializer.Serialize(graph);
@@ -103,7 +103,7 @@ namespace JShibo.Serialization.BenchMark
                         //byte[] bytes = ShiboSerializer.BinSerialize(graph);
                         //size += bytes.Length;
 
-                        ObjectBuffer stream = new ObjectBuffer(socBuffer);
+                        ObjectWriter stream = new ObjectWriter(socBuffer);
                         ShiboSerializer.BinarySerialize(stream, graph);
                         size += stream.Position;
                     }
@@ -359,7 +359,7 @@ namespace JShibo.Serialization.BenchMark
         {
             TestBaseConfig.Seed = 1;
             int[] ints = new int[1000];
-            new FastRandom().NextInts(ints, 0, ints.Length);
+            //new FastRandom().NextInts(ints, 0, ints.Length);
             byte[] bytes = ShiboSerializer.BinarySerialize(ints);
             int[] b = ShiboSerializer.BinaryDeserialize<int[]>(bytes);
 
@@ -470,7 +470,7 @@ namespace JShibo.Serialization.BenchMark
             //Console.WriteLine(ShiboComparer.Compare<List<string>>(a, b));
             Console.WriteLine(JsonConvert.SerializeObject(a) == JsonConvert.SerializeObject(b));
 
-            ObjectBuffer bf = new ObjectBuffer(50);
+            ObjectWriter bf = new ObjectWriter(50);
             Stopwatch w = Stopwatch.StartNew();
             for (int i = 0; i < 1000000; i++)
             {

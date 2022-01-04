@@ -17,9 +17,20 @@ namespace JShibo.Serialization.UnitTest
             var data = new Int32Class[10];
             for (int i = 0; i < data.Length; i++)
                 data[i] = ShiboSerializer.Initialize<Int32Class>();
-            var csv = ShiboSerializer.ToCsv(data);
-            var csv2 = ServiceStack.Text.CsvSerializer.SerializeToCsv(data);
-            Assert.AreEqual(csv, csv2);
+            var expected = ServiceStack.Text.CsvSerializer.SerializeToCsv(data);
+            var actual = ShiboSerializer.ToCsv(data);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestInt32Bytes()
+        {
+            var data = new Int32Class[10];
+            for (int i = 0; i < data.Length; i++)
+                data[i] = ShiboSerializer.Initialize<Int32Class>();
+            var expected = ServiceStack.Text.CsvSerializer.SerializeToCsv(data);
+            var actual = Encoding.UTF8.GetString(ShiboSerializer.ToCsvUtf8(data));
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
@@ -28,9 +39,9 @@ namespace JShibo.Serialization.UnitTest
             var data = new Int8Class[100];
             for (int i = 0; i < data.Length; i++)
                 data[i] = ShiboSerializer.Initialize<Int8Class>();
-            var csv = ShiboSerializer.ToCsv(data);
-            var csv2 = ServiceStack.Text.CsvSerializer.SerializeToCsv(data);
-            Assert.AreEqual(csv, csv2);
+            var expected = ServiceStack.Text.CsvSerializer.SerializeToCsv(data);
+            var actual = ShiboSerializer.ToCsv(data);
+            Assert.AreEqual(expected, actual);
         }
 
     }

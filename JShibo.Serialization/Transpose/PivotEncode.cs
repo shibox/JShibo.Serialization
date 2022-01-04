@@ -18,8 +18,6 @@ namespace JShibo.Serialization.Transpose
 
         internal SerializerSettings sets = SerializerSettings.Default;
         internal ColumnWriter[] writers = null;
-        //byte[][] bytes = null;
-        //byte** bytesPtr;
 
         Type[] types = null;
         string[] names = null;
@@ -42,17 +40,26 @@ namespace JShibo.Serialization.Transpose
         ulong[][] ulongValues = null;
         TimeSpan[][] timeSpanValues = null;
         Guid[][] guidValues = null;
+        Uri[][] uriValues = null;
+        bool useCache;
 
+        /// <summary>
+        /// 数组中第几个元素
+        /// </summary>
         internal int num = 0;
+        /// <summary>
+        /// 当前写的是哪个数组
+        /// </summary>
         internal int idx = 0;
-        long sum = 0;
+        
 
         #endregion
         
         #region 构造函数
 
-        public PivotEncode(Type tp,int count)
+        public PivotEncode(Type tp,int count,bool useCache = true)
         {
+            this.useCache = useCache;
             var properties = tp.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             if (properties.Length > 0)
             {
@@ -124,7 +131,8 @@ namespace JShibo.Serialization.Transpose
                     else if (type == typeof(long))
                     {
                         //longValues[i] = new long[cap];
-                        longValues[i] = GC.AllocateUninitializedArray<long>(cap, true);
+                        //longValues[i] = GC.AllocateUninitializedArray<long>(cap, true);
+                        longValues[i] = useCache == true ? ArrayPool<long>.Shared.Rent(cap) : new long[cap];
                     }
                     else if (type == typeof(object))
                         objectValues[i] = new object[cap];
@@ -206,148 +214,137 @@ namespace JShibo.Serialization.Transpose
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(sbyte value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             sbyteValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(short value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             shortValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(ushort value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             ushortValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(int value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             intValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(uint value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             uintValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(long value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             longValues[idx][num] = value;
-            //sum += value;
-            //longValues[0][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(ulong value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             ulongValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(float value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             floatValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(double value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             doubleValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(decimal value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             decimalValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(string value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             stringValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(bool value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             boolValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(char value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             charValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(DateTime value)
         {
-            //writers[idx].Write(value);
-            //idx++;
             datetimeValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(DateTimeOffset value)
         {
-            //writers[idx].Write(value);
-            //idx++;
-        }
-
-        internal unsafe void Write(TimeSpan value)
-        {
-            writers[idx].Write(value);
+            dateTimeOffsetValues[idx][num] = value;
             idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal unsafe void Write(TimeSpan value)
+        {
+            timeSpanValues[idx][num] = value;
+            idx++;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(Guid value)
         {
-            //writers[idx].Write(value);
-            //idx++;
+            guidValues[idx][num] = value;
+            idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void Write(Uri value)
         {
-            //writers[idx].Write(value);
-            //idx++;
+            uriValues[idx][num] = value;
+            idx++;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Write(object value)
         {
-            //writers[idx].Write(value);
-            //idx++;
+            objectValues[idx][num] = value;
+            idx++;
         }
 
         #endregion
@@ -407,25 +404,16 @@ namespace JShibo.Serialization.Transpose
             return null;
         }
 
-        public void WriteTo(Stream stream)
-        {
-            
-        }
-
-        public char[] GetBuffer()
-        {
-            return null;
-        }
-
-        public char[] ToArray()
-        {
-            return null;
-        }
-
         public void Dispose()
         {
-            //foreach (var item in byteValues)
-            //    ArrayPool<byte>.Shared.Return(item);
+            //如果使用缓存，使用后要归还
+            if (useCache)
+            {
+                foreach (var item in longValues)
+                {
+                    ArrayPool<long>.Shared.Return(item);
+                }
+            }
         }
 
         #endregion

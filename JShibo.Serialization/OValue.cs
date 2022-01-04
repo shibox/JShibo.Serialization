@@ -14,8 +14,7 @@ namespace JShibo.Serialization
         #region 字段
 
         internal Deserialize<OValue>[] desers;
-        //internal byte[] _buffer = null;
-        FastRandom rd = new FastRandom();
+        Random rd = new();
 
         #endregion
 
@@ -23,12 +22,12 @@ namespace JShibo.Serialization
 
         public OValue()
         {
-            rd = new FastRandom();
+            rd = new Random();
         }
 
         public OValue(int seed)
         {
-            rd = new FastRandom(seed);
+            rd = new Random(seed);
         }
 
         #endregion
@@ -80,17 +79,17 @@ namespace JShibo.Serialization
 
         public uint ReadVUInt()
         {
-            return rd.NextUInt();
+            return (uint)rd.Next();
         }
 
         public long ReadVLong()
         {
-            return rd.NextLong();
+            return rd.NextInt64();
         }
 
         public ulong ReadVULong()
         {
-            return rd.NextULong();
+            return (ulong)rd.NextInt64();
         }
 
         public unsafe int ReadInt32()
@@ -100,32 +99,32 @@ namespace JShibo.Serialization
 
         public unsafe uint ReadUInt32()
         {
-            return rd.NextUInt();
+            return (uint)rd.Next();
         }
 
         public unsafe ulong ReadUInt64()
         {
-            return rd.NextULong();
+            return (ulong)rd.NextInt64();
         }
 
         public unsafe long ReadInt64()
         {
-            return rd.NextLong();
+            return rd.NextInt64();
         }
 
         public unsafe char ReadChar()
         {
-            return (char)rd.NextInt();
+            return (char)rd.Next();
         }
 
         public ushort ReadUInt16()
         {
-            return (ushort)rd.NextInt();
+            return (ushort)rd.Next();
         }
 
         public short ReadInt16()
         {
-            return (short)rd.NextInt();
+            return (short)rd.Next();
         }
 
         public string ReadString()
@@ -135,17 +134,17 @@ namespace JShibo.Serialization
 
         public bool ReadBoolean()
         {
-            return rd.NextBool();
+            return rd.Next(0,2) == 0;
         }
 
         public byte ReadByte()
         {
-            return (byte)rd.NextInt();
+            return (byte)rd.Next();
         }
 
         public sbyte ReadSByte()
         {
-            return (sbyte)rd.NextInt();
+            return (sbyte)rd.Next();
         }
 
         public unsafe decimal ReadDecimal()
@@ -155,7 +154,7 @@ namespace JShibo.Serialization
 
         public unsafe float ReadSingle()
         {
-            return rd.NextFloat();
+            return rd.NextSingle();
         }
 
         public unsafe double ReadDouble()
@@ -281,7 +280,10 @@ namespace JShibo.Serialization
             int count = rd.Next(0, 100);
             byte[][] value = new byte[count][];
             for (int i = 0; i < count; i++)
-                value[i] = rd.NextBytes(rd.Next(1, 100));
+            {
+                value[i] = new byte[rd.Next(1, 100)];
+                rd.NextBytes(value[i]);
+            }  
             return value;
         }
 

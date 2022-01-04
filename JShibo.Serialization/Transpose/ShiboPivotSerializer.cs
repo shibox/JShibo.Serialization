@@ -93,7 +93,7 @@ namespace JShibo.Serialization.Transpose
             return info;
         }
 
-        internal static DataColumn[] Serialize(object graph)
+        internal static DataColumn[] Serialize(object graph,bool useCache = true)
         {
             if (graph.GetType().IsArray)
             {
@@ -105,7 +105,7 @@ namespace JShibo.Serialization.Transpose
                 PivotEncode encoder = null;
                 if (list != null)
                 {
-                    encoder = new PivotEncode(type, list.Length);
+                    encoder = new PivotEncode(type, list.Length, useCache);
                     //if (list is IList)
                     //{
                     //    IList vv = list as IList;
@@ -141,7 +141,7 @@ namespace JShibo.Serialization.Transpose
                 IList list = graph as IList;
                 if (list != null)
                 {
-                    stream = new PivotEncode(type,list.Count);
+                    stream = new PivotEncode(type, list.Count, useCache);
                     for (int i = 0; i < list.Count; i++)
                     {
                         info.Serializer(stream, list[i]);

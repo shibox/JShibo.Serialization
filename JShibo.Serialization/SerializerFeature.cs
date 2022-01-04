@@ -8,7 +8,7 @@ namespace JShibo.Serialization
     /// <summary>
     /// 序列化的一些选项
     /// </summary>
-    enum SerializerFeature
+    public enum SerializerFeature
     {
         /// <summary>
         /// 序列化输出字段，使用引号。
@@ -95,29 +95,5 @@ namespace JShibo.Serialization
         /// </summary>
         IgnoreNonSupportType
     }
-
-    //private SerializerFeature(){
-    //    mask = (1 << ordinal());
-    //}
-
-    //private int mask;
-
-    //public int getMask() {
-    //    return mask;
-    //}
-
-    //public static  isEnabled(int features, SerializerFeature feature) {
-    //    return (features & feature.getMask()) != 0;
-    //}
-
-    //public static int config(int features, SerializerFeature feature, boolean state) {
-    //    if (state) {
-    //        features |= feature.getMask();
-    //    } else {
-    //        features &= ~feature.getMask();
-    //    }
-
-    //    return features;
-    //}
 
 }
