@@ -98,7 +98,7 @@ namespace JShibo.Serialization
 
     }
 
-    public class ConvertContext : XmlContext<PivotEncode, PivotDecode, PivotEncodeSize>
+    public class ConvertContext : ConvertContext<PivotEncode, PivotDecode>
     {
 
 

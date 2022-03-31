@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace JShibo.Serialization.Transpose
 {
-    internal class ShiboPivotSerializer : SerializerBase<PivotEncode, PivotDecode, ConvertContext, PivotEncodeSize>
+    internal class ShiboPivotSerializer : ConvertBase<PivotEncode, PivotDecode, ConvertContext>
     {
 
         static ShiboPivotSerializer Instance;
@@ -97,40 +97,23 @@ namespace JShibo.Serialization.Transpose
         {
             if (graph.GetType().IsArray)
             {
-                Array list = graph as Array;
-                Type type = list.GetType();
+                var list = graph as Array;
+                var type = list.GetType();
                 if (list.Length > 0)
                     type = list.GetValue(0).GetType();
                 ConvertContext info = GetLastContext(type);
-                PivotEncode encoder = null;
+                //using PivotEncode encoder = null;
                 if (list != null)
                 {
-                    encoder = new PivotEncode(type, list.Length, useCache);
-                    //if (list is IList)
-                    //{
-                    //    IList vv = list as IList;
-                    //    for (int i = 0; i < list.Length; i++)
-                    //    {
-                    //        info.Serializer(encoder, vv[i]);
-                    //        encoder.num++;
-                    //        encoder.idx = 0;
-                    //        encoder.Reset();
-                    //    }
-                    //}
-                    //else
-                    //{
+                    using PivotEncode encoder = new PivotEncode(type, list.Length, useCache);
                     for (int i = 0; i < list.Length; i++)
                     {
                         info.Serializer(encoder, list.GetValue(i));
-                        encoder.num++;
-                        encoder.idx = 0;
-                        //encoder.Reset();
+                        encoder.Reset();
                     }
-                    //}
-
+                    return encoder.GetResult();
                 }
-                encoder.Dispose();
-                return encoder.GetResult();
+                return null;
             }
             Type[] gtypes = graph.GetType().GenericTypeArguments;
             if (gtypes.Length == 1)
@@ -138,8 +121,7 @@ namespace JShibo.Serialization.Transpose
                 Type type = gtypes[0];
                 ConvertContext info = GetLastContext(type);
                 PivotEncode stream = null;
-                IList list = graph as IList;
-                if (list != null)
+                if (graph is IList list)
                 {
                     stream = new PivotEncode(type, list.Count, useCache);
                     for (int i = 0; i < list.Count; i++)
@@ -153,23 +135,25 @@ namespace JShibo.Serialization.Transpose
             return null;
         }
 
+        /// <summary>
+        /// 从数据库等数据源的转换
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
         internal static DataColumn Serialize(IDataReader source)
         {
             var types = new Type[source.FieldCount];
             for (int i = 0; i < types.Length; i++)
                 types[i] = source.GetFieldType(i);
-            SerializeWrite<PivotEncodeObjects> info = Instance.builder.GenerateSerializationWriteType<PivotEncodeObjects>(types);
-            var stream = new PivotEncodeObjects(types, 10000)
-            {
-                objs = new object[types.Length]
-            };
+            SerializeWrite<PivotEncodeIDataReader> info = Instance.builder.GenerateSerializationWriteType<PivotEncodeIDataReader>(types);
+            var handle = new PivotEncodeIDataReader(types, 10000);
             while (source.Read())
             {
-                source.GetValues(stream.objs);
-                info(stream);
-                stream.Reset();
+                source.GetValues(handle.values);
+                info(handle);
+                handle.Reset();
             }
-            return stream.GetResult();
+            return handle.GetResult();
         }
 
         #endregion

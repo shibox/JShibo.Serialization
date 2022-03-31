@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 
 namespace JShibo.Serialization.Transpose
 {
+    /// <summary>
+    /// 行列转换最好的是使用代码生成模式，性能最好
+    /// </summary>
     public unsafe class PivotEncode:IDisposable
     {
         #region 字段
 
-        internal SerializerSettings sets = SerializerSettings.Default;
-        internal ColumnWriter[] writers = null;
-
-        Type[] types = null;
-        string[] names = null;
+        (Type Type,string Name)[] typename = null;
+        List<object> used = new();
         bool[][] boolValues = null;
         char[][] charValues = null;
         sbyte[][] sbyteValues = null;
@@ -42,6 +42,7 @@ namespace JShibo.Serialization.Transpose
         Guid[][] guidValues = null;
         Uri[][] uriValues = null;
         bool useCache;
+        bool dispose = false;
 
         /// <summary>
         /// 数组中第几个元素
@@ -60,113 +61,188 @@ namespace JShibo.Serialization.Transpose
         public PivotEncode(Type tp,int count,bool useCache = true)
         {
             this.useCache = useCache;
-            var properties = tp.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            if (properties.Length > 0)
+            var vs = tp.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            if (vs.Length > 0)
             {
-                writers = new ColumnWriter[properties.Length];
-                var cols = properties.Length;
-                types = new Type[cols];
-                names = new string[cols];
-                boolValues = new bool[cols][];
-                charValues = new char[cols][];
-                sbyteValues = new sbyte[cols][];
-                ushortValues = new ushort[cols][];
-                floatValues = new float[cols][];
-                doubleValues = new double[cols][];
-                decimalValues = new decimal[cols][];
-                stringValues = new string[cols][];
-                datetimeValues = new DateTime[cols][];
-                byteValues = new byte[cols][];
-                shortValues = new short[cols][];
-                intValues = new int[cols][];
-                longValues = new long[cols][];
-                objectValues = new object[cols][];
-                dateTimeOffsetValues = new DateTimeOffset[cols][];
-                uintValues = new uint[cols][];
-                ulongValues = new ulong[cols][];
-                timeSpanValues = new TimeSpan[cols][];
-                guidValues = new Guid[cols][];
-                for (int i = 0; i < properties.Length; i++)
+                var cols = vs.Length;
+                var types = vs.Select(x => x.PropertyType).Distinct();
+                foreach (var type in types)
                 {
-                    types[i]= properties[i].PropertyType;
-                    names[i] = properties[i].Name;
+                    if (type == typeof(bool))
+                    {
+                        boolValues = new bool[cols][];
+                        used.Add(boolValues);
+                    }
+                    else if (type == typeof(char))
+                    {
+                        charValues = new char[cols][];
+                        used.Add(charValues);
+                    }
+                    else if (type == typeof(sbyte))
+                    {
+                        sbyteValues = new sbyte[cols][];
+                        used.Add(sbyteValues);
+                    }
+                    else if (type == typeof(ushort))
+                    {
+                        ushortValues = new ushort[cols][];
+                        used.Add(ushortValues);
+                    }
+                    else if (type == typeof(float))
+                    {
+                        floatValues = new float[cols][];
+                        used.Add(floatValues);
+                    }
+                    else if (type == typeof(double))
+                    {
+                        doubleValues = new double[cols][];
+                        used.Add(doubleValues);
+                    }
+                    else if (type == typeof(decimal))
+                    {
+                        decimalValues = new decimal[cols][];
+                        used.Add(decimalValues);
+                    }
+                    else if (type == typeof(string))
+                    {
+                        stringValues = new string[cols][];
+                        used.Add(stringValues);
+                    }
+                    else if (type == typeof(DateTime))
+                    {
+                        datetimeValues = new DateTime[cols][];
+                        used.Add(datetimeValues);
+                    }
+                    else if (type == typeof(byte))
+                    {
+                        byteValues = new byte[cols][];
+                        used.Add(byteValues);
+                    }
+                    else if (type == typeof(short))
+                    {
+                        shortValues = new short[cols][];
+                        used.Add(shortValues);
+                    }
+                    else if (type == typeof(int))
+                    {
+                        intValues = new int[cols][];
+                        used.Add(intValues);
+                    }
+                    else if (type == typeof(long))
+                    {
+                        longValues = new long[cols][];
+                        used.Add(longValues);
+                    }
+                    else if (type == typeof(object))
+                    {
+                        objectValues = new object[cols][];
+                        used.Add(objectValues);
+                    }
+                    else if (type == typeof(DateTimeOffset))
+                    {
+                        dateTimeOffsetValues = new DateTimeOffset[cols][];
+                        used.Add(dateTimeOffsetValues);
+                    }
+                    else if (type == typeof(uint))
+                    {
+                        uintValues = new uint[cols][];
+                        used.Add(uintValues);
+                    }
+                    else if (type == typeof(ulong))
+                    {
+                        ulongValues = new ulong[cols][];
+                        used.Add(ulongValues);
+                    }
+                    else if (type == typeof(TimeSpan))
+                    {
+                        timeSpanValues = new TimeSpan[cols][];
+                        used.Add(timeSpanValues);
+                    }
+                    else if (type == typeof(Guid))
+                    {
+                        guidValues = new Guid[cols][];
+                        used.Add(guidValues);
+                    }
                 }
 
-                for (int i = 0; i < properties.Length; i++)
+                //boolValues = new bool[cols][];
+                //charValues = new char[cols][];
+                //sbyteValues = new sbyte[cols][];
+                //ushortValues = new ushort[cols][];
+                //floatValues = new float[cols][];
+                //doubleValues = new double[cols][];
+                //decimalValues = new decimal[cols][];
+                //stringValues = new string[cols][];
+                //datetimeValues = new DateTime[cols][];
+                //byteValues = new byte[cols][];
+                //shortValues = new short[cols][];
+                //intValues = new int[cols][];
+                //longValues = new long[cols][];
+                //objectValues = new object[cols][];
+                //dateTimeOffsetValues = new DateTimeOffset[cols][];
+                //uintValues = new uint[cols][];
+                //ulongValues = new ulong[cols][];
+                //timeSpanValues = new TimeSpan[cols][];
+                //guidValues = new Guid[cols][];
+                typename = new (Type type, string name)[vs.Length];
+
+                for (int i = 0; i < vs.Length; i++)
                 {
-                    writers[i] = new ColumnWriter(properties[i].PropertyType, properties[i].Name, 0);
+                    typename[i]= (vs[i].PropertyType, vs[i].Name);
                     var cap = count;
-                    var type = properties[i].PropertyType;
+                    var type = vs[i].PropertyType;
                     if (type == typeof(bool))
-                        boolValues[i] = new bool[cap];
+                        boolValues[i] = useCache == true ? ArrayPool<bool>.Shared.Rent(cap) : new bool[cap];
                     else if (type == typeof(char))
-                        charValues[i] = new char[cap];
+                        charValues[i] = useCache == true ? ArrayPool<char>.Shared.Rent(cap) : new char[cap];
                     else if (type == typeof(sbyte))
-                        sbyteValues[i] = new sbyte[cap];
+                        sbyteValues[i] = useCache == true ? ArrayPool<sbyte>.Shared.Rent(cap) : new sbyte[cap];
                     else if (type == typeof(ushort))
-                        ushortValues[i] = new ushort[cap];
+                        ushortValues[i] = useCache == true ? ArrayPool<ushort>.Shared.Rent(cap) : new ushort[cap];
                     else if (type == typeof(float))
-                        floatValues[i] = new float[cap];
+                        floatValues[i] = useCache == true ? ArrayPool<float>.Shared.Rent(cap) : new float[cap];
                     else if (type == typeof(double))
-                        doubleValues[i] = new double[cap];
+                        doubleValues[i] = useCache == true ? ArrayPool<double>.Shared.Rent(cap) : new double[cap];
                     else if (type == typeof(decimal))
-                        decimalValues[i] = new decimal[cap];
+                        decimalValues[i] = useCache == true ? ArrayPool<decimal>.Shared.Rent(cap) : new decimal[cap];
                     else if (type == typeof(string))
                         stringValues[i] = new string[cap];
                     else if (type == typeof(DateTime))
-                        datetimeValues[i] = new DateTime[cap];
+                        datetimeValues[i] = useCache == true ? ArrayPool<DateTime>.Shared.Rent(cap) : new DateTime[cap];
                     else if (type == typeof(byte))
                     {
                         //byteValues[i] = new byte[cap];
-                        //byteValues[i] = ArrayPool<byte>.Shared.Rent(cap);
-                        byteValues[i] = GC.AllocateUninitializedArray<byte>(cap, true);
+                        byteValues[i] = useCache == true ? ArrayPool<byte>.Shared.Rent(cap) : new byte[cap];
+                        //byteValues[i] = GC.AllocateUninitializedArray<byte>(cap, true);
                         //fixed (byte* ptr = byteValues)
                         //    bytePtr = ptr;
                     }
-
                     else if (type == typeof(short))
-                        shortValues[i] = new short[cap];
+                        shortValues[i] = useCache == true ? ArrayPool<short>.Shared.Rent(cap) : new short[cap];
                     else if (type == typeof(int))
-                        intValues[i] = new int[cap];
+                        intValues[i] = useCache == true ? ArrayPool<int>.Shared.Rent(cap) : new int[cap];
                     else if (type == typeof(long))
-                    {
-                        //longValues[i] = new long[cap];
-                        //longValues[i] = GC.AllocateUninitializedArray<long>(cap, true);
                         longValues[i] = useCache == true ? ArrayPool<long>.Shared.Rent(cap) : new long[cap];
-                    }
                     else if (type == typeof(object))
                         objectValues[i] = new object[cap];
                     else if (type == typeof(DateTimeOffset))
-                        dateTimeOffsetValues[i] = new DateTimeOffset[cap];
+                        dateTimeOffsetValues[i] = useCache == true ? ArrayPool<DateTimeOffset>.Shared.Rent(cap) : new DateTimeOffset[cap];
                     else if (type == typeof(uint))
-                        uintValues[i] = new uint[cap];
+                        uintValues[i] = useCache == true ? ArrayPool<uint>.Shared.Rent(cap) : new uint[cap];
                     else if (type == typeof(ulong))
-                        ulongValues[i] = new ulong[cap];
+                        ulongValues[i] = useCache == true ? ArrayPool<ulong>.Shared.Rent(cap) : new ulong[cap];
                     else if (type == typeof(TimeSpan))
-                        timeSpanValues[i] = new TimeSpan[cap];
+                        timeSpanValues[i] = useCache == true ? ArrayPool<TimeSpan>.Shared.Rent(cap) : new TimeSpan[cap];
                     else if (type == typeof(Guid))
-                        guidValues[i] = new Guid[cap];
+                        guidValues[i] = useCache == true ? ArrayPool<Guid>.Shared.Rent(cap) : new Guid[cap];
                     else
                         throw new NotSupportedException("不支持该类型");
                 }
-                //bytes = new byte[properties.Length][];
-                //for (int i = 0; i < properties.Length; i++)
-                //{
-                //    //bytes[i] = new byte[count];
-                //    bytes[i] = GC.AllocateUninitializedArray<byte>(count, true);
-                //    //fixed (byte* ptr = bytes[i])
-                //    //{
-                //    //    //var v = (bytesPtr[i]);
-                //    //    (bytesPtr[i]) = ptr;
-                //    //}
-                //}
             }
             else
             {
+                //按照字段类型处理
                 //var fields = tp.GetFields(BindingFlags.Instance | BindingFlags.Public);
-                //writers = new ColumnWriter[fields.Length];
-                //for (int i = 0; i < fields.Length; i++)
-                //    writers[i] = new ColumnWriter(fields[i].FieldType, fields[i].Name, count);
             }
         }
 
@@ -180,22 +256,6 @@ namespace JShibo.Serialization.Transpose
         #endregion
 
         #region 方法
-
-        internal void SetInfo(ConvertContext info)
-        {
-            
-        }
-
-        #endregion
-
-        #region 私有写入
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Reset()
-        {
-            idx = 0;
-            num++;
-        }
 
         #endregion
 
@@ -349,19 +409,81 @@ namespace JShibo.Serialization.Transpose
 
         #endregion
 
-        #region 公共
-
+        /// <summary>
+        /// 获得行转列后的结果
+        /// </summary>
+        /// <returns></returns>
         public DataColumn[] GetResult()
         {
-            return writers.Select((item, i) => new DataColumn()
+            if (dispose == false)
             {
-                Type = item.Type,
-                Name = item.Name,
-                Value = GetValue(item.Type, i),
-            }).ToArray();
+                return typename.Select((item, i) => new DataColumn()
+                {
+                    Type = item.Type,
+                    Name = item.Name,
+                    Value = GetValue(item.Type, i),
+                }).ToArray();
+            }
+            return null;
         }
 
-        public Array GetValue(Type type,int i)
+        public void Dispose()
+        {
+            if (dispose == false)
+            {//如果使用缓存，使用后要归还
+                if (useCache)
+                {
+                    var i = 0;
+                    foreach (var item in typename)
+                    {
+                        if (item.Type == typeof(bool))
+                            ArrayPool<bool>.Shared.Return(boolValues[i]);
+                        else if (item.Type == typeof(char))
+                            ArrayPool<char>.Shared.Return(charValues[i]);
+                        else if (item.Type == typeof(sbyte))
+                            ArrayPool<sbyte>.Shared.Return(sbyteValues[i]);
+                        else if (item.Type == typeof(ushort))
+                            ArrayPool<ushort>.Shared.Return(ushortValues[i]);
+                        else if (item.Type == typeof(float))
+                            ArrayPool<float>.Shared.Return(floatValues[i]);
+                        else if (item.Type == typeof(double))
+                            ArrayPool<double>.Shared.Return(doubleValues[i]);
+                        else if (item.Type == typeof(decimal))
+                            ArrayPool<decimal>.Shared.Return(decimalValues[i]);
+                        //else if (item.Type == typeof(string))
+                        //    ArrayPool<string>.Shared.Return(stringValues[i]);
+                        else if (item.Type == typeof(DateTime))
+                            ArrayPool<DateTime>.Shared.Return(datetimeValues[i]);
+                        else if (item.Type == typeof(byte))
+                            ArrayPool<byte>.Shared.Return(byteValues[i]);
+                        else if (item.Type == typeof(short))
+                            ArrayPool<short>.Shared.Return(shortValues[i]);
+                        else if (item.Type == typeof(int))
+                            ArrayPool<int>.Shared.Return(intValues[i]);
+                        else if (item.Type == typeof(long))
+                            ArrayPool<long>.Shared.Return(longValues[i]);
+                        //else if (item.Type == typeof(object))
+                        //    ArrayPool<bool>.Shared.Return(objectValues[i]);
+                        else if (item.Type == typeof(DateTimeOffset))
+                            ArrayPool<DateTimeOffset>.Shared.Return(dateTimeOffsetValues[i]);
+                        else if (item.Type == typeof(uint))
+                            ArrayPool<uint>.Shared.Return(uintValues[i]);
+                        else if (item.Type == typeof(ulong))
+                            ArrayPool<ulong>.Shared.Return(ulongValues[i]);
+                        else if (item.Type == typeof(TimeSpan))
+                            ArrayPool<TimeSpan>.Shared.Return(timeSpanValues[i]);
+                        else if (item.Type == typeof(Guid))
+                            ArrayPool<Guid>.Shared.Return(guidValues[i]);
+                        idx++;
+                    }
+                };
+                used.ForEach(item => item = null);
+                used = null;
+                dispose = true;
+            }
+        }
+
+        private Array GetValue(Type type, int i)
         {
             if (type == typeof(bool))
                 return boolValues[i];
@@ -404,22 +526,12 @@ namespace JShibo.Serialization.Transpose
             return null;
         }
 
-        public void Dispose()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Reset()
         {
-            //如果使用缓存，使用后要归还
-            if (useCache)
-            {
-                foreach (var item in longValues)
-                {
-                    ArrayPool<long>.Shared.Return(item);
-                }
-            }
+            idx = 0;
+            num++;
         }
-
-        #endregion
-
-
-
 
     }
 }

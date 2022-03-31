@@ -35,13 +35,27 @@ namespace JShibo.Serialization
         }
     }
 
-    public class ObjectContext<Data, UData, Size>
+    public class ConvertContext<Data, UData>
     {
         internal SerializerSettings Seting = SerializerSettings.Default;
         internal Serialize<Data> Serializer;
-        internal Estimate<Size> EstimateSize;
         internal Deserialize<UData> Deserializer;
-        
+        internal List<string> NamesList;
+        internal string[] Names;
+        internal List<int> NameCountsList;
+        internal int[] NameCounts;
+
+        internal virtual void ToArray()
+        {
+            Names = NamesList.ToArray();
+            NameCounts = NameCountsList.ToArray();
+        }
+
+    }
+
+    public class ObjectContext<Data, UData, Size>:ConvertContext<Data, UData>
+    {
+        internal Estimate<Size> EstimateSize;
         internal int ObjectCount = 0;
         /// <summary>
         /// 序列化的对象是否是基础类型，如int
@@ -58,8 +72,8 @@ namespace JShibo.Serialization
         internal bool IsAllFixedSize = true;
         
         internal List<Serialize<Data>> SerializeList;
-        internal List<Estimate<Size>> EstimateSizeList;
         internal List<Deserialize<UData>> DeserializeList;
+        internal List<Estimate<Size>> EstimateSizeList;
         internal List<Type> TypesList;
         internal List<int> TypeCountsList;
         
@@ -87,8 +101,9 @@ namespace JShibo.Serialization
             
         }
 
-        internal virtual void ToArray()
+        internal override void ToArray()
         {
+            base.ToArray();
             Serializers = SerializeList.ToArray();
             SizeSerializers = EstimateSizeList.ToArray();
             Deserializers = DeserializeList.ToArray();
@@ -100,13 +115,8 @@ namespace JShibo.Serialization
 
     public class TextContext<Data, UData, Size> : ObjectContext<Data, UData, Size>
     {
-        internal List<string> NamesList;
         internal List<CheckAttribute> ChecksList;
-        internal List<int> NameCountsList;
-
-        internal string[] Names;
         internal CheckAttribute[] checks;
-        internal int[] NameCounts;
         private string[] NamesCamelCase;
         /// <summary>
         /// 是否存在大小写名称相同的情况
@@ -125,9 +135,9 @@ namespace JShibo.Serialization
         internal override void ToArray()
         {
             base.ToArray();
-            Names = NamesList.ToArray();
+            //Names = NamesList.ToArray();
             checks = ChecksList.ToArray();
-            NameCounts = NameCountsList.ToArray();
+            //NameCounts = NameCountsList.ToArray();
         }
 
         internal string[] GetNamesCamelCase()
@@ -201,6 +211,13 @@ namespace JShibo.Serialization
 
     }
 
+    //public class PivotContext<Data, UData> : ConvertContext<Data, UData>
+    //{
+
+    //}
+
+    
+
     public class ObjectInitializeContext<UData>
     {
         internal SerializerSettings Seting = SerializerSettings.Default;
@@ -224,10 +241,10 @@ namespace JShibo.Serialization
 
     }
 
-    public class ConvertContext<Data, UData,Size>: TextContext<Data, UData, Size>
-    {
+    //public class ConvertContext<Data, UData,Size>: TextContext<Data, UData, Size>
+    //{
         
 
-    }
+    //}
 
 }

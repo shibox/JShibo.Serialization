@@ -187,6 +187,7 @@ namespace JShibo.Serialization.Soc
         /// 
         /// </summary>
         /// <param name="size"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void WriteSize(int size)
         {
             Utils.WriteSize(_buffer, size, ref position);
@@ -1148,7 +1149,7 @@ namespace JShibo.Serialization.Soc
 
         unsafe public void Write(decimal value)
         {
-            DecimalStruct v = new DecimalStruct(value);
+            var v = new DecimalStruct(value);
             fixed (byte* pd = &_buffer[position])
             {
                 *((int*)pd) = v.lo;
@@ -2550,6 +2551,27 @@ namespace JShibo.Serialization.Soc
         internal void WriteNotSupported()
         {
             throw new NotSupportedException("not supported object type!");
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void Write(byte* ptr,uint length)
+        {
+            if (_buffer.Length < position + length + 4)
+                Resize((int)length + 4);
+            WriteSize((int)length);
+            fixed (byte* ptr2 = _buffer)
+            {
+                Buffer.MemoryCopy(ptr, ptr2, (int)length, (int)length);
+                position += (int)length;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WriteZeroLength()
+        {
+            if (_buffer.Length <= position)
+                Resize(1);
+            this._buffer[position++] = (byte)0;
         }
 
         #endregion

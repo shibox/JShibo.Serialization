@@ -9,7 +9,7 @@ using JShibo.Serialization.Soc;
 
 namespace JShibo.Serialization
 {
-    internal class ShiboObjectInitializer : SerializerBase<OValue, ObjectInitializeContext<OValue>>
+    internal class ShiboObjectInitializer : DeserializerBase<OValue, ObjectInitializeContext<OValue>>
     {
         static ShiboObjectInitializer Instance;
 
@@ -30,7 +30,7 @@ namespace JShibo.Serialization
             if (Instance.builder.IsBaseType(type) == true)
                 return;
 
-            FieldInfo[] fields = type.GetFields(info.Seting.Flags);
+            var fields = type.GetFields(info.Seting.Flags);
             foreach (FieldInfo field in fields)
             {
                 if (Utils.IsIgnoreAttribute(field) == false)
@@ -42,7 +42,7 @@ namespace JShibo.Serialization
                     }
                 }
             }
-            PropertyInfo[] propertys = type.GetProperties(info.Seting.Flags);
+            var propertys = type.GetProperties(info.Seting.Flags);
             foreach (PropertyInfo property in propertys)
             {
                 if (Utils.IsIgnoreAttribute(property) == false)
@@ -58,8 +58,7 @@ namespace JShibo.Serialization
 
         internal static ObjectInitializeContext<OValue> GetContext(Type type)
         {
-            ObjectInitializeContext<OValue> info = null;
-            if (types.TryGetValue(type, out info) == false)
+            if (types.TryGetValue(type, out var info) == false)
             {
                 info = new ObjectInitializeContext<OValue>();
                 CreateContext(type, info);
@@ -75,33 +74,34 @@ namespace JShibo.Serialization
 
         #region 公共方法
 
-        internal static object Initialize(OValue stream, ObjectInitializeContext<OValue> info)
+        internal static object Initialize(OValue hander, ObjectInitializeContext<OValue> info)
         {
-            stream.desers = info.Deserializes;
-            object value = info.Deserializer(stream);
+            hander.desers = info.Deserializes;
+            object value = info.Deserializer(hander);
             return value;
         }
 
-        internal static object Initialize(OValue stream, Deserialize<OValue> info)
+        internal static object Initialize(OValue hander, Deserialize<OValue> info)
         {
-            object value = info(stream);
+            object value = info(hander);
             return value;
         }
 
         public static object Initialize(Type type, int seed)
         {
-            ObjectInitializeContext<OValue> info = null;
-            if (type == lastRandomType)
-            {
-                info = lastRandomTypeInfo;
-            }
-            else
-            {
-                info = GetContext(type);
-                lastRandomType = type;
-                lastRandomTypeInfo = info;
-            }
-            return Initialize(new OValue(seed), info);
+            return Initialize(new OValue(seed), GetContext(type));
+            //ObjectInitializeContext<OValue> info;
+            //if (type == lastRandomType)
+            //{
+            //    info = lastRandomTypeInfo;
+            //}
+            //else
+            //{
+            //    info = GetContext(type);
+            //    lastRandomType = type;
+            //    lastRandomTypeInfo = info;
+            //}
+            //return Initialize(new OValue(seed), info);
         }
 
         public static object Initialize(Type type)

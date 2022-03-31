@@ -8,5 +8,6 @@ namespace JShibo.Serialization.Transpose
 {
     public class PivotDecode
     {
+
     }
 }

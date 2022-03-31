@@ -152,7 +152,7 @@ namespace JShibo.Serialization.Csv
                     return null;
                 bool isFirst = true;
                 CsvBytesContext info = null;
-                Utf8CsvWriter stream = null;
+                Utf8CsvWriter writer = null;
                 foreach (object item in ar)
                 {
                     if (isFirst)
@@ -163,23 +163,23 @@ namespace JShibo.Serialization.Csv
                         //char[] buffer = CharsBufferManager.GetBuffer(size);
                         byte[] buffer = ArrayPool<byte>.Shared.Rent(size);
                         handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                        stream = new Utf8CsvWriter(buffer);
+                        writer = new Utf8CsvWriter(buffer);
                         //fixed (byte* pointer = buffer)
                         //{
                         //    stream.bp = pointer;
                         //}
                         //stream.WriteHeader(info.Names);
-                        stream.WriteHeader(info.NamesCommaBytes);
+                        writer.WriteHeader(info.NamesCommaBytes);
                         isFirst = false;
                     }
-                    info.Serializer(stream, item);
-                    stream.WriteNewLine();
+                    info.Serializer(writer, item);
+                    writer.WriteNewLine();
                 }
                 //CharsBufferManager.SetBuffer(stream.GetBuffer());
-                ArrayPool<byte>.Shared.Return(stream.GetBuffer());
+                ArrayPool<byte>.Shared.Return(writer.GetBuffer());
                 //var ret = stream.ToString();
                 handle.Free();
-                return new Span<byte>(stream.GetBuffer(), 0, stream.Position);
+                return new Span<byte>(writer.GetBuffer(), 0, writer.Position);
             }
             else
             {

@@ -30,6 +30,15 @@ namespace JShibo.Serialization.Benchmark
     /// |     FastToCsvBytes |  100 | 10000 |    51.17 ms |    NA |  0.84 |    2 |           - |         - |     1,520,816 B |
     /// | FastToCsvUseManual |  100 | 10000 |    17.69 ms |    NA |  0.29 |    1 |           - |         - |           816 B |
     /// |  ServiceStackToCsv |  100 | 10000 | 1,907.37 ms |    NA | 31.47 |    4 | 308000.0000 | 2000.0000 | 1,938,400,480 B |
+    /// 
+    /// 代码生成模式可达手动实现一样的性能
+    /// |              Method | Size |     N |        Mean | Error | Ratio | Rank |       Gen 0 |     Gen 1 |       Allocated |
+    /// |-------------------- |----- |------ |------------:|------:|------:|-----:|------------:|----------:|----------------:|
+    /// |           FastToCsv |  100 | 10000 |    52.19 ms |    NA |  1.00 |    3 |  11000.0000 |         - |    75,200,480 B |
+    /// |      FastToCsvBytes |  100 | 10000 |   805.57 ms |    NA | 15.44 |    4 |           - |         - |     1,200,816 B |
+    /// | FastToCsvUseCodeGen |  100 | 10000 |    16.13 ms |    NA |  0.31 |    2 |           - |         - |           816 B |
+    /// |  FastToCsvUseManual |  100 | 10000 |    15.45 ms |    NA |  0.30 |    1 |           - |         - |           816 B |
+    /// |   ServiceStackToCsv |  100 | 10000 | 1,615.76 ms |    NA | 30.96 |    5 | 309000.0000 | 2000.0000 | 1,941,680,480 B |
     /// </summary>
     [SimpleJob(RunStrategy.ColdStart, launchCount: 1, warmupCount: 1, targetCount: 1)]
     [RankColumn, MemoryDiagnoser]
@@ -70,6 +79,18 @@ namespace JShibo.Serialization.Benchmark
             {
                 var csv = ShiboSerializer.ToCsvUtf8(data);
                 sum += csv.Length;
+            }
+        }
+
+        [Benchmark]
+        public void FastToCsvUseCodeGen()
+        {
+            long sum = 0;
+            for (int i = 0; i < N; i++)
+            {
+                var csv = CsvCodeGenCode.ConvertInt8Class(data);
+                sum += csv.Count;
+                ArrayPool<byte>.Shared.Return(csv.Array);
             }
         }
 

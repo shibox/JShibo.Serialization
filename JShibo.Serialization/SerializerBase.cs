@@ -21,7 +21,7 @@ namespace JShibo.Serialization
         { }
     }
 
-    internal class SerializerBase<Data, UData, Info, Size> : SerializerBase<UData, Info>
+    internal class SerializerBase<Data, UData, Info, Size> : DeserializerBase<UData, Info>
     {
         #region 字段
 
@@ -71,40 +71,33 @@ namespace JShibo.Serialization
 
         internal void RegisterAssemblyTypes()
         {
-            try
+            var assembly = Assembly.GetEntryAssembly().GetReferencedAssemblies();
+            foreach (var ass in assembly)
             {
-                AssemblyName[] assembly = Assembly.GetEntryAssembly().GetReferencedAssemblies();
-                foreach (var ass in assembly)
-                {
-                    AppDomain.CurrentDomain.Load(ass);
-                }
+                AppDomain.CurrentDomain.Load(ass);
+            }
 
-                Assembly[] asmbs = AppDomain.CurrentDomain.GetAssemblies();
-                foreach (Assembly a in asmbs)
+            var asmbs = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly a in asmbs)
+            {
+                if (Utils.IsTypeDecoratedByAttribute<TraceAssembly>(a.GetCustomAttributes(false)))
                 {
-                    if (Utils.IsTypeDecoratedByAttribute<TraceAssembly>(a.GetCustomAttributes(false)))
+                    foreach (Type t in a.GetTypes())
                     {
-                        foreach (Type t in a.GetTypes())
+                        if (Utils.IsTypeDecoratedByAttribute<SerializableAttribute>(t.GetCustomAttributes(true)))
                         {
-                            if (Utils.IsTypeDecoratedByAttribute<SerializableAttribute>(t.GetCustomAttributes(true)))
-                            {
-                                //GenerateSurrogateForEvent(t);
-                                GenerateDataSerializeSurrogate(t, true);
-                            }
+                            //GenerateSurrogateForEvent(t);
+                            GenerateDataSerializeSurrogate(t, true);
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                throw;
             }
         }
 
         private Serialize<Data> GenerateDataSerializeSurrogate(Type type, bool check)
         {
             bool isWrite = false;
-            Serialize<Data> jsonser = null;
+            Serialize<Data> hander = null;
             if (check == true)
             {
                 if (!type.IsAbstract && Utils.HasSerializableAttribute(type.GetCustomAttributes(true)))
@@ -112,20 +105,20 @@ namespace JShibo.Serialization
             }
             if (isWrite == false && !type.IsAbstract)
             {
-                jsonser = builder.GenerateSerializationType<Data>(type);
+                hander = builder.GenerateSerializationType<Data>(type);
                 isWrite = true;
             }
 
             if (!typeMap.ContainsKey(type) && isWrite == true)
-                typeMap.Add(type, jsonser);
+                typeMap.Add(type, hander);
 
-            return jsonser;
+            return hander;
         }
 
         private Estimate<Size> GenerateSizeSerializeSurrogate(Type type, bool check)
         {
             bool isWrite = false;
-            Estimate<Size> jsonser = null;
+            Estimate<Size> hander = null;
             if (check == true)
             {
                 if (!type.IsAbstract && Utils.HasSerializableAttribute(type.GetCustomAttributes(true)))
@@ -133,20 +126,20 @@ namespace JShibo.Serialization
             }
             if (isWrite == false && !type.IsAbstract)
             {
-                jsonser = builder.GenerateSizeSerializationType<Size>(type);
+                hander = builder.GenerateSizeSerializationType<Size>(type);
                 isWrite = true;
             }
 
             if (!typeSizeMap.ContainsKey(type) && isWrite == true)
-                typeSizeMap.Add(type, jsonser);
+                typeSizeMap.Add(type, hander);
 
-            return jsonser;
+            return hander;
         }
 
-        //private static Deserialize<UData> GenerateDeserializeSurrogate(Type type, bool check)
+        //private Deserialize<UData> GenerateDeserializeSurrogate(Type type, bool check)
         //{
         //    bool isWrite = false;
-        //    Deserialize<UData> jsonser = null;
+        //    Deserialize<UData> hander = null;
         //    if (check == true)
         //    {
         //        if (!type.IsAbstract && Utils.HasSerializableAttribute(type.GetCustomAttributes(true)))
@@ -154,32 +147,32 @@ namespace JShibo.Serialization
         //    }
         //    if (isWrite == false && !type.IsAbstract)
         //    {
-        //        jsonser = builder.GenerateDeserializationType<UData>(type);
+        //        hander = builder.GenerateDeserializationType<UData>(type);
         //        isWrite = true;
         //    }
 
         //    if (!deTypeMap.ContainsKey(type) && isWrite == true)
-        //        deTypeMap.Add(type, jsonser);
+        //        deTypeMap.Add(type, hander);
 
-        //    return jsonser;
+        //    return hander;
         //}
 
         internal Serialize<Data> GenerateDataSerializeSurrogate(Type type)
         {
-            if (typeMap.TryGetValue(type, out var sr) == false)
+            if (typeMap.TryGetValue(type, out var hander) == false)
             {
-                sr = GenerateDataSerializeSurrogate(type, false);
+                hander = GenerateDataSerializeSurrogate(type, false);
             }
-            return sr;
+            return hander;
         }
 
         internal Estimate<Size> GenerateSizeSerializeSurrogate(Type type)
         {
-            if (typeSizeMap.TryGetValue(type, out var sr) == false)
+            if (typeSizeMap.TryGetValue(type, out var hander) == false)
             {
-                sr = GenerateSizeSerializeSurrogate(type, false);
+                hander = GenerateSizeSerializeSurrogate(type, false);
             }
-            return sr;
+            return hander;
         }
 
         //internal static Deserialize<UData> GetDeserializeSurrogate(Type type)
@@ -194,26 +187,26 @@ namespace JShibo.Serialization
 
         protected Type[] GetDeserializeTypes(Type type)
         {
-            if (deTypes.TryGetValue(type, out var sr) == false)
+            if (deTypes.TryGetValue(type, out var hander) == false)
             {
                 var types = new List<Type>();
                 Utils.GetTypes(type, types);
-                sr = types.ToArray();
-                deTypes.Add(type, sr);
+                hander = types.ToArray();
+                deTypes.Add(type, hander);
             }
-            return sr;
+            return hander;
         }
 
         internal string[] GetSerializeNames(Type type)
         {
-            if (namesMap.TryGetValue(type, out var sr) == false)
+            if (namesMap.TryGetValue(type, out var hander) == false)
             {
                 var types = new List<string>();
                 Utils.GetNames(type, types);
-                sr = types.ToArray();
-                namesMap.Add(type, sr);
+                hander = types.ToArray();
+                namesMap.Add(type, hander);
             }
-            return sr;
+            return hander;
         }
 
         #endregion
@@ -428,7 +421,7 @@ namespace JShibo.Serialization
 
     }
 
-    internal class SerializerBase<UData, Info> : SerializerBase
+    internal class DeserializerBase<UData, Info> : SerializerBase
     {
         internal static Dictionary<Type, Info> types;
         internal static Dictionary<Type, Deserialize<UData>> deTypeMap;
@@ -436,7 +429,7 @@ namespace JShibo.Serialization
         internal static Type lastRandomType = typeof(object);
         internal static Info lastObjectLoopTypeInfo = default(Info);
 
-        internal SerializerBase()
+        internal DeserializerBase()
         {
             if (deTypes == null)
                 deTypes = new Dictionary<Type, Type[]>();
@@ -451,7 +444,7 @@ namespace JShibo.Serialization
         private Deserialize<UData> GenerateDeserializeSurrogate(Type type, bool check)
         {
             bool isWrite = false;
-            Deserialize<UData> jsonser = null;
+            Deserialize<UData> hander = null;
             if (check == true)
             {
                 if (!type.IsAbstract && Utils.HasSerializableAttribute(type.GetCustomAttributes(true)))
@@ -459,25 +452,137 @@ namespace JShibo.Serialization
             }
             if (isWrite == false && !type.IsAbstract)
             {
-                jsonser = builder.GenerateDeserializationType<UData>(type);
+                hander = builder.GenerateDeserializationType<UData>(type);
                 isWrite = true;
             }
 
             if (!deTypeMap.ContainsKey(type) && isWrite == true)
-                deTypeMap.Add(type, jsonser);
+                deTypeMap.Add(type, hander);
 
-            return jsonser;
+            return hander;
         }
 
         internal Deserialize<UData> GetDeserializeSurrogate(Type type)
         {
-            if (deTypeMap.TryGetValue(type, out var sr) == false)
+            if (deTypeMap.TryGetValue(type, out var hander) == false)
             {
-                sr = GenerateDeserializeSurrogate(type, false);
+                hander = GenerateDeserializeSurrogate(type, false);
             }
-            return sr;
+            return hander;
         }
 
+
+    }
+
+    internal class ConvertBase<Data, UData, Info> : DeserializerBase<UData, Info>
+    {
+        #region 字段
+
+        internal Dictionary<string, Type> typeNameMap;
+        internal Dictionary<Type, Serialize<Data>> typeMap;
+        internal Dictionary<Type, string[]> namesMap;
+        internal Info lastSerTypeInfo = default(Info);
+
+        #endregion
+
+        #region 构造函数
+
+        internal ConvertBase()
+        {
+            if (typeNameMap == null)
+                typeNameMap = new Dictionary<string, Type>();
+
+            if (namesMap == null)
+                namesMap = new Dictionary<Type, string[]>();
+
+            if (typeMap == null)
+                typeMap = new Dictionary<Type, Serialize<Data>>();
+        }
+
+        #endregion
+
+        #region 方法
+
+        internal void RegisterAssemblyTypes()
+        {
+            var assembly = Assembly.GetEntryAssembly().GetReferencedAssemblies();
+            foreach (var ass in assembly)
+            {
+                AppDomain.CurrentDomain.Load(ass);
+            }
+
+            var asmbs = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly a in asmbs)
+            {
+                if (Utils.IsTypeDecoratedByAttribute<TraceAssembly>(a.GetCustomAttributes(false)))
+                {
+                    foreach (Type t in a.GetTypes())
+                    {
+                        if (Utils.IsTypeDecoratedByAttribute<SerializableAttribute>(t.GetCustomAttributes(true)))
+                        {
+                            //GenerateSurrogateForEvent(t);
+                            GenerateDataSerializeSurrogate(t, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        private Serialize<Data> GenerateDataSerializeSurrogate(Type type, bool check)
+        {
+            bool isWrite = false;
+            Serialize<Data> hander = null;
+            if (check == true)
+            {
+                if (!type.IsAbstract && Utils.HasSerializableAttribute(type.GetCustomAttributes(true)))
+                    isWrite = true;
+            }
+            if (isWrite == false && !type.IsAbstract)
+            {
+                hander = builder.GenerateSerializationType<Data>(type);
+                isWrite = true;
+            }
+
+            if (!typeMap.ContainsKey(type) && isWrite == true)
+                typeMap.Add(type, hander);
+
+            return hander;
+        }
+
+        internal Serialize<Data> GenerateDataSerializeSurrogate(Type type)
+        {
+            if (typeMap.TryGetValue(type, out var hander) == false)
+            {
+                hander = GenerateDataSerializeSurrogate(type, false);
+            }
+            return hander;
+        }
+
+        protected Type[] GetDeserializeTypes(Type type)
+        {
+            if (deTypes.TryGetValue(type, out var hander) == false)
+            {
+                var types = new List<Type>();
+                Utils.GetTypes(type, types);
+                hander = types.ToArray();
+                deTypes.Add(type, hander);
+            }
+            return hander;
+        }
+
+        internal string[] GetSerializeNames(Type type)
+        {
+            if (namesMap.TryGetValue(type, out var hander) == false)
+            {
+                var types = new List<string>();
+                Utils.GetNames(type, types);
+                hander = types.ToArray();
+                namesMap.Add(type, hander);
+            }
+            return hander;
+        }
+
+        #endregion
 
     }
 
@@ -960,5 +1065,5 @@ namespace JShibo.Serialization
 
     #endregion
 
-    
+
 }

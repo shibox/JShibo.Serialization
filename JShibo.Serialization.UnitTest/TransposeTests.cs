@@ -49,11 +49,11 @@ namespace JShibo.Serialization.UnitTest
             for (int i = 0; i < data.Length; i++)
                 data[i] = ShiboSerializer.Initialize<Int64Class>();
             var ret = ShiboSerializer.ToColumns(data);
-            var bytes = new long[data.Length];
+            var v0s = new long[data.Length];
             for (int i = 0; i < data.Length; i++)
-                bytes[i] = data[i].V0;
+                v0s[i] = data[i].V0;
             var v1 = Csv((long[])ret[0].Value);
-            var v2 = Csv(bytes);
+            var v2 = Csv(v0s);
             Assert.AreEqual(v1, v2);
         }
 

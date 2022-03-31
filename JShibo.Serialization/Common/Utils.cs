@@ -1261,42 +1261,82 @@ namespace JShibo.Serialization.Common
             }
         }
 
-        internal static void WriteVLong1(byte[] by, uint id, ref int pos)
+        internal static void WriteVLong1(byte[] bytes, uint id, ref int pos)
         {
             if (id < 128)
             {
-                by[pos] = (byte)(id & 0x7F);
+                bytes[pos] = (byte)(id & 0x7F);
                 pos++;
             }
             else if (id < 128 * 128)
             {
-                by[pos] = (byte)((id >> 7) | 0x80);
-                by[pos + 1] = (byte)(id & 0x7F);
+                bytes[pos] = (byte)((id >> 7) | 0x80);
+                bytes[pos + 1] = (byte)(id & 0x7F);
                 pos += 2;
             }
             else if (id < 128 * 128 * 128)
             {
-                by[pos] = (byte)((id >> 14) | 0x80);
-                by[pos + 1] = (byte)((id >> 7) | 0x80);
-                by[pos + 2] = (byte)(id & 0x7F);
+                bytes[pos] = (byte)((id >> 14) | 0x80);
+                bytes[pos + 1] = (byte)((id >> 7) | 0x80);
+                bytes[pos + 2] = (byte)(id & 0x7F);
                 pos += 3;
             }
             else if (id < 128 * 128 * 128 * 128)
             {
-                by[pos] = (byte)((id >> 21) | 0x80);
-                by[pos + 1] = (byte)((id >> 14) | 0x80);
-                by[pos + 2] = (byte)((id >> 7) | 0x80);
-                by[pos + 3] = (byte)(id & 0x7F);
+                bytes[pos] = (byte)((id >> 21) | 0x80);
+                bytes[pos + 1] = (byte)((id >> 14) | 0x80);
+                bytes[pos + 2] = (byte)((id >> 7) | 0x80);
+                bytes[pos + 3] = (byte)(id & 0x7F);
                 pos += 4;
             }
             else
             {
-                by[pos] = (byte)((id >> 28) | 0x80);
-                by[pos + 1] = (byte)((id >> 21) | 0x80);
-                by[pos + 2] = (byte)((id >> 14) | 0x80);
-                by[pos + 3] = (byte)((id >> 7) | 0x80);
-                by[pos + 4] = (byte)(id & 0x7F);
+                bytes[pos] = (byte)((id >> 28) | 0x80);
+                bytes[pos + 1] = (byte)((id >> 21) | 0x80);
+                bytes[pos + 2] = (byte)((id >> 14) | 0x80);
+                bytes[pos + 3] = (byte)((id >> 7) | 0x80);
+                bytes[pos + 4] = (byte)(id & 0x7F);
                 pos += 5;
+            }
+        }
+
+        public unsafe static int WriteVLong1(byte* bytes, uint id)
+        {
+            const int pos = 0;
+            if (id < 128)
+            {
+                bytes[pos] = (byte)(id & 0x7F);
+                return 1;
+            }
+            else if (id < 128 * 128)
+            {
+                bytes[pos] = (byte)((id >> 7) | 0x80);
+                bytes[pos + 1] = (byte)(id & 0x7F);
+                return 2;
+            }
+            else if (id < 128 * 128 * 128)
+            {
+                bytes[pos] = (byte)((id >> 14) | 0x80);
+                bytes[pos + 1] = (byte)((id >> 7) | 0x80);
+                bytes[pos + 2] = (byte)(id & 0x7F);
+                return 3;
+            }
+            else if (id < 128 * 128 * 128 * 128)
+            {
+                bytes[pos] = (byte)((id >> 21) | 0x80);
+                bytes[pos + 1] = (byte)((id >> 14) | 0x80);
+                bytes[pos + 2] = (byte)((id >> 7) | 0x80);
+                bytes[pos + 3] = (byte)(id & 0x7F);
+                return 4;
+            }
+            else
+            {
+                bytes[pos] = (byte)((id >> 28) | 0x80);
+                bytes[pos + 1] = (byte)((id >> 21) | 0x80);
+                bytes[pos + 2] = (byte)((id >> 14) | 0x80);
+                bytes[pos + 3] = (byte)((id >> 7) | 0x80);
+                bytes[pos + 4] = (byte)(id & 0x7F);
+                return 5;
             }
         }
 
@@ -1538,6 +1578,7 @@ namespace JShibo.Serialization.Common
 
         #region Size
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void WriteSize(byte[] buffer, int size, ref int index)
         {
             if (size < 32)

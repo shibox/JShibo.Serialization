@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29230.61
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization.Research", "JShibo.Serialization.Research\JShibo.Serialization.Research.csproj", "{AD26E174-4D1C-41FC-9D3E-6989B281B206}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JShibo.Serialization.Research", "JShibo.Serialization.Research\JShibo.Serialization.Research.csproj", "{AD26E174-4D1C-41FC-9D3E-6989B281B206}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization.UnitTest", "JShibo.Serialization.UnitTest\JShibo.Serialization.UnitTest.csproj", "{A34D6C9E-E5DF-483B-ADB2-D4EE0BD137AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JShibo.Serialization.UnitTest", "JShibo.Serialization.UnitTest\JShibo.Serialization.UnitTest.csproj", "{A34D6C9E-E5DF-483B-ADB2-D4EE0BD137AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization", "JShibo.Serialization\JShibo.Serialization.csproj", "{1B156558-2A30-4D8B-95C8-090322AC95CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JShibo.Serialization", "JShibo.Serialization\JShibo.Serialization.csproj", "{1B156558-2A30-4D8B-95C8-090322AC95CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JShibo.Serialization.Benchmark", "JShibo.Serialization.Benchmark\JShibo.Serialization.Benchmark.csproj", "{2B9A9A77-9E10-4770-B62F-224950E491C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JShibo.Serialization.Benchmark", "JShibo.Serialization.Benchmark\JShibo.Serialization.Benchmark.csproj", "{2B9A9A77-9E10-4770-B62F-224950E491C8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XShibo", "..\Arrayable\XShibo\XShibo.csproj", "{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{2B9A9A77-9E10-4770-B62F-224950E491C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B9A9A77-9E10-4770-B62F-224950E491C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B9A9A77-9E10-4770-B62F-224950E491C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

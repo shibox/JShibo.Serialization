@@ -25,7 +25,6 @@ namespace JShibo.Serialization.Transpose
         string[] stringValues = null;
         DateTime[] datetimeValues = null;
         byte[] byteValues = null;
-        byte* bytePtr;
         short[] shortValues = null;
         int[] intValues = null;
         long[] longValues = null;
@@ -84,8 +83,8 @@ namespace JShibo.Serialization.Transpose
             {
                 //byteValues = new byte[cap];
                 byteValues = GC.AllocateUninitializedArray<byte>(cap, true);
-                fixed (byte* ptr = byteValues)
-                    bytePtr = ptr;
+                //fixed (byte* ptr = byteValues)
+                //    bytePtr = ptr;
             }
                 
             else if (type == typeof(short))

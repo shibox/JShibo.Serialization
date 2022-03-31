@@ -22,9 +22,9 @@ namespace JShibo.Serialization.Csv
 
         #region 字段
 
-        internal Type[] types;
-        internal Serialize<Utf8CsvWriter>[] sers;
-        internal int[] typeCounts;
+        //internal Type[] types;
+        //internal Serialize<Utf8CsvWriter>[] sers;
+        //internal int[] typeCounts;
 
         internal byte[][] names = new byte[0][];
         internal byte[] _buffer = null;
@@ -49,18 +49,15 @@ namespace JShibo.Serialization.Csv
 
         public int Position
         {
-            get
-            {
-                return position;
-            }
+            get { return position; }
             set { position = value; }
         }
 
-        public int MaxDepth
-        {
-            get { return maxDepth; }
-            set { maxDepth = value; }
-        }
+        //public int MaxDepth
+        //{
+        //    get { return maxDepth; }
+        //    set { maxDepth = value; }
+        //}
 
         #endregion
 
@@ -472,7 +469,8 @@ namespace JShibo.Serialization.Csv
             //int value = v;
             fixed (byte* ptr = &_buffer[position])
             {
-                FastToString.ToStringSign(ptr, value, ref position);
+                //FastToString.ToStringSign(ptr, value, ref position);
+                XShibo.Buffers.ToStringX.ToString(value,ptr,ref position);
 
                 //char* buffer = ptr;
                 //if (value < 10)
