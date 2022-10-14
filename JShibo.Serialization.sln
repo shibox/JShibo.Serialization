@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JShibo.Serialization", "JSh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JShibo.Serialization.Benchmark", "JShibo.Serialization.Benchmark\JShibo.Serialization.Benchmark.csproj", "{2B9A9A77-9E10-4770-B62F-224950E491C8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XShibo", "..\Arrayable\XShibo\XShibo.csproj", "{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XShibo", "..\OlapX\XShibo\XShibo.csproj", "{CABBA6FD-39BC-4401-B67B-CA28260BC2E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{2B9A9A77-9E10-4770-B62F-224950E491C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B9A9A77-9E10-4770-B62F-224950E491C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B9A9A77-9E10-4770-B62F-224950E491C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DCA8F486-CA47-4CCD-A540-95E3A3CF4ED2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CABBA6FD-39BC-4401-B67B-CA28260BC2E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CABBA6FD-39BC-4401-B67B-CA28260BC2E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CABBA6FD-39BC-4401-B67B-CA28260BC2E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CABBA6FD-39BC-4401-B67B-CA28260BC2E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -17,6 +17,8 @@ namespace JShibo.Serialization.Benchmark
             //var summary = BenchmarkRunner.Run<TransposeInt8Bench>();
             //var summary = BenchmarkRunner.Run<GuidCopyBench>();
             //var summary = BenchmarkRunner.Run<SelectBucketIndexBench>();
+            //var summary = BenchmarkRunner.Run<SeqFillBench>();
+
 
 
             //CsvCodeGenCode.Run();

@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\OlapX\XShibo\XShibo.csproj" />
     <ProjectReference Include="..\JShibo.Serialization.Research\JShibo.Serialization.Research.csproj" />
     <ProjectReference Include="..\JShibo.Serialization\JShibo.Serialization.csproj" />
   </ItemGroup>
