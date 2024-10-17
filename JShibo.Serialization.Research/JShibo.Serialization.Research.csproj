@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="fastJSON" Version="2.3.5.3" />
-    <PackageReference Include="MessagePack" Version="2.2.60" />
+    <PackageReference Include="MessagePack" Version="2.5.187" />
     <PackageReference Include="protobuf-net" Version="3.0.73" />
     <PackageReference Include="ServiceStack" Version="5.10.2" />
   </ItemGroup>
